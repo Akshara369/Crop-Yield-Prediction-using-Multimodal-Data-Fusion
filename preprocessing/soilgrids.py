@@ -1,7 +1,9 @@
 from pathlib import Path
+
 import pandas as pd
 import requests
-import time
+from io import BytesIO
+import rasterio
 
 
 # ============================================================
@@ -15,18 +17,10 @@ OUTPUT_PATH = ROOT / "datasets" / "state_soil_lookup.csv"
 
 
 # ============================================================
-# SOILGRIDS API
+# SOILGRIDS WCS
 # ============================================================
 
-SOILGRIDS_URL = (
-    "https://rest.isric.org/"
-    "soilgrids/v2.0/properties/query"
-)
-
-
-# ============================================================
-# SOIL PROPERTIES
-# ============================================================
+WCS_BASE_URL = "https://maps.isric.org/mapserv"
 
 PROPERTIES = [
     "phh2o",
@@ -39,118 +33,167 @@ PROPERTIES = [
 
 
 # ============================================================
-# GET SOIL DATA FOR ONE LOCATION
+# SOILGRIDS CONVERSION FACTORS
 # ============================================================
 
-def get_soil_data(latitude, longitude):
+CONVERSION_FACTORS = {
+    "phh2o": 10,
+    "nitrogen": 100,
+    "soc": 10,
+    "clay": 10,
+    "sand": 10,
+    "silt": 10
+}
 
-    params = [
-        ("lon", longitude),
-        ("lat", latitude),
 
-        ("property", "phh2o"),
-        ("property", "nitrogen"),
-        ("property", "soc"),
-        ("property", "clay"),
-        ("property", "sand"),
-        ("property", "silt"),
+# ============================================================
+# GET WCS COVERAGE
+# ============================================================
 
-        ("depth", "0-5cm"),
-        ("value", "mean")
-    ]
+def get_soil_property(
+    property_name,
+    latitude,
+    longitude
+):
 
-    headers = {
-        "User-Agent": "CropYieldPrediction/1.0"
+    map_path = f"/map/{property_name}.map"
+
+    coverage_id = (
+        f"{property_name}_0-5cm_Q0.5"
+    )
+
+    params = {
+        "SERVICE": "WCS",
+        "VERSION": "2.0.1",
+        "REQUEST": "GetCoverage",
+        "COVERAGEID": coverage_id,
+
+        # Return a GeoTIFF
+        "FORMAT": "GEOTIFF_INT16",
+
+        # Small area around the state point
+        "SUBSET": [
+            f"X({longitude - 0.01},{longitude + 0.01})",
+            f"Y({latitude - 0.01},{latitude + 0.01})"
+        ],
+
+        "SUBSETTINGCRS":
+            "http://www.opengis.net/def/crs/EPSG/0/4326",
+
+        "OUTPUTCRS":
+            "http://www.opengis.net/def/crs/EPSG/0/4326"
     }
 
+
+    url = WCS_BASE_URL
+
+    params["map"] = map_path
+
+
     response = requests.get(
-        SOILGRIDS_URL,
+        url,
         params=params,
-        headers=headers,
-        timeout=60
+        timeout=120
     )
 
     response.raise_for_status()
 
-    return response.json()
+
+    # --------------------------------------------------------
+    # Read returned GeoTIFF directly from memory
+    # --------------------------------------------------------
+
+    with rasterio.open(
+        BytesIO(response.content)
+    ) as dataset:
+
+        array = dataset.read(1)
+
+        nodata = dataset.nodata
+
+        # Remove NoData pixels
+        if nodata is not None:
+
+            valid = array[array != nodata]
+
+        else:
+
+            valid = array
+
+
+        if valid.size == 0:
+            return None
+
+
+        # Use the mean of the small area
+        value = float(valid.mean())
+
+
+    # --------------------------------------------------------
+    # Convert SoilGrids stored integer value
+    # --------------------------------------------------------
+
+    conversion_factor = (
+        CONVERSION_FACTORS[property_name]
+    )
+
+    value = value / conversion_factor
+
+
+    return value
 
 
 # ============================================================
-# EXTRACT 0-5 CM VALUES
+# GET ALL SOIL PROPERTIES FOR ONE STATE
 # ============================================================
 
-def extract_soil_values(data):
+def get_state_soil(
+    state,
+    latitude,
+    longitude
+):
 
-    result = {
-        "phh2o": None,
-        "nitrogen": None,
-        "soc": None,
-        "clay": None,
-        "sand": None,
-        "silt": None
-    }
+    result = {}
 
-    layers = data.get("properties", {}).get("layers", [])
+    print(
+        f"\nGetting soil data for {state}"
+    )
 
-    for layer in layers:
+    print(
+        f"Location: {latitude}, {longitude}"
+    )
 
-        name = layer.get("name")
 
-        if name not in result:
-            continue
+    for property_name in PROPERTIES:
 
-        depths = layer.get("depths", [])
+        print(
+            f"  → {property_name}"
+        )
 
-        for depth in depths:
+        try:
 
-            if depth.get("label") == "0-5cm":
+            value = get_soil_property(
+                property_name,
+                latitude,
+                longitude
+            )
 
-                values = depth.get("values", {})
+            result[property_name] = value
 
-                mean_value = values.get("mean")
+            print(
+                f"     {value}"
+            )
 
-                if mean_value is not None:
-                    result[name] = mean_value
+        except Exception as e:
 
-                break
+            print(
+                f"     ERROR: {e}"
+            )
+
+            result[property_name] = None
+
 
     return result
-
-
-# ============================================================
-# CONVERT SOILGRIDS VALUES TO CONVENTIONAL UNITS
-# ============================================================
-
-def convert_units(soil):
-
-    # SoilGrids stores integer-scaled values.
-    #
-    # phh2o   : divide by 10 → pH
-    # nitrogen: divide by 100 → g/kg
-    # soc     : divide by 10 → g/kg
-    # clay    : divide by 10 → %
-    # sand    : divide by 10 → %
-    # silt    : divide by 10 → %
-
-    if soil["phh2o"] is not None:
-        soil["phh2o"] = soil["phh2o"] / 10
-
-    if soil["nitrogen"] is not None:
-        soil["nitrogen"] = soil["nitrogen"] / 100
-
-    if soil["soc"] is not None:
-        soil["soc"] = soil["soc"] / 10
-
-    if soil["clay"] is not None:
-        soil["clay"] = soil["clay"] / 10
-
-    if soil["sand"] is not None:
-        soil["sand"] = soil["sand"] / 10
-
-    if soil["silt"] is not None:
-        soil["silt"] = soil["silt"] / 10
-
-    return soil
 
 
 # ============================================================
@@ -160,169 +203,122 @@ def convert_units(soil):
 def main():
 
     # --------------------------------------------------------
-    # 1. Load state coordinates created by nomination.py
+    # 1. Load existing state coordinates
     # --------------------------------------------------------
 
-    states = pd.read_csv(INPUT_PATH)
+    states = pd.read_csv(
+        INPUT_PATH
+    )
 
-    print("Loaded state coordinates:")
+
+    print(
+        "Loaded state coordinates:"
+    )
+
     print(states)
 
-    print("\nTotal states:", len(states))
+    print(
+        f"\nTotal states: {len(states)}"
+    )
 
 
     # --------------------------------------------------------
-    # 2. Prepare output
+    # 2. Store results
     # --------------------------------------------------------
 
     soil_results = []
 
 
     # --------------------------------------------------------
-    # 3. Query SoilGrids
+    # 3. Process every state
     # --------------------------------------------------------
 
-    for index, row in states.iterrows():
+    for _, row in states.iterrows():
 
         state = row["State"]
+
         latitude = row["Latitude"]
+
         longitude = row["Longitude"]
 
-        print("\n========================================")
-        print(f"State: {state}")
-        print(f"Latitude: {latitude}")
-        print(f"Longitude: {longitude}")
-        print("========================================")
 
-        # Skip states without coordinates
+        # Check coordinates
 
         if pd.isna(latitude) or pd.isna(longitude):
 
-            print("Skipping: coordinates missing")
-
-            soil_results.append({
-                "State": state,
-                "Latitude": latitude,
-                "Longitude": longitude,
-                "phh2o": None,
-                "nitrogen": None,
-                "soc": None,
-                "clay": None,
-                "sand": None,
-                "silt": None
-            })
+            print(
+                f"\nSkipping {state}: "
+                "coordinates missing"
+            )
 
             continue
 
 
-        try:
+        # ----------------------------------------------------
+        # Get soil properties
+        # ----------------------------------------------------
 
-            print("Requesting SoilGrids...")
-
-            data = get_soil_data(
-                latitude,
-                longitude
-            )
-
-            soil = extract_soil_values(data)
-
-            soil = convert_units(soil)
-
-
-            # Add geographic information
-
-            soil["State"] = state
-            soil["Latitude"] = latitude
-            soil["Longitude"] = longitude
-
-            soil_results.append(soil)
-
-
-            print("Soil data:")
-            print(soil)
-
-
-        except requests.exceptions.HTTPError as e:
-
-            print(
-                f"SoilGrids HTTP error for {state}: {e}"
-            )
-
-            soil_results.append({
-                "State": state,
-                "Latitude": latitude,
-                "Longitude": longitude,
-                "phh2o": None,
-                "nitrogen": None,
-                "soc": None,
-                "clay": None,
-                "sand": None,
-                "silt": None
-            })
-
-
-        except Exception as e:
-
-            print(
-                f"Error for {state}: {e}"
-            )
-
-            soil_results.append({
-                "State": state,
-                "Latitude": latitude,
-                "Longitude": longitude,
-                "phh2o": None,
-                "nitrogen": None,
-                "soc": None,
-                "clay": None,
-                "sand": None,
-                "silt": None
-            })
+        soil = get_state_soil(
+            state,
+            latitude,
+            longitude
+        )
 
 
         # ----------------------------------------------------
-        # SoilGrids fair-use limit
+        # Add state information
         # ----------------------------------------------------
 
-        # ISRIC recommends max 5 API calls per minute.
-        # Wait 13 seconds between requests.
+        result = {
 
-        time.sleep(13)
+            "State": state,
+
+            "Latitude": latitude,
+
+            "Longitude": longitude,
+
+            "phh2o": soil["phh2o"],
+
+            "nitrogen": soil["nitrogen"],
+
+            "soc": soil["soc"],
+
+            "clay": soil["clay"],
+
+            "sand": soil["sand"],
+
+            "silt": soil["silt"]
+
+        }
 
 
-    # --------------------------------------------------------
-    # 4. Create soil lookup DataFrame
-    # --------------------------------------------------------
-
-    soil_df = pd.DataFrame(soil_results)
-
-
-    # --------------------------------------------------------
-    # 5. Arrange columns
-    # --------------------------------------------------------
-
-    soil_df = soil_df[
-        [
-            "State",
-            "Latitude",
-            "Longitude",
-            "phh2o",
-            "nitrogen",
-            "soc",
-            "clay",
-            "sand",
-            "silt"
-        ]
-    ]
+        soil_results.append(result)
 
 
     # --------------------------------------------------------
-    # 6. Display final result
+    # 4. Create DataFrame
     # --------------------------------------------------------
 
-    print("\n========================================")
-    print("FINAL STATE SOIL LOOKUP")
-    print("========================================")
+    soil_df = pd.DataFrame(
+        soil_results
+    )
+
+
+    # --------------------------------------------------------
+    # 5. Display results
+    # --------------------------------------------------------
+
+    print(
+        "\n========================================"
+    )
+
+    print(
+        "FINAL STATE SOIL LOOKUP"
+    )
+
+    print(
+        "========================================"
+    )
 
     print(
         soil_df.to_string(index=False)
@@ -330,12 +326,20 @@ def main():
 
 
     # --------------------------------------------------------
-    # 7. Check missing soil values
+    # 6. Check missing values
     # --------------------------------------------------------
 
-    print("\n========================================")
-    print("MISSING VALUES")
-    print("========================================")
+    print(
+        "\n========================================"
+    )
+
+    print(
+        "MISSING VALUES"
+    )
+
+    print(
+        "========================================"
+    )
 
     print(
         soil_df.isna().sum()
@@ -343,7 +347,7 @@ def main():
 
 
     # --------------------------------------------------------
-    # 8. Save
+    # 7. Save
     # --------------------------------------------------------
 
     soil_df.to_csv(
@@ -351,11 +355,22 @@ def main():
         index=False
     )
 
-    print("\n========================================")
-    print("FILE SAVED")
-    print("========================================")
 
-    print(OUTPUT_PATH)
+    print(
+        "\n========================================"
+    )
+
+    print(
+        "FILE SAVED"
+    )
+
+    print(
+        "========================================"
+    )
+
+    print(
+        OUTPUT_PATH
+    )
 
 
 # ============================================================
