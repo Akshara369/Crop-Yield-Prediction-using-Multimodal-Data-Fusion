@@ -31,6 +31,14 @@ PROPERTIES = [
     "silt"
 ]
 
+SEARCH_WINDOWS = [
+    0.01,
+    0.03,
+    0.05,
+    0.10,
+    0.20
+]
+
 
 # ============================================================
 # SOILGRIDS CONVERSION FACTORS
@@ -62,85 +70,95 @@ def get_soil_property(
         f"{property_name}_0-5cm_Q0.5"
     )
 
-    params = {
-        "SERVICE": "WCS",
-        "VERSION": "2.0.1",
-        "REQUEST": "GetCoverage",
-        "COVERAGEID": coverage_id,
+    for window in SEARCH_WINDOWS:
 
-        # Return a GeoTIFF
-        "FORMAT": "GEOTIFF_INT16",
+        params = {
+            "SERVICE": "WCS",
+            "VERSION": "2.0.1",
+            "REQUEST": "GetCoverage",
+            "COVERAGEID": coverage_id,
 
-        # Small area around the state point
-        "SUBSET": [
-            f"X({longitude - 0.01},{longitude + 0.01})",
-            f"Y({latitude - 0.01},{latitude + 0.01})"
-        ],
+            # Return a GeoTIFF
+            "FORMAT": "GEOTIFF_INT16",
 
-        "SUBSETTINGCRS":
-            "http://www.opengis.net/def/crs/EPSG/0/4326",
+            # Area around the state point
+            "SUBSET": [
+                f"X({longitude - window},{longitude + window})",
+                f"Y({latitude - window},{latitude + window})"
+            ],
 
-        "OUTPUTCRS":
-            "http://www.opengis.net/def/crs/EPSG/0/4326"
-    }
+            "SUBSETTINGCRS":
+                "http://www.opengis.net/def/crs/EPSG/0/4326",
 
-
-    url = WCS_BASE_URL
-
-    params["map"] = map_path
+            "OUTPUTCRS":
+                "http://www.opengis.net/def/crs/EPSG/0/4326"
+        }
 
 
-    response = requests.get(
-        url,
-        params=params,
-        timeout=120
-    )
+        url = WCS_BASE_URL
 
-    response.raise_for_status()
+        params["map"] = map_path
 
 
-    # --------------------------------------------------------
-    # Read returned GeoTIFF directly from memory
-    # --------------------------------------------------------
+        response = requests.get(
+            url,
+            params=params,
+            timeout=120
+        )
 
-    with rasterio.open(
-        BytesIO(response.content)
-    ) as dataset:
-
-        array = dataset.read(1)
-
-        nodata = dataset.nodata
-
-        # Remove NoData pixels
-        if nodata is not None:
-
-            valid = array[array != nodata]
-
-        else:
-
-            valid = array
+        response.raise_for_status()
 
 
-        if valid.size == 0:
-            return None
+        # ----------------------------------------------------
+        # Read returned GeoTIFF directly from memory
+        # ----------------------------------------------------
+
+        with rasterio.open(
+            BytesIO(response.content)
+        ) as dataset:
+
+            array = dataset.read(1)
+
+            nodata = dataset.nodata
+
+            # Remove NoData pixels
+            if nodata is not None:
+
+                valid = array[array != nodata]
+
+            else:
+
+                valid = array.reshape(-1)
 
 
-        # Use the mean of the small area
-        value = float(valid.mean())
+            # Some tiny urban windows return zero-filled
+            # untagged NoData. Do not treat those as soil.
+            valid = valid[valid > 0]
 
 
-    # --------------------------------------------------------
-    # Convert SoilGrids stored integer value
-    # --------------------------------------------------------
-
-    conversion_factor = (
-        CONVERSION_FACTORS[property_name]
-    )
-
-    value = value / conversion_factor
+            if valid.size == 0:
+                continue
 
 
-    return value
+            # Use the mean of the valid area
+            value = float(valid.mean())
+
+
+        # ----------------------------------------------------
+        # Convert SoilGrids stored integer value
+        # ----------------------------------------------------
+
+        conversion_factor = (
+            CONVERSION_FACTORS[property_name]
+        )
+
+        value = value / conversion_factor
+
+
+        return value
+
+
+    return None
 
 
 # ============================================================
