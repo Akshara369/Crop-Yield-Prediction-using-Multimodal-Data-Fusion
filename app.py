@@ -21,44 +21,85 @@ st.markdown(
     """
     <style>
     .main-header {
-        font-size: 2.3rem;
+        font-size: 2.6rem;
         font-weight: 800;
-        color: #1E3A8A;
+        color: #123d8f;
         text-align: center;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.4rem;
+        letter-spacing: -0.04em;
     }
     .sub-header {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 500;
-        color: #4B5563;
+        color: #475569;
         text-align: center;
         margin-bottom: 1.5rem;
     }
+    .hero-badge {
+        display: inline-block;
+        margin: 0 auto 0.8rem auto;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #dbeafe, #dcfce7);
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
     .metric-card {
-        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-        border-radius: 12px;
-        padding: 1.2rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+        border-radius: 18px;
+        padding: 1.3rem;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
         text-align: center;
+        border: 1px solid rgba(148, 163, 184, 0.35);
         border-left: 5px solid #10B981;
     }
     .metric-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #111827;
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: #0f172a;
     }
     .metric-label {
         font-size: 0.9rem;
-        color: #6B7280;
-        font-weight: 600;
+        color: #475569;
+        font-weight: 700;
     }
     .section-card {
         background-color: #FFFFFF;
         padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         margin-bottom: 1rem;
-        border: 1px solid #E5E7EB;
+        border: 1px solid #E2E8F0;
+    }
+    .prediction-box {
+        background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
+        border: 1px solid #A7F3D0;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 12px 28px rgba(16, 185, 129, 0.12);
+    }
+    .stButton > button {
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        padding: 0.7rem 1.2rem !important;
+        background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+        border: none !important;
+        color: white !important;
+        box-shadow: 0 10px 22px rgba(34, 197, 94, 0.25) !important;
+    }
+    .stButton > button:hover {
+        filter: brightness(1.04);
+        box-shadow: 0 12px 22px rgba(34, 197, 94, 0.35) !important;
+    }
+    .sidebar-content .block-container {
+        padding-top: 1rem;
+    }
+    .dark-mode .prediction-box {
+        background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(59,130,246,0.14));
+        border: 1px solid rgba(16,185,129,0.35);
     }
     </style>
 """,
@@ -68,6 +109,116 @@ st.markdown(
 ROOT = Path(__file__).resolve().parent
 DATASETS_DIR = ROOT / "datasets"
 TEST_IMAGES_DIR = DATASETS_DIR / "test_images"
+MODEL_READY = False
+
+
+def apply_theme(dark_mode: bool):
+    if dark_mode:
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background: radial-gradient(circle at top, rgba(59,130,246,0.2), transparent 20%), linear-gradient(180deg, #020817 0%, #0f172a 100%);
+                color: #e5e7eb;
+            }
+            .main-header {
+                color: #dbeafe !important;
+            }
+            .sub-header {
+                color: #cbd5e1 !important;
+            }
+            .hero-badge {
+                background: linear-gradient(135deg, rgba(191,219,254,0.22), rgba(134,239,172,0.22)) !important;
+                color: #f8fafc !important;
+            }
+            .metric-card {
+                background: linear-gradient(135deg, #111827 0%, #1f2937 100%) !important;
+                border: 1px solid rgba(148, 163, 184, 0.18) !important;
+                border-left: 5px solid #34d399 !important;
+                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.6) !important;
+            }
+            .metric-value { color: #f9fafb !important; }
+            .metric-label { color: #cbd5e1 !important; }
+            .section-card {
+                background: #111827 !important;
+                border: 1px solid rgba(148, 163, 184, 0.25) !important;
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35) !important;
+            }
+            .block-container, .stDataFrame, .stMarkdown, .stTabs, .stSelectbox, .stSlider, .stNumberInput {
+                color: #e5e7eb !important;
+            }
+            .prediction-box {
+                background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(59,130,246,0.14)) !important;
+                border: 1px solid rgba(52, 211, 153, 0.35) !important;
+            }
+            .stButton > button {
+                background: linear-gradient(135deg, #10b981, #3b82f6) !important;
+                box-shadow: 0 12px 24px rgba(59,130,246,0.32) !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+                color: #0f172a;
+            }
+            .main-header { color: #1E3A8A !important; }
+            .sub-header { color: #4B5563 !important; }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def predict_crop_yield(crop, state, year, area, rainfall, fertilizer, pesticide, soil_ph, soil_carbon):
+    """Simple rule-based fallback used until the actual trained model is available."""
+    # Scale inputs to meaningful ranges observed in agricultural datasets.
+    area_norm = max((area - 20) / 60, 0)
+    rainfall_norm = max((rainfall - 600) / 1000, 0)
+    fertilizer_norm = max((fertilizer - 50) / 200, 0)
+    pesticide_norm = max((pesticide - 10) / 80, 0)
+    soil_ph_norm = 1 - abs(soil_ph - 6.5) / 4
+    soil_carbon_norm = max((soil_carbon - 5) / 20, 0)
+
+    if crop == "Rice":
+        base = 2.8
+        yield_est = (
+            base
+            + (0.70 * area_norm)
+            + (1.45 * rainfall_norm)
+            + (1.15 * fertilizer_norm)
+            + (0.35 * pesticide_norm)
+            + (1.10 * soil_ph_norm)
+            + (0.80 * soil_carbon_norm)
+        )
+    else:
+        base = 2.2
+        yield_est = (
+            base
+            + (0.80 * area_norm)
+            + (1.20 * rainfall_norm)
+            + (1.00 * fertilizer_norm)
+            + (0.45 * pesticide_norm)
+            + (1.05 * soil_ph_norm)
+            + (0.90 * soil_carbon_norm)
+        )
+
+    # Keep outputs realistic and plant-specific.
+    if crop == "Rice":
+        return max(1.2, min(9.5, yield_est))
+    return max(1.0, min(8.5, yield_est))
+
+
+# Theme defaults for a light-first experience.
+if "theme" not in st.session_state:
+    st.session_state.theme = "light"
+
+apply_theme(st.session_state.theme == "dark")
 
 
 # ============================================================
@@ -103,6 +254,10 @@ raw_df, coords_df, soil_df, sentinel_df, rice_df, maize_df = load_datasets()
 # HEADER & SIDEBAR NAVIGATION
 # ============================================================
 st.markdown(
+    '<div style="text-align: center;"><div class="hero-badge">Agricultural Intelligence</div></div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
     '<div class="main-header">🌾 Crop Yield Prediction Using Multimodal Data Fusion</div>',
     unsafe_allow_html=True,
 )
@@ -115,15 +270,20 @@ st.sidebar.image(
     "https://img.icons8.com/color/96/000000/wheat.png", width=70
 )
 st.sidebar.title("Navigation")
+st.sidebar.caption("Dashboard controls")
 menu_option = st.sidebar.radio(
     "Go to",
     [
         "📊 Project Overview & Data Insights",
         "🛰️ Satellite & Spatial Data Explorer",
-        "🔮 Multimodal Yield Predictor",
-        "🧠 Model Architecture & Fusion Metrics",
+        "🌾 Crop Yield Prediction",
+        "🧠 Project Pipeline & Architecture",
     ],
 )
+
+dark_mode = st.sidebar.toggle("🌙 Dark mode", value=st.session_state.theme == "dark")
+st.session_state.theme = "dark" if dark_mode else "light"
+apply_theme(dark_mode)
 
 # ============================================================
 # PAGE 1: OVERVIEW & DATA INSIGHTS
@@ -228,42 +388,94 @@ if menu_option == "📊 Project Overview & Data Insights":
             )
             st.plotly_chart(fig_scatter, use_container_width=True)
 
-        # State Coordinates Map
-        st.subheader("📍 Geospatial Distribution of Target States")
-        if not coords_df.empty:
-            if hasattr(px, "scatter_map"):
-                fig_map = px.scatter_map(
-                    coords_df,
-                    lat="Latitude",
-                    lon="Longitude",
-                    hover_name="State",
-                    zoom=3.8,
-                    center={"lat": 22.5937, "lon": 78.9629},
-                    height=450,
-                    color_discrete_sequence=["#2563EB"],
-                )
-            elif hasattr(px, "scatter_mapbox"):
-                fig_map = px.scatter_mapbox(
-                    coords_df,
-                    lat="Latitude",
-                    lon="Longitude",
-                    hover_name="State",
-                    zoom=3.8,
-                    center={"lat": 22.5937, "lon": 78.9629},
-                    mapbox_style="carto-positron",
-                    height=450,
-                    color_discrete_sequence=["#2563EB"],
-                )
-            else:
-                fig_map = px.scatter_geo(
-                    coords_df,
-                    lat="Latitude",
-                    lon="Longitude",
-                    hover_name="State",
-                    scope="asia",
-                    height=450,
-                )
-            st.plotly_chart(fig_map, use_container_width=True)
+        # Top States by Yield
+        st.subheader("🏆 Top 10 States by Average Yield")
+        if selected_state == "All States":
+            top_states = (
+                filtered_df.groupby("State")["Yield"]
+                .mean()
+                .nlargest(10)
+                .reset_index()
+            )
+            fig_top = px.bar(
+                top_states,
+                x="State",
+                y="Yield",
+                color="Yield",
+                color_continuous_scale="Greens",
+                title=f"Top 10 States – Average {selected_crop} Yield (tonnes/ha)",
+            )
+            st.plotly_chart(fig_top, use_container_width=True)
+        else:
+            st.info(f"Showing data for {selected_state} only. Select **All States** to compare.")
+
+        # Correlation Heatmap
+        st.subheader("🔥 Feature Correlation Heatmap")
+        numeric_cols = ["Area", "Production", "Annual_Rainfall", "Fertilizer", "Pesticide", "Yield"]
+        avail_cols = [c for c in numeric_cols if c in filtered_df.columns]
+        if len(avail_cols) > 2:
+            corr = filtered_df[avail_cols].corr()
+            fig_corr = px.imshow(
+                corr,
+                text_auto=".2f",
+                color_continuous_scale="RdBu_r",
+                title="Feature Correlation Matrix",
+                aspect="auto",
+            )
+            fig_corr.update_layout(height=450)
+            st.plotly_chart(fig_corr, use_container_width=True)
+
+        # Data Quality & Download
+        with st.expander("📋 Data Quality Report"):
+            dq1, dq2, dq3 = st.columns(3)
+            dq1.metric("Total Rows", f"{len(filtered_df):,}")
+            dq2.metric("Missing Values", f"{filtered_df.isnull().sum().sum()}")
+            dq3.metric("Duplicate Rows", f"{filtered_df.duplicated().sum()}")
+            st.dataframe(filtered_df.describe(), use_container_width=True)
+
+        st.download_button(
+            "📥 Download Filtered Data (CSV)",
+            filtered_df.to_csv(index=False),
+            file_name=f"{selected_crop}_{selected_state}_filtered.csv",
+            mime="text/csv",
+        )
+
+    # State Coordinates Map
+    st.subheader("📍 Geospatial Distribution of Target States")
+    if not coords_df.empty:
+        if hasattr(px, "scatter_map"):
+            fig_map = px.scatter_map(
+                coords_df,
+                lat="Latitude",
+                lon="Longitude",
+                hover_name="State",
+                zoom=3.8,
+                center={"lat": 22.5937, "lon": 78.9629},
+                height=450,
+                color_discrete_sequence=["#2563EB"],
+            )
+        elif hasattr(px, "scatter_mapbox"):
+            fig_map = px.scatter_mapbox(
+                coords_df,
+                lat="Latitude",
+                lon="Longitude",
+                hover_name="State",
+                zoom=3.8,
+                center={"lat": 22.5937, "lon": 78.9629},
+                mapbox_style="carto-positron",
+                height=450,
+                color_discrete_sequence=["#2563EB"],
+            )
+        else:
+            fig_map = px.scatter_geo(
+                coords_df,
+                lat="Latitude",
+                lon="Longitude",
+                hover_name="State",
+                scope="asia",
+                height=450,
+            )
+        st.plotly_chart(fig_map, use_container_width=True)
 
 # ============================================================
 # PAGE 2: SATELLITE & SPATIAL DATA EXPLORER
@@ -285,7 +497,7 @@ elif menu_option == "🛰️ Satellite & Spatial Data Explorer":
 
     with img_col1:
         st.subheader("📷 Sentinel-2 True-Color Optical Photo (10m Resolution)")
-        gee_s2_image_path = TEST_IMAGES_DIR / f"{state_slug}_{exp_year}_{crop_slug}_sentinel2_gee_rgb.png"
+        gee_s2_image_path = TEST_IMAGES_DIR / "rgb" / f"{state_slug}_{exp_year}_{crop_slug}_sentinel2_gee_rgb.png"
         old_s2_image_path = TEST_IMAGES_DIR / f"{state_slug}_{exp_year}_sentinel2_rgb.jpg"
         s2_image_path = gee_s2_image_path if gee_s2_image_path.exists() else old_s2_image_path
 
@@ -313,7 +525,7 @@ elif menu_option == "🛰️ Satellite & Spatial Data Explorer":
 
     with img_col2:
         st.subheader("🌡️ 4-Channel Environmental & Soil Spatial Heatmap")
-        ndvi_path = TEST_IMAGES_DIR / f"{state_slug}_{exp_year}_{crop_slug}_sentinel2_ndvi.png"
+        ndvi_path = TEST_IMAGES_DIR / "ndvi" / f"{state_slug}_{exp_year}_{crop_slug}_sentinel2_ndvi.png"
         heatmap_path = TEST_IMAGES_DIR / f"{state_slug}_{exp_year}_{crop_slug}_heatmap.png"
         default_heatmap = TEST_IMAGES_DIR / "punjab_2020_rice_heatmap.png"
 
@@ -385,86 +597,106 @@ elif menu_option == "🛰️ Satellite & Spatial Data Explorer":
             st.dataframe(soil_display, use_container_width=True)
 
 # ============================================================
-# PAGE 3: MULTIMODAL YIELD PREDICTOR
+# PAGE 3: CROP YIELD PREDICTION
 # ============================================================
-elif menu_option == "🔮 Multimodal Yield Predictor":
-    st.markdown("### 🔮 Interactive Multimodal Yield Inference Calculator")
-    st.info("Input tabular crop parameters and environmental conditions to predict expected yield (tonnes/ha).")
+elif menu_option == "🌾 Crop Yield Prediction":
+    st.markdown("### 🌾 Crop Yield Predictor")
+    st.info("This prediction panel is ready for the trained model. Until the model is trained, a rule-based fallback is used to validate the interface and user flow.")
 
-    p_col1, p_col2 = st.columns([1, 1])
+    prediction_col1, prediction_col2 = st.columns(2)
+    with prediction_col1:
+        selected_crop = st.selectbox("Crop", ["Rice", "Maize"], index=0)
+        selected_state = st.selectbox(
+            "State",
+            sorted(coords_df["State"].unique()) if not coords_df.empty else ["Punjab", "West Bengal", "Tamil Nadu"],
+            index=0,
+        )
+        selected_year = st.slider("Year", 1997, 2025, 2023)
+    with prediction_col2:
+        area_ha = st.number_input("Cultivated Area (hectares)", min_value=10.0, max_value=5000.0, value=250.0, step=5.0)
+        rainfall_mm = st.number_input("Annual Rainfall (mm)", min_value=200.0, max_value=3000.0, value=1200.0, step=25.0)
 
-    with p_col1:
-        st.subheader("📋 Input Tabular Parameters")
-        input_state = st.selectbox("State", sorted(coords_df["State"].unique()) if not coords_df.empty else ["Punjab"])
-        input_crop = st.selectbox("Target Crop", ["Rice", "Maize"])
-        input_season = st.selectbox("Season", ["Kharif", "Rabi", "Whole Year", "Autumn", "Summer"])
+    soil_col1, soil_col2, soil_col3 = st.columns(3)
+    with soil_col1:
+        fertilizer_kg = st.number_input("Fertilizer (kg/ha)", min_value=0.0, max_value=500.0, value=150.0, step=5.0)
+    with soil_col2:
+        pesticide_kg = st.number_input("Pesticide (kg/ha)", min_value=0.0, max_value=200.0, value=30.0, step=2.0)
+    with soil_col3:
+        soil_ph = st.number_input("Soil pH", min_value=3.0, max_value=9.5, value=6.5, step=0.1)
 
-        input_area = st.number_input("Cultivated Area (Hectares)", min_value=100.0, max_value=5000000.0, value=250000.0, step=5000.0)
-        input_rainfall = st.slider("Annual Rainfall (mm)", min_value=100.0, max_value=4000.0, value=1200.0)
-        input_fertilizer = st.slider("Fertilizer Usage (kg/ha)", min_value=10.0, max_value=400.0, value=115.0)
-        input_pesticide = st.slider("Pesticide Usage (kg/ha)", min_value=0.05, max_value=5.0, value=0.45)
+    soc_value = st.number_input("Soil Organic Carbon (g/kg)", min_value=1.0, max_value=60.0, value=18.0, step=1.0)
 
-        use_satellite_features = st.checkbox("Fuse Sentinel-2 Satellite Canopy Image Features", value=True)
-
-    with p_col2:
-        st.subheader("🤖 Multimodal Inference Output")
-
-        # Heuristic / Model-calibrated Yield Inference Calculation
-        base_yield = 2.2 if input_crop == "Rice" else 2.8
-        rain_factor = np.clip(input_rainfall / 1200.0, 0.7, 1.3)
-        fert_factor = np.clip(input_fertilizer / 100.0, 0.8, 1.4)
-        sat_boost = 1.12 if use_satellite_features else 1.0
-
-        predicted_yield = base_yield * rain_factor * fert_factor * sat_boost
-        total_production = predicted_yield * input_area
-
-        st.markdown(
-            f"""
-            <div style="background-color: #ECFDF5; padding: 1.5rem; border-radius: 12px; border-left: 6px solid #10B981; margin-bottom: 1.5rem;">
-                <h3 style="color: #065F46; margin-0;">Predicted Crop Yield</h3>
-                <h1 style="color: #047857; margin-0; font-size: 2.8rem;">{predicted_yield:.2f} <span style="font-size: 1.2rem;">tonnes / hectare</span></h1>
-                <p style="color: #047857; margin-top: 0.5rem;">Estimated Total Production: <b>{total_production:,.0f} tonnes</b></p>
-            </div>
-        """,
-            unsafe_allow_html=True,
+    if st.button("Predict Crop Yield", type="primary"):
+        predicted_yield = predict_crop_yield(
+            selected_crop,
+            selected_state,
+            selected_year,
+            area_ha,
+            rainfall_mm,
+            fertilizer_kg,
+            pesticide_kg,
+            soil_ph,
+            soc_value,
         )
 
-        # Feature Importance Breakdown
-        st.markdown("#### 📊 Feature Contribution Breakdown")
-        feat_df = pd.DataFrame(
+        st.markdown("<div class='prediction-box'>", unsafe_allow_html=True)
+        colA, colB, colC = st.columns(3)
+        with colA:
+            st.metric("Predicted Yield", f"{predicted_yield:.2f} tonnes/ha")
+        with colB:
+            status_text = "Ready for training" if not MODEL_READY else "Model active"
+            st.metric("Model Status", status_text)
+        with colC:
+            st.metric("Crop", selected_crop)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("---")
+        st.subheader("Prediction Interpretation")
+        st.write(
+            "The prediction is influenced mainly by rainfall, fertilizer intensity, soil condition, and crop type. "
+            "Replace the rule-based fallback with the trained model weights once the model pipeline has been finalized."
+        )
+
+        scenario_df = pd.DataFrame(
             {
-                "Feature Stream": ["Fertilizer & Pesticide", "Annual Rainfall", "Sentinel-2 Canopy NDVI", "Soil Geochemistry"],
-                "Contribution (%)": [35, 30, 23, 12],
+                "Feature": ["Area", "Rainfall", "Fertilizer", "Pesticide", "Soil pH", "Organic Carbon"],
+                "Value": [area_ha, rainfall_mm, fertilizer_kg, pesticide_kg, soil_ph, soc_value],
             }
         )
-        fig_feat = px.bar(
-            feat_df,
-            x="Contribution (%)",
-            y="Feature Stream",
-            orientation="h",
-            color="Contribution (%)",
-            color_continuous_scale="Viridis",
-        )
-        st.plotly_chart(fig_feat, use_container_width=True)
+        st.dataframe(scenario_df, use_container_width=True)
+    else:
+        st.markdown("### 🔍 Live preview")
+        st.caption("Enter the crop and field conditions, then click Predict Crop Yield to see the estimate.")
 
 # ============================================================
-# PAGE 4: MODEL ARCHITECTURE & FUSION METRICS
+# PAGE 4: PROJECT PIPELINE & ARCHITECTURE
 # ============================================================
-elif menu_option == "🧠 Model Architecture & Fusion Metrics":
-    st.markdown("### 🧠 Dual-Stream Multimodal Fusion Architecture")
+elif menu_option == "🧠 Project Pipeline & Architecture":
+    st.markdown("### 🧠 Project Pipeline & Proposed Architecture")
 
-    st.markdown(
-        """
-        The model architecture combines **structured tabular agricultural drivers** with **unstructured multi-spectral spatial imagery**:
-    """
-    )
+    # Project Status
+    st.markdown("#### 🚦 Development Status")
+    phases = [
+        ("📦 Raw Data Collection (Crop Yield, Rainfall, Fertilizer)", "✅ Complete"),
+        ("🛰️ Sentinel-2 Satellite Imagery via GEE Pipeline", "✅ Complete"),
+        ("🧪 SoilGrids Geochemical Data Extraction", "✅ Complete"),
+        ("⚙️ Data Preprocessing & Feature Engineering", "✅ Complete"),
+        ("📊 Exploratory Data Analysis Dashboard", "✅ Complete"),
+        ("🤖 Model Training & Evaluation", "🔧 In Progress"),
+        ("🔗 Multimodal Fusion Implementation", "📋 Planned"),
+    ]
+    for phase, status in phases:
+        st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;{status} &ensp; {phase}")
 
+    st.markdown("---")
+
+    # Architecture
     m_col1, m_col2 = st.columns(2)
 
     with m_col1:
         st.markdown(
             """
-            #### 🏢 Dual-Stream Pipeline
+            #### 🏢 Proposed Dual-Stream Pipeline
             1. **Tabular Stream (MLP Branch)**:
                * Inputs: Area, Rainfall, Fertilizer/ha, Pesticide/ha, Soil pH/SOC.
                * Architecture: 3-Layer Dense MLP with BatchNorm & Dropout.
@@ -473,31 +705,48 @@ elif menu_option == "🧠 Model Architecture & Fusion Metrics":
                * Architecture: ResNet-18 Backbone pretrained on Remote Sensing imagery.
             3. **Multimodal Fusion Head**:
                * Concatenation of Tabular Embeddings (64-dim) + Vision Feature Vector (128-dim).
-               * Dense Regression Layers -> Predict Yield (tonnes/ha).
+               * Dense Regression Layers → Predict Yield (tonnes/ha).
         """
         )
 
     with m_col2:
-        st.markdown("#### 🏆 Performance Comparison (Tabular vs Multimodal Fusion)")
-        comp_data = pd.DataFrame(
+        st.markdown("#### 📊 Data Readiness Summary")
+        ready_col1, ready_col2 = st.columns(2)
+        ready_col1.metric("Rice Samples", f"{len(rice_df):,}" if not rice_df.empty else "0")
+        ready_col2.metric("Maize Samples", f"{len(maize_df):,}" if not maize_df.empty else "0")
+
+        ready_col3, ready_col4 = st.columns(2)
+        ready_col3.metric("Satellite Feature Rows", f"{len(sentinel_df):,}" if not sentinel_df.empty else "0")
+        ready_col4.metric("Soil Profiles", f"{len(soil_df):,}" if not soil_df.empty else "0")
+
+        st.markdown("#### 🗂️ Multimodal Feature Summary")
+        feature_summary = pd.DataFrame(
             {
-                "Model Approach": ["Tabular MLP Baseline", "Random Forest (Tabular)", "ResNet-18 (Images Only)", "Multimodal Data Fusion (Ours)"],
-                "R² Score": [0.74, 0.81, 0.68, 0.93],
-                "RMSE (tonnes/ha)": [0.58, 0.49, 0.64, 0.28],
-                "MAE (tonnes/ha)": [0.42, 0.35, 0.48, 0.19],
+                "Data Source": ["Tabular (Crop Yield)", "Sentinel-2 Imagery", "SoilGrids"],
+                "Key Features": [
+                    "Area, Production, Rainfall, Fertilizer, Pesticide, Season, State",
+                    "NDVI, EVI, NDWI, NDRE, NIR, RED_EDGE (mean/std/min/max)",
+                    "pH, Nitrogen, SOC, Clay%, Sand%, Silt%",
+                ],
+                "Records": [
+                    f"{len(raw_df):,}" if not raw_df.empty else "—",
+                    f"{len(sentinel_df):,}" if not sentinel_df.empty else "—",
+                    f"{len(soil_df):,}" if not soil_df.empty else "—",
+                ],
             }
         )
-        st.dataframe(comp_data, use_container_width=True)
+        st.dataframe(feature_summary, use_container_width=True, hide_index=True)
 
-        fig_comp = px.bar(
-            comp_data,
-            x="Model Approach",
-            y="R² Score",
-            color="R² Score",
-            title="Model R² Score Comparison (Higher is Better)",
-            color_continuous_scale="Greens",
-        )
-        st.plotly_chart(fig_comp, use_container_width=True)
+    st.markdown("---")
+    st.markdown("#### 🎯 Next Steps")
+    st.markdown(
+        """
+    1. **Baseline Models** — Train Random Forest & XGBoost on tabular features; evaluate R², RMSE, MAE.
+    2. **CNN Feature Extractor** — Fine-tune ResNet-18 on Sentinel-2 NDVI/RGB patches per state.
+    3. **Multimodal Fusion** — Concatenate tabular embeddings + CNN features; train fusion regression head.
+    4. **Evaluation** — Compare tabular-only vs vision-only vs fused model performance on held-out test set.
+    """
+    )
 
 # Footer
 st.markdown("---")
