@@ -8,12 +8,9 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 COORDS_PATH = ROOT / "datasets" / "state_coordinates.csv"
-FEATURES_PATH = ROOT / "datasets" / "sentinel2_features.csv"
+FEATURES_PATH = ROOT / "datasets" / "harmonized_satellite_features.csv"
 OUTPUT_DIR = ROOT / "datasets" / "test_images"
-RGB_OUTPUT_DIR = OUTPUT_DIR / "rgb"
-NDVI_OUTPUT_DIR = OUTPUT_DIR / "ndvi"
-RGB_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-NDVI_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+COMMON_BANDS = ["BLUE", "GREEN", "RED", "NIR"]
 
 
 def slug(value: str) -> str:
@@ -86,13 +83,11 @@ def add_cloud_score_mask(ee, s2_collection, region, start_date: str, end_date: s
     return ee.ImageCollection(joined).map(mask_image)
 
 
-def add_vegetation_indices(ee, image):
-    scaled = image.select(["B2", "B3", "B4", "B5", "B8"]).divide(10000)
-    blue = scaled.select("B2")
-    green = scaled.select("B3")
-    red = scaled.select("B4")
-    red_edge = scaled.select("B5")
-    nir = scaled.select("B8")
+def add_common_vegetation_indices(ee, image):
+    blue = image.select("BLUE")
+    green = image.select("GREEN")
+    red = image.select("RED")
+    nir = image.select("NIR")
 
     ndvi = nir.subtract(red).divide(nir.add(red)).rename("NDVI")
     evi = (
@@ -102,9 +97,61 @@ def add_vegetation_indices(ee, image):
         .rename("EVI")
     )
     ndwi = green.subtract(nir).divide(green.add(nir)).rename("NDWI")
-    ndre = nir.subtract(red_edge).divide(nir.add(red_edge)).rename("NDRE")
+    return image.addBands([ndvi, evi, ndwi])
 
-    return image.addBands([ndvi, evi, ndwi, ndre, nir.rename("NIR"), red_edge.rename("RED_EDGE")])
+
+def mask_and_standardize_landsat(ee, image, source_bands: list[str]):
+    qa = image.select("QA_PIXEL")
+    clear = (
+        qa.bitwiseAnd(1).eq(0)
+        .And(qa.bitwiseAnd(1 << 1).eq(0))
+        .And(qa.bitwiseAnd(1 << 3).eq(0))
+        .And(qa.bitwiseAnd(1 << 4).eq(0))
+        .And(qa.bitwiseAnd(1 << 5).eq(0))
+    )
+    return (
+        image.updateMask(clear)
+        .updateMask(image.select("QA_RADSAT").eq(0))
+        .select(source_bands)
+        .multiply(0.0000275)
+        .add(-0.2)
+        .rename(COMMON_BANDS)
+    )
+
+
+def sentinel2_collection(ee, region, start_date: str, end_date: str, max_scene_cloud: int, cloud_score_threshold: float):
+    raw_collection = (
+        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+        .filterDate(start_date, end_date)
+        .filterBounds(region)
+        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", max_scene_cloud))
+        .select(["B2", "B3", "B4", "B8"])
+    )
+    masked_collection = add_cloud_score_mask(
+        ee, raw_collection, region, start_date, end_date, cloud_score_threshold
+    )
+    return raw_collection, masked_collection.map(
+        lambda image: image.select(["B2", "B3", "B4", "B8"]).divide(10000).rename(COMMON_BANDS)
+    ), "Sentinel-2 SR", 20
+
+
+def landsat_collection(ee, year: int, region, start_date: str, end_date: str, max_scene_cloud: int):
+    def filtered(collection_id: str, source_bands: list[str]):
+        return (
+            ee.ImageCollection(collection_id)
+            .filterDate(start_date, end_date)
+            .filterBounds(region)
+            .filter(ee.Filter.lt("CLOUD_COVER", max_scene_cloud))
+            .map(lambda image: mask_and_standardize_landsat(ee, image, source_bands))
+        )
+
+    if year <= 2012:
+        landsat5 = filtered("LANDSAT/LT05/C02/T1_L2", ["SR_B1", "SR_B2", "SR_B3", "SR_B4"])
+        landsat7 = filtered("LANDSAT/LE07/C02/T1_L2", ["SR_B1", "SR_B2", "SR_B3", "SR_B4"])
+        return landsat5.merge(landsat7), "Landsat 5/7 SR", 30
+
+    landsat8 = filtered("LANDSAT/LC08/C02/T1_L2", ["SR_B2", "SR_B3", "SR_B4", "SR_B5"])
+    return landsat8, "Landsat 8 SR", 30
 
 
 def download_file(url: str, path: Path) -> None:
@@ -137,26 +184,24 @@ def fetch_sentinel2_gee_features(
         [lon - buffer_degree, lat - buffer_degree, lon + buffer_degree, lat + buffer_degree]
     )
 
-    collection = (
-        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
-        .filterDate(start_date, end_date)
-        .filterBounds(region)
-        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", max_scene_cloud))
-        .select(["B2", "B3", "B4", "B5", "B8"])
-    )
+    if year >= 2017:
+        raw_collection, collection, satellite_source, scale = sentinel2_collection(
+            ee, region, start_date, end_date, max_scene_cloud, cloud_score_threshold
+        )
+    else:
+        collection, satellite_source, scale = landsat_collection(
+            ee, year, region, start_date, end_date, max_scene_cloud
+        )
+        raw_collection = collection
 
-    image_count = collection.size().getInfo()
+    image_count = raw_collection.size().getInfo()
     if image_count == 0:
-        raise RuntimeError(f"No Sentinel-2 scenes found for {state_name} in {start_date} to {end_date}")
-    print(f"[INFO] Found {image_count} scenes. Building cloud-masked composite...")
+        raise RuntimeError(f"No {satellite_source} scenes found for {state_name} in {start_date} to {end_date}")
+    print(f"[INFO] Found {image_count} {satellite_source} scenes. Building cloud-masked composite...")
 
-    masked_collection = add_cloud_score_mask(
-        ee, collection, region, start_date, end_date, cloud_score_threshold
-    ).map(lambda image: add_vegetation_indices(ee, image))
+    composite = collection.map(lambda image: add_common_vegetation_indices(ee, image)).median().clip(region)
 
-    composite = masked_collection.median().clip(region)
-
-    stat_bands = ["NDVI", "EVI", "NDWI", "NDRE", "NIR", "RED_EDGE"]
+    stat_bands = ["NDVI", "EVI", "NDWI", "BLUE", "GREEN", "RED", "NIR"]
     reducer = ee.Reducer.mean().combine(
         reducer2=ee.Reducer.stdDev(), sharedInputs=True
     ).combine(
@@ -165,21 +210,26 @@ def fetch_sentinel2_gee_features(
     stats = composite.select(stat_bands).reduceRegion(
         reducer=reducer,
         geometry=region,
-        scale=20,
+        scale=scale,
         bestEffort=True,
         maxPixels=1_000_000_000,
     ).getInfo()
     print("[INFO] Feature statistics calculated. Downloading RGB and NDVI previews...")
 
     prefix = f"{slug(state_name)}_{year}_{slug(crop)}"
-    rgb_path = RGB_OUTPUT_DIR / f"{prefix}_sentinel2_gee_rgb.png"
-    ndvi_path = NDVI_OUTPUT_DIR / f"{prefix}_sentinel2_ndvi.png"
+    year_output_dir = OUTPUT_DIR / str(year)
+    rgb_output_dir = year_output_dir / "rgb"
+    ndvi_output_dir = year_output_dir / "ndvi"
+    rgb_output_dir.mkdir(parents=True, exist_ok=True)
+    ndvi_output_dir.mkdir(parents=True, exist_ok=True)
+    rgb_path = rgb_output_dir / f"{prefix}_rgb.png"
+    ndvi_path = ndvi_output_dir / f"{prefix}_ndvi.png"
 
     rgb_url = composite.getThumbURL(
         {
-            "bands": ["B4", "B3", "B2"],
+            "bands": ["RED", "GREEN", "BLUE"],
             "min": 0,
-            "max": 3000,
+            "max": 0.3,
             "dimensions": dimensions,
             "region": region,
             "format": "png",
@@ -210,6 +260,7 @@ def fetch_sentinel2_gee_features(
         "Start_Date": start_date,
         "End_Date": end_date,
         "Image_Count": image_count,
+        "Satellite_Source": satellite_source,
         "Cloud_Score_Threshold": cloud_score_threshold,
         "Buffer_Degree": buffer_degree,
         "RGB_Image": str(rgb_path.relative_to(ROOT)),
@@ -236,7 +287,31 @@ def save_feature_rows(rows: list[dict], path: Path = FEATURES_PATH) -> None:
         merged = new_df.sort_values(["State", "Crop", "Year"])
 
     merged.to_csv(path, index=False)
-    print(f"[SUCCESS] Sentinel-2 feature table saved to: {path}")
+    print(f"[SUCCESS] Harmonized satellite feature table saved to: {path}")
+
+
+def target_key(state: str, crop: str, year: int, season: str | None) -> tuple[str, str, int, str]:
+    return (
+        state.strip().casefold(),
+        crop.strip().casefold(),
+        int(year),
+        (season or "").strip().casefold(),
+    )
+
+
+def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int, str]]:
+    if not path.exists():
+        return set()
+
+    completed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year", "Season"}
+    if not required_columns.issubset(completed.columns):
+        return set()
+
+    return {
+        target_key(row.State, row.Crop, row.Year, row.Season)
+        for row in completed[["State", "Crop", "Year", "Season"]].itertuples(index=False)
+    }
 
 
 def load_targets_from_crop_yield(crops: Iterable[str], years: Iterable[int] | None) -> pd.DataFrame:
@@ -271,7 +346,7 @@ def parse_years(years_arg: str | None) -> list[int] | None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Fetch clean Sentinel-2 GEE composites and vegetation features."
+        description="Fetch harmonized Landsat/Sentinel-2 composites and vegetation features."
     )
     parser.add_argument("--state", default="Punjab", help="State name, or ALL for every state.")
     parser.add_argument("--crop", default="Rice", help="Crop name.")
@@ -285,10 +360,10 @@ def main() -> None:
     parser.add_argument("--dimensions", type=int, default=768, help="Output image size in pixels.")
     parser.add_argument("--cloud-score-threshold", type=float, default=0.6, help="Cloud Score+ cs_cdf mask threshold.")
     parser.add_argument("--ee-project", default=None, help="Google Cloud project ID registered for Earth Engine.")
+    parser.add_argument("--resume", action="store_true", help="Skip targets already saved in harmonized_satellite_features.csv.")
     args = parser.parse_args()
 
     coords_df = pd.read_csv(COORDS_PATH)
-    rows: list[dict] = []
 
     if args.from_crop_yield:
         crops = [crop.strip() for crop in args.crops.split(",") if crop.strip()]
@@ -307,6 +382,21 @@ def main() -> None:
                 for state in states
             ]
         )
+
+    if args.resume:
+        completed = completed_target_keys()
+        pending = []
+        for _, target in targets.iterrows():
+            key = target_key(
+                str(target["State"]),
+                str(target["Crop"]),
+                int(target["Crop_Year"]),
+                str(target["Season"]) if pd.notna(target["Season"]) else None,
+            )
+            if key not in completed:
+                pending.append(target)
+        targets = pd.DataFrame(pending, columns=targets.columns)
+        print(f"[INFO] Resume mode: {len(completed)} completed targets found; {len(targets)} remain.")
 
     for _, target in targets.iterrows():
         state_name = str(target["State"]).strip()
@@ -334,12 +424,9 @@ def main() -> None:
                 cloud_score_threshold=args.cloud_score_threshold,
                 ee_project=args.ee_project,
             )
-            rows.append(row)
+            save_feature_rows([row])
         except Exception as exc:
             print(f"[FAILED] {state_name} {year} {crop}: {exc}")
-
-    save_feature_rows(rows)
-
 
 if __name__ == "__main__":
     main()
