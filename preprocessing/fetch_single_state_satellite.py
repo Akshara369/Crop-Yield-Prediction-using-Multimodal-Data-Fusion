@@ -135,13 +135,12 @@ def sentinel2_collection(ee, region, start_date: str, end_date: str, max_scene_c
     ), "Sentinel-2 SR", 20
 
 
-def landsat_collection(ee, year: int, region, start_date: str, end_date: str, max_scene_cloud: int):
+def landsat_collection(ee, year: int, region, start_date: str, end_date: str):
     def filtered(collection_id: str, source_bands: list[str]):
         return (
             ee.ImageCollection(collection_id)
             .filterDate(start_date, end_date)
             .filterBounds(region)
-            .filter(ee.Filter.lt("CLOUD_COVER", max_scene_cloud))
             .map(lambda image: mask_and_standardize_landsat(ee, image, source_bands))
         )
 
@@ -178,7 +177,7 @@ def fetch_sentinel2_gee_features(
     ee = initialize_earth_engine(ee_project)
     months = season_window(crop, season)
     start_date, end_date = date_range_for_season(year, months)
-    print(f"[INFO] Searching Sentinel-2 scenes from {start_date} to {end_date}...")
+    print(f"[INFO] Searching satellite scenes from {start_date} to {end_date}...")
 
     region = ee.Geometry.Rectangle(
         [lon - buffer_degree, lat - buffer_degree, lon + buffer_degree, lat + buffer_degree]
@@ -189,9 +188,7 @@ def fetch_sentinel2_gee_features(
             ee, region, start_date, end_date, max_scene_cloud, cloud_score_threshold
         )
     else:
-        collection, satellite_source, scale = landsat_collection(
-            ee, year, region, start_date, end_date, max_scene_cloud
-        )
+        collection, satellite_source, scale = landsat_collection(ee, year, region, start_date, end_date)
         raw_collection = collection
 
     image_count = raw_collection.size().getInfo()
@@ -216,7 +213,7 @@ def fetch_sentinel2_gee_features(
     ).getInfo()
     print("[INFO] Feature statistics calculated. Downloading RGB and NDVI previews...")
 
-    prefix = f"{slug(state_name)}_{year}_{slug(crop)}"
+    prefix = f"{slug(state_name)}_{year}_{slug(crop)}_{slug(season or 'kharif')}"
     year_output_dir = OUTPUT_DIR / str(year)
     rgb_output_dir = year_output_dir / "rgb"
     ndvi_output_dir = year_output_dir / "ndvi"
