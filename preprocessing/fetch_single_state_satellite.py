@@ -338,7 +338,11 @@ def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int
     }
 
 
-def load_targets_from_crop_yield(crops: Iterable[str], years: Iterable[int] | None) -> pd.DataFrame:
+def load_targets_from_crop_yield(
+    crops: Iterable[str],
+    years: Iterable[int] | None,
+    seasons: Iterable[str] | None = None,
+) -> pd.DataFrame:
     crop_yield_path = ROOT / "datasets" / "crop_yield.csv"
     df = pd.read_csv(crop_yield_path)
     df.columns = df.columns.str.strip()
@@ -347,6 +351,9 @@ def load_targets_from_crop_yield(crops: Iterable[str], years: Iterable[int] | No
 
     crop_set = {crop.casefold() for crop in crops}
     target = df[df["Crop"].str.casefold().isin(crop_set)].copy()
+    if seasons:
+        season_set = {season.strip().casefold() for season in seasons}
+        target = target[target["Season"].str.casefold().isin(season_set)]
     if years:
         year_set = set(years)
         target = target[target["Crop_Year"].isin(year_set)]
@@ -379,6 +386,7 @@ def main() -> None:
     parser.add_argument("--all-states", action="store_true", help="Process every state in state_coordinates.csv.")
     parser.add_argument("--from-crop-yield", action="store_true", help="Use crop_yield.csv state/crop/year/season rows.")
     parser.add_argument("--crops", default="Rice,Maize", help="Comma-separated crops for --from-crop-yield.")
+    parser.add_argument("--seasons", default=None, help="Comma-separated seasons for --from-crop-yield, e.g. Kharif,Rabi.")
     parser.add_argument("--years", default=None, help="Years for --from-crop-yield, e.g. 2018-2020 or 2020.")
     parser.add_argument("--buffer-degree", type=float, default=0.25, help="Region radius around the centroid.")
     parser.add_argument("--dimensions", type=int, default=768, help="Output image size in pixels.")
@@ -391,8 +399,9 @@ def main() -> None:
 
     if args.from_crop_yield:
         crops = [crop.strip() for crop in args.crops.split(",") if crop.strip()]
+        seasons = [season.strip() for season in args.seasons.split(",") if season.strip()] if args.seasons else None
         years = parse_years(args.years)
-        targets = load_targets_from_crop_yield(crops, years)
+        targets = load_targets_from_crop_yield(crops, years, seasons)
     else:
         states = coords_df["State"].tolist() if args.all_states or args.state.casefold() == "all" else [args.state]
         targets = pd.DataFrame(
