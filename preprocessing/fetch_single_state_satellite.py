@@ -183,15 +183,25 @@ def fetch_sentinel2_gee_features(
         [lon - buffer_degree, lat - buffer_degree, lon + buffer_degree, lat + buffer_degree]
     )
 
-    if year >= 2017:
+    using_sentinel = year >= 2017
+    if using_sentinel:
         raw_collection, collection, satellite_source, scale = sentinel2_collection(
             ee, region, start_date, end_date, max_scene_cloud, cloud_score_threshold
         )
+        image_count = raw_collection.size().getInfo()
+        if image_count == 0:
+            print(f"[INFO] No Sentinel-2 scenes; trying Landsat 8 for {state_name} {year}...")
+            collection, satellite_source, scale = landsat_collection(
+                ee, year, region, start_date, end_date
+            )
+            raw_collection = collection
+            image_count = raw_collection.size().getInfo()
+            using_sentinel = False
     else:
         collection, satellite_source, scale = landsat_collection(ee, year, region, start_date, end_date)
         raw_collection = collection
+        image_count = raw_collection.size().getInfo()
 
-    image_count = raw_collection.size().getInfo()
     if image_count == 0:
         raise RuntimeError(f"No {satellite_source} scenes found for {state_name} in {start_date} to {end_date}")
     print(f"[INFO] Found {image_count} {satellite_source} scenes. Building cloud-masked composite...")
@@ -211,6 +221,23 @@ def fetch_sentinel2_gee_features(
         bestEffort=True,
         maxPixels=1_000_000_000,
     ).getInfo()
+    if using_sentinel and not any(value is not None for value in stats.values()):
+        print(f"[INFO] Sentinel-2 composite has no valid pixels; trying Landsat 8 for {state_name} {year}...")
+        collection, satellite_source, scale = landsat_collection(
+            ee, year, region, start_date, end_date
+        )
+        raw_collection = collection
+        image_count = raw_collection.size().getInfo()
+        if image_count == 0:
+            raise RuntimeError(f"No Landsat 8 scenes found for {state_name} in {start_date} to {end_date}")
+        composite = collection.map(lambda image: add_common_vegetation_indices(ee, image)).median().clip(region)
+        stats = composite.select(stat_bands).reduceRegion(
+            reducer=reducer,
+            geometry=region,
+            scale=scale,
+            bestEffort=True,
+            maxPixels=1_000_000_000,
+        ).getInfo()
     print("[INFO] Feature statistics calculated. Downloading RGB and NDVI previews...")
 
     prefix = f"{slug(state_name)}_{year}_{slug(crop)}_{slug(season or 'kharif')}"
