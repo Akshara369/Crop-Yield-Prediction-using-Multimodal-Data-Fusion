@@ -207,6 +207,36 @@ cannot help; the current result only shows that this CNN baseline is not
 ready to replace the tabular model. See `models/cnn_image_baseline_metrics.json`
 and `models/cnn_image_baseline_test_predictions.csv` for the full evaluation.
 
+### Image Summary-Feature Experiment
+
+To compare simpler image-only methods on the same aligned samples, run:
+
+```bash
+python preprocessing/run_image_feature_baselines.py
+```
+
+The script extracts per-channel means, standard deviations, quantiles,
+histograms, and coarse spatial-cell means from RGB and rendered NDVI PNGs.
+For each image view (RGB, NDVI, and combined), it selects a regressor by
+validation MAE only, then reports its test metrics. It also records the
+existing CNN and tabular results on the same test rows. The current selected
+test results are:
+
+| Input / model selected on validation | Test RMSE | Test MAE | Test R2 |
+| --- | ---: | ---: | ---: |
+| RGB / Extra Trees | 1.1762 | 0.7446 | 0.2935 |
+| NDVI PNG / Extra Trees | 1.0987 | 0.7723 | 0.3836 |
+| RGB + NDVI PNG / Ridge (alpha=10) | 1.1226 | 0.7639 | 0.3565 |
+| RGB + NDVI CNN | 1.3560 | 0.9282 | 0.0610 |
+| Tabular Gradient Boosting | 0.7936 | 0.5489 | 0.6784 |
+
+These results suggest the simple image descriptors outperform the current
+from-scratch CNN on this small test set, but none outperform the tabular
+reference. The 13-sample test set is exploratory. NDVI features are extracted
+from the rendered PNG colors, not calibrated raw NDVI. Model-selection scores
+are in `models/image_feature_baseline_model_selection.csv`; test comparisons,
+predictions, and selected estimators are saved under `models/`.
+
 ## Current Status
 
 The repository currently includes:
@@ -227,4 +257,3 @@ The repository currently includes:
 ## License
 
 This project is intended for academic and research use. Please check the repository owner or institutional guidelines for licensing details before reuse or redistribution.
-
