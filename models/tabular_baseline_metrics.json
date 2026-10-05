@@ -78,18 +78,62 @@
     "random_forest": {
       "validation": {
         "rmse": 1.0030798306654887,
-        "mae": 0.5878142410208511,
+        "mae": 0.5878142410208509,
         "r2": 0.45860865658145256
       },
       "test": {
         "rmse": 1.0719417028655882,
-        "mae": 0.6418213898369511,
+        "mae": 0.6418213898369513,
         "r2": 0.4517047609906373
+      }
+    },
+    "gradient_boosting": {
+      "validation": {
+        "rmse": 0.7315622893447392,
+        "mae": 0.46580564080755826,
+        "r2": 0.7120328607222709
+      },
+      "test": {
+        "rmse": 0.8035298193865898,
+        "mae": 0.5104082600500679,
+        "r2": 0.6919110392390243
+      }
+    },
+    "hist_gradient_boosting": {
+      "validation": {
+        "rmse": 0.7786588478072556,
+        "mae": 0.4623932807101619,
+        "r2": 0.6737618414966697
+      },
+      "test": {
+        "rmse": 0.8342052220813824,
+        "mae": 0.5257747904953232,
+        "r2": 0.6679389406689304
       }
     }
   },
+  "best_model": "gradient_boosting",
+  "crop_metrics": [
+    {
+      "model": "gradient_boosting",
+      "crop": "Maize",
+      "rows": 37,
+      "rmse": 1.021602139393136,
+      "mae": 0.6713756881346203,
+      "r2": 0.6750369466088442
+    },
+    {
+      "model": "gradient_boosting",
+      "crop": "Rice",
+      "rows": 31,
+      "rmse": 0.4130557702283462,
+      "mae": 0.31828584588463465,
+      "r2": 0.7082117103300063
+    }
+  ],
   "notes": [
     "Production is excluded to avoid target leakage.",
+    "Seven implausible target outliers above 15 tonnes/ha are filtered before training.",
     "The saved model is trained on rows through the validation period for stronger future predictions."
   ]
 }

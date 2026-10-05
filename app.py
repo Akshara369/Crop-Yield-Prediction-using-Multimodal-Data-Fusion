@@ -1,4 +1,5 @@
 from pathlib import Path
+import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -109,7 +110,9 @@ st.markdown(
 ROOT = Path(__file__).resolve().parent
 DATASETS_DIR = ROOT / "datasets"
 TEST_IMAGES_DIR = DATASETS_DIR / "test_images"
-MODEL_READY = False
+MODEL_PATH = ROOT / "models" / "tabular_best_model.joblib"
+MODELING_DATASET_PATH = DATASETS_DIR / "modeling_dataset.csv"
+MODEL_READY = MODEL_PATH.exists()
 
 
 def apply_theme(dark_mode: bool):
@@ -212,6 +215,78 @@ def predict_crop_yield(crop, state, year, area, rainfall, fertilizer, pesticide,
     if crop == "Rice":
         return max(1.2, min(9.5, yield_est))
     return max(1.0, min(8.5, yield_est))
+
+
+@st.cache_resource
+def load_tabular_model():
+    if not MODEL_PATH.exists():
+        return None
+    return joblib.load(MODEL_PATH)
+
+
+@st.cache_data
+def load_modeling_reference():
+    if not MODELING_DATASET_PATH.exists():
+        return pd.DataFrame()
+    reference_df = pd.read_csv(MODELING_DATASET_PATH)
+    area = reference_df["Area"].replace(0, np.nan)
+    reference_df["Fertilizer_per_Area"] = reference_df["Fertilizer"] / area
+    reference_df["Pesticide_per_Area"] = reference_df["Pesticide"] / area
+    return reference_df
+
+
+def select_reference_row(reference_df, crop, state, season):
+    if reference_df.empty:
+        return pd.Series(dtype="float64")
+
+    masks = [
+        (
+            (reference_df["Crop"].str.casefold() == crop.casefold())
+            & (reference_df["State"].str.casefold() == state.casefold())
+            & (reference_df["Season"].str.casefold() == season.casefold())
+        ),
+        (
+            (reference_df["Crop"].str.casefold() == crop.casefold())
+            & (reference_df["State"].str.casefold() == state.casefold())
+        ),
+        (
+            (reference_df["Crop"].str.casefold() == crop.casefold())
+            & (reference_df["Season"].str.casefold() == season.casefold())
+        ),
+        reference_df["Crop"].str.casefold() == crop.casefold(),
+    ]
+
+    for mask in masks:
+        subset = reference_df[mask]
+        if not subset.empty:
+            return subset.median(numeric_only=True)
+
+    return reference_df.median(numeric_only=True)
+
+
+def predict_with_tabular_model(model_artifact, reference_df, crop, state, season, year, area, rainfall, fertilizer_rate, pesticide_rate):
+    feature_columns = model_artifact["feature_columns"]
+    reference_row = select_reference_row(reference_df, crop, state, season)
+    model_input = {column: reference_row.get(column, np.nan) for column in feature_columns}
+
+    fertilizer_total = fertilizer_rate * area
+    pesticide_total = pesticide_rate * area
+    user_values = {
+        "State": state,
+        "Crop": crop,
+        "Season": season,
+        "Year": year,
+        "Area": area,
+        "Annual_Rainfall": rainfall,
+        "Fertilizer": fertilizer_total,
+        "Pesticide": pesticide_total,
+        "Fertilizer_per_Area": fertilizer_rate,
+        "Pesticide_per_Area": pesticide_rate,
+    }
+    model_input.update({key: value for key, value in user_values.items() if key in feature_columns})
+
+    input_df = pd.DataFrame([model_input], columns=feature_columns)
+    return float(model_artifact["model"].predict(input_df)[0])
 
 
 # Theme defaults for a light-first experience.
@@ -601,7 +676,12 @@ elif menu_option == "🛰️ Satellite & Spatial Data Explorer":
 # ============================================================
 elif menu_option == "🌾 Crop Yield Prediction":
     st.markdown("### 🌾 Crop Yield Predictor")
-    st.info("This prediction panel is ready for the trained model. Until the model is trained, a rule-based fallback is used to validate the interface and user flow.")
+    model_artifact = load_tabular_model()
+    modeling_reference_df = load_modeling_reference()
+    if model_artifact is not None and not modeling_reference_df.empty:
+        st.success(f"Using trained tabular model: {model_artifact.get('model_name', 'baseline regressor').replace('_', ' ').title()}")
+    else:
+        st.info("The trained tabular model was not found, so the panel will use the rule-based fallback.")
 
     prediction_col1, prediction_col2 = st.columns(2)
     with prediction_col1:
@@ -611,6 +691,7 @@ elif menu_option == "🌾 Crop Yield Prediction":
             sorted(coords_df["State"].unique()) if not coords_df.empty else ["Punjab", "West Bengal", "Tamil Nadu"],
             index=0,
         )
+        selected_season = st.selectbox("Season", ["Kharif", "Rabi", "Summer", "Autumn", "Winter", "Whole Year"], index=0)
         selected_year = st.slider("Year", 1997, 2025, 2023)
     with prediction_col2:
         area_ha = st.number_input("Cultivated Area (hectares)", min_value=10.0, max_value=5000.0, value=250.0, step=5.0)
@@ -627,40 +708,59 @@ elif menu_option == "🌾 Crop Yield Prediction":
     soc_value = st.number_input("Soil Organic Carbon (g/kg)", min_value=1.0, max_value=60.0, value=18.0, step=1.0)
 
     if st.button("Predict Crop Yield", type="primary"):
-        predicted_yield = predict_crop_yield(
-            selected_crop,
-            selected_state,
-            selected_year,
-            area_ha,
-            rainfall_mm,
-            fertilizer_kg,
-            pesticide_kg,
-            soil_ph,
-            soc_value,
-        )
+        if model_artifact is not None and not modeling_reference_df.empty:
+            predicted_yield = predict_with_tabular_model(
+                model_artifact,
+                modeling_reference_df,
+                selected_crop,
+                selected_state,
+                selected_season,
+                selected_year,
+                area_ha,
+                rainfall_mm,
+                fertilizer_kg,
+                pesticide_kg,
+            )
+            model_status = "Model active"
+            prediction_note = (
+                "This estimate uses the trained tabular model. User-entered field values are combined with "
+                "historical satellite/location medians for the selected crop, state, and season."
+            )
+        else:
+            predicted_yield = predict_crop_yield(
+                selected_crop,
+                selected_state,
+                selected_year,
+                area_ha,
+                rainfall_mm,
+                fertilizer_kg,
+                pesticide_kg,
+                soil_ph,
+                soc_value,
+            )
+            model_status = "Fallback active"
+            prediction_note = (
+                "This estimate uses the rule-based fallback because the trained model artifact or modeling dataset is unavailable."
+            )
 
         st.markdown("<div class='prediction-box'>", unsafe_allow_html=True)
         colA, colB, colC = st.columns(3)
         with colA:
             st.metric("Predicted Yield", f"{predicted_yield:.2f} tonnes/ha")
         with colB:
-            status_text = "Ready for training" if not MODEL_READY else "Model active"
-            st.metric("Model Status", status_text)
+            st.metric("Model Status", model_status)
         with colC:
             st.metric("Crop", selected_crop)
         st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.subheader("Prediction Interpretation")
-        st.write(
-            "The prediction is influenced mainly by rainfall, fertilizer intensity, soil condition, and crop type. "
-            "Replace the rule-based fallback with the trained model weights once the model pipeline has been finalized."
-        )
+        st.write(prediction_note)
 
         scenario_df = pd.DataFrame(
             {
-                "Feature": ["Area", "Rainfall", "Fertilizer", "Pesticide", "Soil pH", "Organic Carbon"],
-                "Value": [area_ha, rainfall_mm, fertilizer_kg, pesticide_kg, soil_ph, soc_value],
+                "Feature": ["Area", "Rainfall", "Fertilizer", "Pesticide", "Soil pH", "Organic Carbon", "Season"],
+                "Value": [area_ha, rainfall_mm, fertilizer_kg, pesticide_kg, soil_ph, soc_value, selected_season],
             }
         )
         st.dataframe(scenario_df, use_container_width=True)
