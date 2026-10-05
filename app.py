@@ -1,856 +1,757 @@
 from pathlib import Path
+
 import joblib
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-# ============================================================
-# PAGE CONFIGURATION & STYLING
-# ============================================================
+
+ROOT = Path(__file__).resolve().parent
+DATASETS_DIR = ROOT / "datasets"
+MODEL_PATH = ROOT / "models" / "tabular_best_model.joblib"
+MODELING_DATASET_PATH = DATASETS_DIR / "modeling_dataset.csv"
+REPORTS_DIR = ROOT / "models" / "reports"
+
+TARGET_CROPS = ["Rice", "Maize"]
+SEASONS = ["Kharif", "Rabi", "Summer", "Autumn", "Winter", "Whole Year"]
+
+
 st.set_page_config(
-    page_title="Crop Yield Prediction | Multimodal Data Fusion",
-    page_icon="🌾",
+    page_title="Crop Yield Prediction",
+    page_icon="🌱",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for UI styling
-st.markdown(
-    """
+
+def css(theme: str) -> str:
+    dark = theme == "dark"
+    return f"""
     <style>
-    .main-header {
-        font-size: 2.6rem;
-        font-weight: 800;
-        color: #123d8f;
-        text-align: center;
-        margin-bottom: 0.4rem;
-        letter-spacing: -0.04em;
-    }
-    .sub-header {
-        font-size: 1.15rem;
-        font-weight: 500;
-        color: #475569;
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-    .hero-badge {
-        display: inline-block;
-        margin: 0 auto 0.8rem auto;
-        padding: 0.4rem 0.9rem;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #dbeafe, #dcfce7);
-        color: #0f172a;
-        font-weight: 700;
-        font-size: 0.78rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-    .metric-card {
-        background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+    :root {{
+        --bg: {"#071527" if dark else "#eef5f1"};
+        --panel: {"#0c2138" if dark else "#ffffff"};
+        --panel-soft: {"#102b48" if dark else "#f8fbff"};
+        --border: {"rgba(125, 181, 255, 0.25)" if dark else "rgba(35, 95, 125, 0.15)"};
+        --text: {"#edf7ff" if dark else "#0f2336"};
+        --muted: {"#a9bdd3" if dark else "#587083"};
+        --green: #22c97a;
+        --blue: #2ea8ff;
+        --shadow: {"0 18px 45px rgba(0,0,0,.28)" if dark else "0 16px 35px rgba(31,78,96,.10)"};
+    }}
+    .stApp {{
+        background:
+            radial-gradient(circle at 18% -8%, {"rgba(31,196,143,.20)" if dark else "rgba(34,201,122,.20)"}, transparent 28%),
+            linear-gradient(135deg, var(--bg), {"#091d33" if dark else "#f8fbff"});
+        color: var(--text);
+    }}
+    .block-container {{
+        padding-top: 1.05rem;
+        padding-bottom: 1rem;
+        max-width: 1500px;
+    }}
+    section[data-testid="stSidebar"] {{
+        background: {"linear-gradient(180deg,#061527,#0b2138)" if dark else "linear-gradient(180deg,#f8fffb,#e8f4f1)"};
+        border-right: 1px solid var(--border);
+    }}
+    section[data-testid="stSidebar"] * {{
+        color: var(--text);
+    }}
+    div[data-testid="stSidebarNav"] {{
+        display: none;
+    }}
+    .topbar {{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .85rem 1rem 1.05rem;
+        border: 1px solid var(--border);
+        background: {"rgba(9,29,51,.74)" if dark else "rgba(255,255,255,.78)"};
+        box-shadow: var(--shadow);
         border-radius: 18px;
-        padding: 1.3rem;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-        text-align: center;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-left: 5px solid #10B981;
-    }
-    .metric-value {
-        font-size: 1.9rem;
-        font-weight: 800;
-        color: #0f172a;
-    }
-    .metric-label {
-        font-size: 0.9rem;
-        color: #475569;
-        font-weight: 700;
-    }
-    .section-card {
-        background-color: #FFFFFF;
-        padding: 1.5rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(16px);
         margin-bottom: 1rem;
-        border: 1px solid #E2E8F0;
-    }
-    .prediction-box {
-        background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
-        border: 1px solid #A7F3D0;
-        border-radius: 20px;
-        padding: 1.5rem;
-        box-shadow: 0 12px 28px rgba(16, 185, 129, 0.12);
-    }
-    .stButton > button {
+    }}
+    .brand {{
+        display: flex;
+        align-items: center;
+        gap: .9rem;
+        min-width: 270px;
+    }}
+    .brand-mark {{
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 1.75rem;
+        background: linear-gradient(145deg, #15c76f, #1e88e5);
+        box-shadow: 0 12px 24px rgba(34,201,122,.25);
+    }}
+    .brand h1 {{
+        margin: 0;
+        font-size: 1.55rem;
+        line-height: 1.1;
+        color: var(--text);
+        letter-spacing: 0;
+    }}
+    .brand p {{
+        margin: .18rem 0 0;
+        color: var(--muted);
+        font-size: .9rem;
+    }}
+    .tagline {{
+        display: flex;
+        gap: .9rem;
+        align-items: center;
+        color: var(--muted);
+        font-weight: 600;
+        white-space: nowrap;
+    }}
+    .tagline span:not(:last-child)::after {{
+        content: "|";
+        margin-left: .9rem;
+        color: var(--border);
+    }}
+    .panel {{
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: {"rgba(12,33,56,.78)" if dark else "rgba(255,255,255,.88)"};
+        box-shadow: var(--shadow);
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }}
+    .panel-title {{
+        color: var(--text);
+        font-weight: 800;
+        font-size: 1.02rem;
+        margin: 0 0 .8rem;
+    }}
+    .metric-card {{
+        min-height: 116px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: linear-gradient(135deg, {"rgba(13,42,69,.92), rgba(9,28,48,.86)" if dark else "#ffffff, #f5fbff"});
+        box-shadow: var(--shadow);
+        padding: 1rem;
+        display: flex;
+        gap: .85rem;
+        align-items: center;
+        margin-bottom: 1rem;
+    }}
+    .metric-icon {{
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 1.55rem;
+        flex: 0 0 auto;
+    }}
+    .metric-label {{
+        color: var(--muted);
+        font-size: .82rem;
+        font-weight: 700;
+    }}
+    .metric-value {{
+        color: var(--text);
+        font-size: 1.55rem;
+        font-weight: 900;
+        margin-top: .18rem;
+    }}
+    .metric-note {{
+        color: var(--green);
+        font-size: .82rem;
+        font-weight: 800;
+        margin-top: .35rem;
+    }}
+    .side-brand {{
+        padding: .8rem .35rem 1rem;
+    }}
+    .small-muted {{
+        color: var(--muted);
+        font-size: .82rem;
+    }}
+    .prediction-result {{
+        border-radius: 14px;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(34,201,122,.18), rgba(46,168,255,.14));
+        border: 1px solid rgba(34,201,122,.35);
+    }}
+    .prediction-number {{
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 900;
+        color: var(--text);
+    }}
+    .badge {{
+        display: inline-block;
+        padding: .28rem .55rem;
+        border-radius: 999px;
+        background: rgba(34,201,122,.16);
+        color: {"#91ffbf" if dark else "#087d45"};
+        font-weight: 800;
+        font-size: .72rem;
+    }}
+    .mini-grid {{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .55rem;
+        margin-top: .7rem;
+    }}
+    .mini-stat {{
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: .65rem;
+        background: var(--panel-soft);
+    }}
+    .mini-stat b {{
+        display: block;
+        color: var(--text);
+        font-size: .95rem;
+        margin-top: .18rem;
+    }}
+    .pipeline {{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+        gap: .55rem;
+        align-items: stretch;
+    }}
+    .pipe-step {{
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: .65rem;
+        text-align: center;
+        background: var(--panel-soft);
+        min-height: 82px;
+        font-size: .82rem;
+        line-height: 1.25;
+        overflow-wrap: normal;
+        word-break: normal;
+    }}
+    .pipe-icon {{
+        font-size: 1.25rem;
+        margin-bottom: .25rem;
+    }}
+    .advice-row {{
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: .45rem;
+        margin-top: .7rem;
+    }}
+    .advice-chip {{
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: .55rem .65rem;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: .8rem;
+        line-height: 1.3;
+    }}
+    .stButton > button {{
         border-radius: 12px !important;
-        font-weight: 700 !important;
-        padding: 0.7rem 1.2rem !important;
-        background: linear-gradient(135deg, #16a34a, #22c55e) !important;
-        border: none !important;
+        border: 0 !important;
+        background: linear-gradient(135deg, #18c777, #2ea8ff) !important;
         color: white !important;
-        box-shadow: 0 10px 22px rgba(34, 197, 94, 0.25) !important;
-    }
-    .stButton > button:hover {
-        filter: brightness(1.04);
-        box-shadow: 0 12px 22px rgba(34, 197, 94, 0.35) !important;
-    }
-    .sidebar-content .block-container {
-        padding-top: 1rem;
-    }
-    .dark-mode .prediction-box {
-        background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(59,130,246,0.14));
-        border: 1px solid rgba(16,185,129,0.35);
-    }
+        font-weight: 900 !important;
+        box-shadow: 0 12px 24px rgba(34,201,122,.20) !important;
+    }}
+    div[data-testid="stMetric"] {{
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: .85rem;
+    }}
+    div[data-testid="stMetric"] label, div[data-testid="stMetric"] [data-testid="stMetricDelta"] {{
+        color: var(--muted) !important;
+    }}
+    h1, h2, h3, h4, h5, h6, p, label, span {{
+        letter-spacing: 0;
+    }}
+    @media (max-width: 900px) {{
+        .topbar, .tagline, .pipeline {{
+            display: block;
+        }}
+        .brand {{
+            margin-bottom: .75rem;
+        }}
+    }}
     </style>
-""",
-    unsafe_allow_html=True,
-)
-
-ROOT = Path(__file__).resolve().parent
-DATASETS_DIR = ROOT / "datasets"
-TEST_IMAGES_DIR = DATASETS_DIR / "test_images"
-MODEL_PATH = ROOT / "models" / "tabular_best_model.joblib"
-MODELING_DATASET_PATH = DATASETS_DIR / "modeling_dataset.csv"
-MODEL_READY = MODEL_PATH.exists()
+    """
 
 
-def apply_theme(dark_mode: bool):
-    if dark_mode:
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background: radial-gradient(circle at top, rgba(59,130,246,0.2), transparent 20%), linear-gradient(180deg, #020817 0%, #0f172a 100%);
-                color: #e5e7eb;
-            }
-            .main-header {
-                color: #dbeafe !important;
-            }
-            .sub-header {
-                color: #cbd5e1 !important;
-            }
-            .hero-badge {
-                background: linear-gradient(135deg, rgba(191,219,254,0.22), rgba(134,239,172,0.22)) !important;
-                color: #f8fafc !important;
-            }
-            .metric-card {
-                background: linear-gradient(135deg, #111827 0%, #1f2937 100%) !important;
-                border: 1px solid rgba(148, 163, 184, 0.18) !important;
-                border-left: 5px solid #34d399 !important;
-                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.6) !important;
-            }
-            .metric-value { color: #f9fafb !important; }
-            .metric-label { color: #cbd5e1 !important; }
-            .section-card {
-                background: #111827 !important;
-                border: 1px solid rgba(148, 163, 184, 0.25) !important;
-                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35) !important;
-            }
-            .block-container, .stDataFrame, .stMarkdown, .stTabs, .stSelectbox, .stSlider, .stNumberInput {
-                color: #e5e7eb !important;
-            }
-            .prediction-box {
-                background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(59,130,246,0.14)) !important;
-                border: 1px solid rgba(52, 211, 153, 0.35) !important;
-            }
-            .stButton > button {
-                background: linear-gradient(135deg, #10b981, #3b82f6) !important;
-                box-shadow: 0 12px 24px rgba(59,130,246,0.32) !important;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-                color: #0f172a;
-            }
-            .main-header { color: #1E3A8A !important; }
-            .sub-header { color: #4B5563 !important; }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-
-
-def predict_crop_yield(crop, state, year, area, rainfall, fertilizer, pesticide, soil_ph, soil_carbon):
-    """Simple rule-based fallback used until the actual trained model is available."""
-    # Scale inputs to meaningful ranges observed in agricultural datasets.
-    area_norm = max((area - 20) / 60, 0)
-    rainfall_norm = max((rainfall - 600) / 1000, 0)
-    fertilizer_norm = max((fertilizer - 50) / 200, 0)
-    pesticide_norm = max((pesticide - 10) / 80, 0)
-    soil_ph_norm = 1 - abs(soil_ph - 6.5) / 4
-    soil_carbon_norm = max((soil_carbon - 5) / 20, 0)
-
-    if crop == "Rice":
-        base = 2.8
-        yield_est = (
-            base
-            + (0.70 * area_norm)
-            + (1.45 * rainfall_norm)
-            + (1.15 * fertilizer_norm)
-            + (0.35 * pesticide_norm)
-            + (1.10 * soil_ph_norm)
-            + (0.80 * soil_carbon_norm)
-        )
-    else:
-        base = 2.2
-        yield_est = (
-            base
-            + (0.80 * area_norm)
-            + (1.20 * rainfall_norm)
-            + (1.00 * fertilizer_norm)
-            + (0.45 * pesticide_norm)
-            + (1.05 * soil_ph_norm)
-            + (0.90 * soil_carbon_norm)
-        )
-
-    # Keep outputs realistic and plant-specific.
-    if crop == "Rice":
-        return max(1.2, min(9.5, yield_est))
-    return max(1.0, min(8.5, yield_est))
+@st.cache_data
+def load_data():
+    paths = {
+        "raw": DATASETS_DIR / "crop_yield.csv",
+        "coords": DATASETS_DIR / "state_coordinates.csv",
+        "soil": DATASETS_DIR / "state_soil_lookup.csv",
+        "satellite": DATASETS_DIR / "harmonized_satellite_features.csv",
+        "modeling": MODELING_DATASET_PATH,
+        "metrics": ROOT / "models" / "tabular_model_comparison.csv",
+        "crop_metrics": ROOT / "models" / "tabular_crop_metrics.csv",
+        "feature_importance": ROOT / "models" / "tabular_feature_importance.csv",
+    }
+    data = {key: pd.read_csv(path) if path.exists() else pd.DataFrame() for key, path in paths.items()}
+    if not data["raw"].empty:
+        data["raw"].columns = data["raw"].columns.str.strip()
+        data["raw"]["Crop"] = data["raw"]["Crop"].astype(str).str.strip()
+        data["raw"]["Season"] = data["raw"]["Season"].astype(str).str.strip()
+        data["raw"] = data["raw"][data["raw"]["Crop"].isin(TARGET_CROPS)].copy()
+    if not data["modeling"].empty:
+        data["modeling"]["Crop"] = data["modeling"]["Crop"].astype(str).str.strip()
+        area = data["modeling"]["Area"].replace(0, np.nan)
+        data["modeling"]["Fertilizer_per_Area"] = data["modeling"]["Fertilizer"] / area
+        data["modeling"]["Pesticide_per_Area"] = data["modeling"]["Pesticide"] / area
+    return data
 
 
 @st.cache_resource
-def load_tabular_model():
+def load_model():
     if not MODEL_PATH.exists():
         return None
     return joblib.load(MODEL_PATH)
 
 
-@st.cache_data
-def load_modeling_reference():
-    if not MODELING_DATASET_PATH.exists():
-        return pd.DataFrame()
-    reference_df = pd.read_csv(MODELING_DATASET_PATH)
-    area = reference_df["Area"].replace(0, np.nan)
-    reference_df["Fertilizer_per_Area"] = reference_df["Fertilizer"] / area
-    reference_df["Pesticide_per_Area"] = reference_df["Pesticide"] / area
-    return reference_df
-
-
-def select_reference_row(reference_df, crop, state, season):
+def select_reference_row(reference_df: pd.DataFrame, crop: str, state: str, season: str) -> pd.Series:
     if reference_df.empty:
         return pd.Series(dtype="float64")
-
     masks = [
-        (
-            (reference_df["Crop"].str.casefold() == crop.casefold())
-            & (reference_df["State"].str.casefold() == state.casefold())
-            & (reference_df["Season"].str.casefold() == season.casefold())
-        ),
-        (
-            (reference_df["Crop"].str.casefold() == crop.casefold())
-            & (reference_df["State"].str.casefold() == state.casefold())
-        ),
-        (
-            (reference_df["Crop"].str.casefold() == crop.casefold())
-            & (reference_df["Season"].str.casefold() == season.casefold())
-        ),
+        (reference_df["Crop"].str.casefold() == crop.casefold())
+        & (reference_df["State"].str.casefold() == state.casefold())
+        & (reference_df["Season"].str.casefold() == season.casefold()),
+        (reference_df["Crop"].str.casefold() == crop.casefold())
+        & (reference_df["State"].str.casefold() == state.casefold()),
+        (reference_df["Crop"].str.casefold() == crop.casefold())
+        & (reference_df["Season"].str.casefold() == season.casefold()),
         reference_df["Crop"].str.casefold() == crop.casefold(),
     ]
-
     for mask in masks:
         subset = reference_df[mask]
         if not subset.empty:
             return subset.median(numeric_only=True)
-
     return reference_df.median(numeric_only=True)
 
 
-def predict_with_tabular_model(model_artifact, reference_df, crop, state, season, year, area, rainfall, fertilizer_rate, pesticide_rate):
+def fallback_prediction(crop, area, rainfall, fertilizer_rate, pesticide_rate):
+    area_norm = max((area - 20) / 60, 0)
+    rainfall_norm = max((rainfall - 600) / 1000, 0)
+    fertilizer_norm = max((fertilizer_rate - 50) / 200, 0)
+    pesticide_norm = max((pesticide_rate - 10) / 80, 0)
+    base = 2.8 if crop == "Rice" else 2.2
+    estimate = base + 0.55 * area_norm + 1.2 * rainfall_norm + 0.95 * fertilizer_norm + 0.35 * pesticide_norm
+    return float(np.clip(estimate, 1.0, 9.5 if crop == "Rice" else 8.5))
+
+
+def predict_yield(model_artifact, reference_df, crop, state, season, year, area, rainfall, fertilizer_rate, pesticide_rate):
+    if model_artifact is None or reference_df.empty:
+        return fallback_prediction(crop, area, rainfall, fertilizer_rate, pesticide_rate), "Fallback"
     feature_columns = model_artifact["feature_columns"]
     reference_row = select_reference_row(reference_df, crop, state, season)
     model_input = {column: reference_row.get(column, np.nan) for column in feature_columns}
+    model_input.update(
+        {
+            "State": state,
+            "Crop": crop,
+            "Season": season,
+            "Year": year,
+            "Area": area,
+            "Annual_Rainfall": rainfall,
+            "Fertilizer": fertilizer_rate * area,
+            "Pesticide": pesticide_rate * area,
+            "Fertilizer_per_Area": fertilizer_rate,
+            "Pesticide_per_Area": pesticide_rate,
+        }
+    )
+    frame = pd.DataFrame([{column: model_input.get(column, np.nan) for column in feature_columns}])
+    return float(model_artifact["model"].predict(frame)[0]), model_artifact.get("model_name", "Model")
 
-    fertilizer_total = fertilizer_rate * area
-    pesticide_total = pesticide_rate * area
-    user_values = {
-        "State": state,
-        "Crop": crop,
-        "Season": season,
-        "Year": year,
-        "Area": area,
-        "Annual_Rainfall": rainfall,
-        "Fertilizer": fertilizer_total,
-        "Pesticide": pesticide_total,
-        "Fertilizer_per_Area": fertilizer_rate,
-        "Pesticide_per_Area": pesticide_rate,
+
+def filtered_yield(raw_df: pd.DataFrame, state: str, crop: str, year: int) -> pd.DataFrame:
+    if raw_df.empty:
+        return raw_df
+    df = raw_df[(raw_df["Crop"] == crop) & (raw_df["Crop_Year"] <= year)].copy()
+    if state != "All States":
+        df = df[df["State"] == state]
+    return df
+
+
+def metric_card(icon, label, value, note, color):
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-icon" style="background:{color};">{icon}</div>
+            <div>
+                <div class="metric-label">{label}</div>
+                <div class="metric-value">{value}</div>
+                <div class="metric-note">{note}</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def make_line_chart(df: pd.DataFrame, metric: str = "Yield", years: int = 8):
+    if df.empty:
+        return go.Figure()
+    agg = "sum" if metric == "Area" else "mean"
+    yearly = df.groupby("Crop_Year", as_index=False)[metric].agg(agg).tail(years)
+    comparison = f"Smoothed {metric}"
+    yearly[comparison] = yearly[metric].rolling(2, min_periods=1).mean()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=yearly["Crop_Year"], y=yearly[comparison], mode="lines+markers", name=comparison, line=dict(color="#22c97a", width=3)))
+    fig.add_trace(go.Scatter(x=yearly["Crop_Year"], y=yearly[metric], mode="lines+markers", name=metric, line=dict(color="#2ea8ff", width=3)))
+    fig.update_layout(height=218, margin=dict(l=8, r=8, t=8, b=8), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.12, x=0.20), yaxis_title=metric, xaxis_title=None)
+    return fig
+
+
+def make_distribution_chart(df: pd.DataFrame):
+    if df.empty:
+        return go.Figure()
+    crop_area = df.groupby("Crop", as_index=False)["Area"].sum()
+    fig = px.pie(crop_area, names="Crop", values="Area", hole=0.58, color_discrete_sequence=["#22c97a", "#b85cff"])
+    fig.update_traces(textinfo="percent+label")
+    fig.update_layout(height=240, margin=dict(l=5, r=5, t=5, b=5), paper_bgcolor="rgba(0,0,0,0)")
+    return fig
+
+
+def make_top_states_chart(df: pd.DataFrame, metric: str = "Yield"):
+    if df.empty:
+        return go.Figure()
+    agg = "sum" if metric == "Area" else "mean"
+    top = df.groupby("State", as_index=False)[metric].agg(agg).nlargest(5, metric)
+    fig = px.bar(top, x="State", y=metric, color=metric, color_continuous_scale=["#16a34a", "#22c97a", "#2ea8ff"])
+    fig.update_layout(height=218, margin=dict(l=8, r=8, t=8, b=8), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", coloraxis_showscale=False)
+    fig.update_xaxes(title=None)
+    fig.update_yaxes(title=metric)
+    return fig
+
+
+def make_map(coords_df: pd.DataFrame, df: pd.DataFrame, metric: str = "Yield"):
+    if coords_df.empty:
+        return go.Figure()
+    agg = "sum" if metric == "Area" else "mean"
+    state_values = df.groupby("State", as_index=False)[metric].agg(agg) if not df.empty else pd.DataFrame(columns=["State", metric])
+    map_df = coords_df.merge(state_values, on="State", how="left")
+    map_df[metric] = map_df[metric].fillna(map_df[metric].median() if map_df[metric].notna().any() else 0)
+    if hasattr(px, "scatter_map"):
+        fig = px.scatter_map(map_df, lat="Latitude", lon="Longitude", hover_name="State", color=metric, size=np.maximum(map_df[metric], 0.2), zoom=3.6, center={"lat": 20.8, "lon": 78.9}, color_continuous_scale=["#ef4444", "#facc15", "#22c97a"], height=690)
+    else:
+        fig = px.scatter_geo(map_df, lat="Latitude", lon="Longitude", hover_name="State", color=metric, size=np.maximum(map_df[metric], 0.2), scope="asia", color_continuous_scale=["#ef4444", "#facc15", "#22c97a"], height=690)
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)", coloraxis_colorbar=dict(title=metric))
+    return fig
+
+
+def sidebar_nav():
+    st.sidebar.markdown(
+        """
+        <div class="side-brand">
+            <div style="font-size:2.2rem;">🌱</div>
+            <div style="font-weight:900;font-size:1.15rem;">Crop Yield</div>
+            <div class="small-muted">Multimodal data fusion</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    pages = {
+        "Home": "🏠 Home",
+        "Data Overview": "🗄️ Data Overview",
+        "Crop Prediction": "📈 Crop Prediction",
+        "Visualizations": "📊 Visualizations",
+        "Map View": "📍 Map View",
+        "Reports": "📋 Reports",
+        "Settings": "⚙️ Settings",
     }
-    model_input.update({key: value for key, value in user_values.items() if key in feature_columns})
+    choice = st.sidebar.radio("Navigation", list(pages.keys()), format_func=lambda key: pages[key], label_visibility="collapsed")
+    st.sidebar.markdown('<div style="height:2rem;"></div><div class="small-muted">Data-driven agriculture for sustainable decisions.</div>', unsafe_allow_html=True)
+    return choice
 
-    input_df = pd.DataFrame([model_input], columns=feature_columns)
-    return float(model_artifact["model"].predict(input_df)[0])
+
+def topbar():
+    left, right = st.columns([4, .35], vertical_alignment="center")
+    with left:
+        st.markdown(
+            """
+            <div class="topbar">
+                <div class="brand">
+                    <div class="brand-mark">🌾</div>
+                    <div>
+                        <h1>Crop Yield Prediction</h1>
+                        <p>Using Multimodal Data Fusion</p>
+                    </div>
+                </div>
+                <div class="tagline">
+                    <span>Smarter Data</span><span>Better Insights</span><span>Higher Yields</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with right:
+        toggle_label = "☀️" if st.session_state.theme == "dark" else "🌙"
+        if st.button(toggle_label, help="Toggle dark mode"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
 
 
-# Theme defaults for a light-first experience.
+def prediction_panel(model_artifact, reference_df, states, default_state, default_year):
+    st.markdown('<div class="panel-title">🌿 Predict Yield</div>', unsafe_allow_html=True)
+    state = st.selectbox("State", states, index=states.index(default_state) if default_state in states else 0, key="predict_state")
+    crop = st.selectbox("Crop", TARGET_CROPS, key="predict_crop")
+    season = st.selectbox("Season", SEASONS, key="predict_season")
+    year = st.slider("Year", 1997, 2025, int(default_year), key="predict_year")
+    c1, c2 = st.columns(2)
+    area = c1.number_input("Area (ha)", 10.0, 5000.0, 250.0, 5.0)
+    rainfall = c2.number_input("Rainfall", 200.0, 3000.0, 1200.0, 25.0)
+    c3, c4 = st.columns(2)
+    fertilizer = c3.number_input("Fertilizer", 0.0, 500.0, 150.0, 5.0)
+    pesticide = c4.number_input("Pesticide", 0.0, 200.0, 30.0, 2.0)
+    predicted, model_name = predict_yield(model_artifact, reference_df, crop, state, season, year, area, rainfall, fertilizer, pesticide)
+    if st.button("Get Prediction", width="stretch"):
+        st.session_state.latest_prediction = (predicted, model_name, crop, state)
+    score, active_model, active_crop, active_state = st.session_state.get("latest_prediction", (predicted, model_name, crop, state))
+    label = "High Yield" if score >= 4.5 else "Moderate Yield" if score >= 2.5 else "Low Yield"
+    st.markdown(
+        f"""
+        <div class="prediction-result">
+            <div class="small-muted">Predicted Yield</div>
+            <div class="prediction-number">{score:.2f} t/ha</div>
+            <span class="badge">{label}</span>
+            <div class="small-muted" style="margin-top:.65rem;">{active_model.replace("_", " ").title()} - {active_crop} - {active_state}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"""
+        <div class="mini-grid">
+            <div class="mini-stat"><span class="small-muted">Rainfall</span><b>{rainfall:.0f} mm</b></div>
+            <div class="mini-stat"><span class="small-muted">Area</span><b>{area:.0f} ha</b></div>
+            <div class="mini-stat"><span class="small-muted">Fertilizer</span><b>{fertilizer:.1f} kg/ha</b></div>
+            <div class="mini-stat"><span class="small-muted">Pesticide</span><b>{pesticide:.1f} kg/ha</b></div>
+        </div>
+        <div class="advice-row">
+            <div class="advice-chip"><b>Next action:</b> monitor rainfall and NDVI shift.</div>
+            <div class="advice-chip"><b>Input check:</b> keep nutrient values crop-specific.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def home_dashboard(data, model_artifact):
+    raw_df = data["raw"]
+    coords_df = data["coords"]
+    modeling_df = data["modeling"]
+    states = sorted(raw_df["State"].dropna().unique()) if not raw_df.empty else ["Maharashtra", "Punjab", "Tamil Nadu"]
+    default_state = "Maharashtra" if "Maharashtra" in states else states[0]
+    max_year = int(raw_df["Crop_Year"].max()) if not raw_df.empty else 2024
+
+    f1, f2, f3, f4, f5 = st.columns([.85, 1.1, .8, .95, .85], vertical_alignment="bottom")
+    selected_year = f1.selectbox("Year", list(range(max_year, 1996, -1)), index=0)
+    selected_state = f2.selectbox("State", ["All States"] + states, index=(["All States"] + states).index(default_state) if default_state in states else 0)
+    selected_crop = f3.selectbox("Crop", TARGET_CROPS, index=0)
+    selected_metric = f4.selectbox("Analyze", ["Yield", "Annual_Rainfall", "Area", "Fertilizer", "Pesticide"], index=0)
+    trend_years = f5.slider("Trend", 5, 15, 8)
+
+    df = filtered_yield(raw_df, selected_state, selected_crop, selected_year)
+    crop_all = raw_df[raw_df["Crop"] == selected_crop] if not raw_df.empty else raw_df
+    avg_yield = df["Yield"].mean() if not df.empty else 0
+    total_area = df["Area"].sum() if not df.empty else 0
+    rainfall = df["Annual_Rainfall"].mean() if not df.empty else 0
+    soil_score = 0.76
+    if not data["soil"].empty and selected_state != "All States":
+        row = data["soil"][data["soil"]["State"].str.casefold() == selected_state.casefold()]
+        if not row.empty:
+            soil_score = float(np.clip((row["phh2o"].iloc[0] / 7.0 + row["soc"].iloc[0] / 30.0) / 2, 0, 1))
+
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        metric_card("🌿", "Predicted Yield (avg)", f"{avg_yield:.2f} t/ha", "model benchmark", "linear-gradient(145deg,#17b765,#30d486)")
+    with m2:
+        metric_card("🌾", "Total Area (selected)", f"{total_area:,.0f} ha", "selected region", "linear-gradient(145deg,#0ea5e9,#22c7df)")
+    with m3:
+        metric_card("☁️", "Seasonal Rainfall", f"{rainfall:.0f} mm", "climate driver", "linear-gradient(145deg,#6366f1,#8b5cf6)")
+    with m4:
+        metric_card("🧪", "Soil Health (avg)", f"{soil_score:.2f}", "state profile", "linear-gradient(145deg,#f97316,#f59e0b)")
+
+    left, middle, right = st.columns([2.1, 1.42, .95], gap="medium")
+    with left:
+        st.markdown(f'<div class="panel"><div class="panel-title">State Map - {selected_metric}</div>', unsafe_allow_html=True)
+        st.plotly_chart(make_map(coords_df, df, selected_metric), width="stretch")
+        st.markdown(
+            f"""
+            <div class="mini-grid">
+                <div class="mini-stat"><span class="small-muted">Selected rows</span><b>{len(df):,}</b></div>
+                <div class="mini-stat"><span class="small-muted">States visible</span><b>{df["State"].nunique() if not df.empty else 0}</b></div>
+                <div class="mini-stat"><span class="small-muted">Avg yield</span><b>{avg_yield:.2f} t/ha</b></div>
+                <div class="mini-stat"><span class="small-muted">Avg rainfall</span><b>{rainfall:.0f} mm</b></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+    with middle:
+        st.markdown(f'<div class="panel"><div class="panel-title">{selected_metric} Trend</div>', unsafe_allow_html=True)
+        st.plotly_chart(make_line_chart(df if not df.empty else crop_all, selected_metric, trend_years), width="stretch")
+        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('<div class="panel"><div class="panel-title">Crop-wise Area Distribution</div>', unsafe_allow_html=True)
+        dist_df = raw_df[raw_df["Crop_Year"] <= selected_year] if not raw_df.empty else raw_df
+        st.plotly_chart(make_distribution_chart(dist_df), width="stretch")
+        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(f'<div class="panel"><div class="panel-title">Top States by {selected_metric}</div>', unsafe_allow_html=True)
+        top_source = df if selected_state == "All States" else crop_all[crop_all["Crop_Year"] <= selected_year]
+        st.plotly_chart(make_top_states_chart(top_source, selected_metric), width="stretch")
+        st.markdown("</div>", unsafe_allow_html=True)
+    with right:
+        st.markdown('<div class="panel">', unsafe_allow_html=True)
+        prediction_panel(model_artifact, modeling_df, states, default_state, selected_year)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    bottom1, bottom2, bottom3 = st.columns([1.35, 1, 1.05], gap="medium")
+    with bottom1:
+        st.markdown(
+            """
+            <div class="panel">
+                <div class="panel-title">Multimodal Data Used</div>
+                <div class="pipeline">
+                    <div class="pipe-step"><div class="pipe-icon">🛰️</div><b>Satellite</b><br><span class="small-muted">NDVI, EVI, NIR</span></div>
+                    <div class="pipe-step"><div class="pipe-icon">☁️</div><b>Weather</b><br><span class="small-muted">Rainfall, climate</span></div>
+                    <div class="pipe-step"><div class="pipe-icon">🧱</div><b>Soil</b><br><span class="small-muted">pH, SOC, NPK</span></div>
+                    <div class="pipe-step"><div class="pipe-icon">🗄️</div><b>Crop Data</b><br><span class="small-muted">Area, seasons</span></div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with bottom2:
+        best_r2 = 0
+        if not data["metrics"].empty:
+            rows = data["metrics"][(data["metrics"]["split"] == "test") & (data["metrics"]["model"] == "gradient_boosting")]
+            if not rows.empty:
+                best_r2 = float(rows["r2"].iloc[0])
+        st.markdown(
+            f"""
+            <div class="panel">
+                <div class="panel-title">AI Model</div>
+                <b>Gradient Boosting Baseline</b>
+                <p class="small-muted">Current best tabular model before CNN/fusion.</p>
+                <div class="pipeline">
+                    <div class="pipe-step"><b>Tabular</b><br><span class="small-muted">features</span></div>
+                    <div class="pipe-step"><b>GBR</b><br><span class="small-muted">regressor</span></div>
+                    <div class="pipe-step"><b>Yield</b><br><span class="small-muted">t/ha</span></div>
+                </div>
+                <p class="small-muted">Test R2: {best_r2:.3f}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with bottom3:
+        st.markdown(
+            """
+            <div class="panel">
+                <div class="panel-title">Data & Processing Pipeline</div>
+                <div class="pipeline">
+                    <div class="pipe-step"><div class="pipe-icon">📄</div>Collect</div>
+                    <div class="pipe-step"><div class="pipe-icon">🧹</div>Clean</div>
+                    <div class="pipe-step"><div class="pipe-icon">🔗</div>Merge</div>
+                    <div class="pipe-step"><div class="pipe-icon">🧠</div>Train</div>
+                    <div class="pipe-step"><div class="pipe-icon">🌿</div>Predict</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def data_overview(data):
+    st.markdown('<div class="panel-title">Data Overview</div>', unsafe_allow_html=True)
+    raw_df = data["raw"]
+    if raw_df.empty:
+        st.warning("No crop yield data found.")
+        return
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Rows", f"{len(raw_df):,}")
+    col2.metric("States", raw_df["State"].nunique())
+    col3.metric("Crops", ", ".join(TARGET_CROPS))
+    col4.metric("Years", f"{int(raw_df['Crop_Year'].min())}-{int(raw_df['Crop_Year'].max())}")
+    st.dataframe(raw_df.head(500), width="stretch", hide_index=True)
+
+
+def crop_prediction_page(data, model_artifact):
+    st.markdown('<div class="panel"><div class="panel-title">Crop Prediction Workspace</div>', unsafe_allow_html=True)
+    states = sorted(data["raw"]["State"].dropna().unique()) if not data["raw"].empty else ["Maharashtra"]
+    prediction_panel(model_artifact, data["modeling"], states, states[0], int(data["raw"]["Crop_Year"].max()) if not data["raw"].empty else 2024)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+def visualizations_page(data):
+    raw_df = data["raw"]
+    if raw_df.empty:
+        st.warning("No data available.")
+        return
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown('<div class="panel"><div class="panel-title">Yield Trend</div>', unsafe_allow_html=True)
+        st.plotly_chart(make_line_chart(raw_df), width="stretch")
+        st.markdown("</div>", unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="panel"><div class="panel-title">Area Distribution</div>', unsafe_allow_html=True)
+        st.plotly_chart(make_distribution_chart(raw_df), width="stretch")
+        st.markdown("</div>", unsafe_allow_html=True)
+    if (REPORTS_DIR / "actual_vs_predicted.png").exists():
+        st.image(str(REPORTS_DIR / "actual_vs_predicted.png"), caption="Actual vs predicted yield")
+
+
+def map_page(data):
+    st.markdown('<div class="panel"><div class="panel-title">Map View</div>', unsafe_allow_html=True)
+    st.plotly_chart(make_map(data["coords"], data["raw"]), width="stretch")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+def reports_page(data):
+    st.markdown('<div class="panel-title">Model Reports</div>', unsafe_allow_html=True)
+    if not data["metrics"].empty:
+        st.dataframe(data["metrics"], width="stretch", hide_index=True)
+    if not data["crop_metrics"].empty:
+        st.dataframe(data["crop_metrics"], width="stretch", hide_index=True)
+    if not data["feature_importance"].empty:
+        st.dataframe(data["feature_importance"].head(20), width="stretch", hide_index=True)
+
+
+def settings_page():
+    st.markdown('<div class="panel"><div class="panel-title">Settings</div>', unsafe_allow_html=True)
+    st.write("Default theme is light. Use the sun/moon button in the top bar to switch themes.")
+    st.write(f"Model artifact: `{MODEL_PATH}`")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
 
-apply_theme(st.session_state.theme == "dark")
+st.markdown(css(st.session_state.theme), unsafe_allow_html=True)
+data = load_data()
+model_artifact = load_model()
+page = sidebar_nav()
+topbar()
 
-
-# ============================================================
-# DATA LOADING (CACHED)
-# ============================================================
-@st.cache_data
-def load_datasets():
-    crop_yield_path = DATASETS_DIR / "crop_yield.csv"
-    coords_path = DATASETS_DIR / "state_coordinates.csv"
-    soil_path = DATASETS_DIR / "state_soil_lookup.csv"
-    sentinel_features_path = DATASETS_DIR / "sentinel2_features.csv"
-
-    rice_prep_path = DATASETS_DIR / "rice_data_preprocessed.csv"
-    maize_prep_path = DATASETS_DIR / "maize_data_preprocessed.csv"
-
-    raw_df = pd.read_csv(crop_yield_path) if crop_yield_path.exists() else pd.DataFrame()
-    coords_df = pd.read_csv(coords_path) if coords_path.exists() else pd.DataFrame()
-    soil_df = pd.read_csv(soil_path) if soil_path.exists() else pd.DataFrame()
-    sentinel_df = pd.read_csv(sentinel_features_path) if sentinel_features_path.exists() else pd.DataFrame()
-
-    rice_df = pd.read_csv(rice_prep_path) if rice_prep_path.exists() else pd.DataFrame()
-    maize_df = pd.read_csv(maize_prep_path) if maize_prep_path.exists() else pd.DataFrame()
-
-    if not raw_df.empty:
-        raw_df.columns = raw_df.columns.str.strip()
-
-    return raw_df, coords_df, soil_df, sentinel_df, rice_df, maize_df
-
-
-raw_df, coords_df, soil_df, sentinel_df, rice_df, maize_df = load_datasets()
-
-# ============================================================
-# HEADER & SIDEBAR NAVIGATION
-# ============================================================
-st.markdown(
-    '<div style="text-align: center;"><div class="hero-badge">Agricultural Intelligence</div></div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="main-header">🌾 Crop Yield Prediction Using Multimodal Data Fusion</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="sub-header">Fusing Tabular Agricultural Drivers + Sentinel-2 Satellite Optical Imagery & Soil Grids</div>',
-    unsafe_allow_html=True,
-)
-
-st.sidebar.image(
-    "https://img.icons8.com/color/96/000000/wheat.png", width=70
-)
-st.sidebar.title("Navigation")
-st.sidebar.caption("Dashboard controls")
-menu_option = st.sidebar.radio(
-    "Go to",
-    [
-        "📊 Project Overview & Data Insights",
-        "🛰️ Satellite & Spatial Data Explorer",
-        "🌾 Crop Yield Prediction",
-        "🧠 Project Pipeline & Architecture",
-    ],
-)
-
-dark_mode = st.sidebar.toggle("🌙 Dark mode", value=st.session_state.theme == "dark")
-st.session_state.theme = "dark" if dark_mode else "light"
-apply_theme(dark_mode)
-
-# ============================================================
-# PAGE 1: OVERVIEW & DATA INSIGHTS
-# ============================================================
-if menu_option == "📊 Project Overview & Data Insights":
-    st.markdown("### 📈 Executive Summary & Key Dataset Metrics")
-
-    # Metric Cards
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.markdown(
-            f"""<div class="metric-card">
-            <div class="metric-value">{len(raw_df):,}</div>
-            <div class="metric-label">Total Record Rows</div>
-        </div>""",
-            unsafe_allow_html=True,
-        )
-
-    with col2:
-        num_states = len(coords_df) if not coords_df.empty else 30
-        st.markdown(
-            f"""<div class="metric-card">
-            <div class="metric-value">{num_states}</div>
-            <div class="metric-label">Unique Indian States</div>
-        </div>""",
-            unsafe_allow_html=True,
-        )
-
-    with col3:
-        st.markdown(
-            """<div class="metric-card">
-            <div class="metric-value">Rice & Maize</div>
-            <div class="metric-label">Target Crops</div>
-        </div>""",
-            unsafe_allow_html=True,
-        )
-
-    with col4:
-        st.markdown(
-            """<div class="metric-card">
-            <div class="metric-value">1997 - 2020</div>
-            <div class="metric-label">Temporal Coverage</div>
-        </div>""",
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("---")
-
-    # Filters
-    st.markdown("#### 🔍 Filter Dataset")
-    f_col1, f_col2, f_col3 = st.columns(3)
-
-    if not raw_df.empty:
-        crops_available = sorted(raw_df["Crop"].unique())
-        selected_crop = f_col1.selectbox(
-            "Select Crop", crops_available, index=crops_available.index("Rice") if "Rice" in crops_available else 0
-        )
-
-        states_available = ["All States"] + sorted(raw_df["State"].unique())
-        selected_state = f_col2.selectbox("Select State", states_available)
-
-        min_yr, max_yr = int(raw_df["Crop_Year"].min()), int(raw_df["Crop_Year"].max())
-        selected_years = f_col3.slider("Crop Year Range", min_yr, max_yr, (min_yr, max_yr))
-
-        # Filter dataframe
-        filtered_df = raw_df[
-            (raw_df["Crop"] == selected_crop)
-            & (raw_df["Crop_Year"].between(selected_years[0], selected_years[1]))
-        ]
-        if selected_state != "All States":
-            filtered_df = filtered_df[filtered_df["State"] == selected_state]
-
-        # Charts Section
-        c_col1, c_col2 = st.columns(2)
-
-        with c_col1:
-            st.subheader("Yield Trend over Years")
-            avg_yield_yr = (
-                filtered_df.groupby("Crop_Year")["Yield"].mean().reset_index()
-            )
-            fig_yield = px.line(
-                avg_yield_yr,
-                x="Crop_Year",
-                y="Yield",
-                title=f"Average Yield (tonnes/ha) for {selected_crop}",
-                markers=True,
-                color_discrete_sequence=["#10B981"],
-            )
-            st.plotly_chart(fig_yield, use_container_width=True)
-
-        with c_col2:
-            st.subheader("Area vs Production Relationship")
-            fig_scatter = px.scatter(
-                filtered_df,
-                x="Area",
-                y="Production",
-                color="State" if selected_state == "All States" else None,
-                hover_data=["Annual_Rainfall", "Yield"],
-                title="Cultivated Area vs Total Production",
-                log_x=True,
-                log_y=True,
-            )
-            st.plotly_chart(fig_scatter, use_container_width=True)
-
-        # Top States by Yield
-        st.subheader("🏆 Top 10 States by Average Yield")
-        if selected_state == "All States":
-            top_states = (
-                filtered_df.groupby("State")["Yield"]
-                .mean()
-                .nlargest(10)
-                .reset_index()
-            )
-            fig_top = px.bar(
-                top_states,
-                x="State",
-                y="Yield",
-                color="Yield",
-                color_continuous_scale="Greens",
-                title=f"Top 10 States – Average {selected_crop} Yield (tonnes/ha)",
-            )
-            st.plotly_chart(fig_top, use_container_width=True)
-        else:
-            st.info(f"Showing data for {selected_state} only. Select **All States** to compare.")
-
-        # Correlation Heatmap
-        st.subheader("🔥 Feature Correlation Heatmap")
-        numeric_cols = ["Area", "Production", "Annual_Rainfall", "Fertilizer", "Pesticide", "Yield"]
-        avail_cols = [c for c in numeric_cols if c in filtered_df.columns]
-        if len(avail_cols) > 2:
-            corr = filtered_df[avail_cols].corr()
-            fig_corr = px.imshow(
-                corr,
-                text_auto=".2f",
-                color_continuous_scale="RdBu_r",
-                title="Feature Correlation Matrix",
-                aspect="auto",
-            )
-            fig_corr.update_layout(height=450)
-            st.plotly_chart(fig_corr, use_container_width=True)
-
-        # Data Quality & Download
-        with st.expander("📋 Data Quality Report"):
-            dq1, dq2, dq3 = st.columns(3)
-            dq1.metric("Total Rows", f"{len(filtered_df):,}")
-            dq2.metric("Missing Values", f"{filtered_df.isnull().sum().sum()}")
-            dq3.metric("Duplicate Rows", f"{filtered_df.duplicated().sum()}")
-            st.dataframe(filtered_df.describe(), use_container_width=True)
-
-        st.download_button(
-            "📥 Download Filtered Data (CSV)",
-            filtered_df.to_csv(index=False),
-            file_name=f"{selected_crop}_{selected_state}_filtered.csv",
-            mime="text/csv",
-        )
-
-    # State Coordinates Map
-    st.subheader("📍 Geospatial Distribution of Target States")
-    if not coords_df.empty:
-        if hasattr(px, "scatter_map"):
-            fig_map = px.scatter_map(
-                coords_df,
-                lat="Latitude",
-                lon="Longitude",
-                hover_name="State",
-                zoom=3.8,
-                center={"lat": 22.5937, "lon": 78.9629},
-                height=450,
-                color_discrete_sequence=["#2563EB"],
-            )
-        elif hasattr(px, "scatter_mapbox"):
-            fig_map = px.scatter_mapbox(
-                coords_df,
-                lat="Latitude",
-                lon="Longitude",
-                hover_name="State",
-                zoom=3.8,
-                center={"lat": 22.5937, "lon": 78.9629},
-                mapbox_style="carto-positron",
-                height=450,
-                color_discrete_sequence=["#2563EB"],
-            )
-        else:
-            fig_map = px.scatter_geo(
-                coords_df,
-                lat="Latitude",
-                lon="Longitude",
-                hover_name="State",
-                scope="asia",
-                height=450,
-            )
-        st.plotly_chart(fig_map, use_container_width=True)
-
-# ============================================================
-# PAGE 2: SATELLITE & SPATIAL DATA EXPLORER
-# ============================================================
-elif menu_option == "🛰️ Satellite & Spatial Data Explorer":
-    st.markdown("### 🛰️ Multimodal Spatial Data Explorer (Sentinel-2 Optical & Soil Grids)")
-
-    col1, col2, col3 = st.columns(3)
-    exp_state = col1.selectbox("Select State for Visual Analysis", sorted(coords_df["State"].unique()) if not coords_df.empty else ["Punjab"])
-    exp_crop = col2.selectbox("Select Crop Modal", ["Rice", "Maize"])
-    exp_year = col3.selectbox("Select Year", list(range(2020, 1999, -1)))
-
-    st.markdown("---")
-
-    # Displays Satellite Photo and Climate-Soil Heatmaps side-by-side
-    img_col1, img_col2 = st.columns(2)
-    state_slug = exp_state.lower().replace(" ", "_")
-    crop_slug = exp_crop.lower().replace(" ", "_")
-
-    with img_col1:
-        st.subheader("📷 Sentinel-2 True-Color Optical Photo (10m Resolution)")
-        gee_s2_image_path = TEST_IMAGES_DIR / "rgb" / f"{state_slug}_{exp_year}_{crop_slug}_sentinel2_gee_rgb.png"
-        old_s2_image_path = TEST_IMAGES_DIR / f"{state_slug}_{exp_year}_sentinel2_rgb.jpg"
-        s2_image_path = gee_s2_image_path if gee_s2_image_path.exists() else old_s2_image_path
-
-        if s2_image_path.exists():
-            st.image(
-                str(s2_image_path),
-                caption=f"Sentinel-2 True Color Optical Photo ({exp_state}, {exp_year})",
-                use_container_width=True,
-            )
-            st.success("✅ Real 10m Sentinel-2 Optical Satellite Scene Loaded!")
-        else:
-            # Check for fallback punjab image
-            default_s2 = TEST_IMAGES_DIR / "punjab_2020_rice_sentinel2_gee_rgb.png"
-            if not default_s2.exists():
-                default_s2 = TEST_IMAGES_DIR / "punjab_2020_sentinel2_rgb.jpg"
-            if default_s2.exists():
-                st.image(
-                    str(default_s2),
-                    caption=f"Sample Sentinel-2 True Color Optical Photo (Punjab, 2020)",
-                    use_container_width=True,
-                )
-                st.info(f"Showing sample Sentinel-2 scene. Run single-state downloader to generate for {exp_state}.")
-            else:
-                st.warning(f"No cached Sentinel-2 image found for {exp_state}. Run fetch_single_state_satellite.py to download.")
-
-    with img_col2:
-        st.subheader("🌡️ 4-Channel Environmental & Soil Spatial Heatmap")
-        ndvi_path = TEST_IMAGES_DIR / "ndvi" / f"{state_slug}_{exp_year}_{crop_slug}_sentinel2_ndvi.png"
-        heatmap_path = TEST_IMAGES_DIR / f"{state_slug}_{exp_year}_{crop_slug}_heatmap.png"
-        default_heatmap = TEST_IMAGES_DIR / "punjab_2020_rice_heatmap.png"
-
-        if ndvi_path.exists():
-            st.subheader("Sentinel-2 NDVI Crop Vigor Heatmap")
-            st.image(
-                str(ndvi_path),
-                caption=f"Cloud-masked seasonal NDVI composite ({exp_state}, {exp_crop}, {exp_year})",
-                use_container_width=True,
-            )
-        elif heatmap_path.exists():
-            st.image(
-                str(heatmap_path),
-                caption=f"Spatial Climate & Soil Multi-Channel Heatmap ({exp_state})",
-                use_container_width=True,
-            )
-        elif default_heatmap.exists():
-            st.image(
-                str(default_heatmap),
-                caption=f"Sample 4-Channel Spatial Heatmap [Rainfall, Temp, Soil] (Punjab)",
-                use_container_width=True,
-            )
-        else:
-            st.warning("No NDVI or environmental heatmap cached yet.")
-
-    if not sentinel_df.empty:
-        feature_row = sentinel_df[
-            (sentinel_df["State"].str.casefold() == exp_state.casefold())
-            & (sentinel_df["Crop"].str.casefold() == exp_crop.casefold())
-            & (sentinel_df["Year"] == exp_year)
-        ]
-        if not feature_row.empty:
-            st.markdown(f"#### Sentinel-2 Vegetation Features for {exp_state}")
-            feature_cols = [
-                col
-                for col in [
-                    "Image_Count",
-                    "NDVI_mean",
-                    "NDVI_stdDev",
-                    "NDVI_min",
-                    "NDVI_max",
-                    "EVI_mean",
-                    "NDWI_mean",
-                    "NDRE_mean",
-                    "NIR_mean",
-                    "RED_EDGE_mean",
-                ]
-                if col in feature_row.columns
-            ]
-            st.dataframe(feature_row[["State", "Crop", "Year", "Season"] + feature_cols], use_container_width=True)
-        else:
-            st.info("No Sentinel-2 vegetation feature row cached for this state/crop/year yet.")
-
-    with st.expander("How to generate clean Sentinel-2 images and feature rows"):
-        st.code(
-            "python preprocessing/fetch_single_state_satellite.py --state Punjab --crop Rice --year 2020\n"
-            "python preprocessing/fetch_single_state_satellite.py --all-states --crop Rice --year 2020\n"
-            "python preprocessing/fetch_single_state_satellite.py --from-crop-yield --crops Rice,Maize --years 2020",
-            language="bash",
-        )
-
-    # Soil Grid Table for selected State
-    st.markdown(f"#### 🧪 SoilGrids Geochemical Profile for {exp_state}")
-    if not soil_df.empty:
-        s_row = soil_df[soil_df["State"].str.casefold() == exp_state.casefold()]
-        if not s_row.empty:
-            soil_display = s_row[["State", "phh2o", "nitrogen", "soc", "clay", "sand", "silt"]].copy()
-            soil_display.columns = ["State", "Soil pH", "Nitrogen (g/kg)", "Organic Carbon (g/kg)", "Clay %", "Sand %", "Silt %"]
-            st.dataframe(soil_display, use_container_width=True)
-
-# ============================================================
-# PAGE 3: CROP YIELD PREDICTION
-# ============================================================
-elif menu_option == "🌾 Crop Yield Prediction":
-    st.markdown("### 🌾 Crop Yield Predictor")
-    model_artifact = load_tabular_model()
-    modeling_reference_df = load_modeling_reference()
-    if model_artifact is not None and not modeling_reference_df.empty:
-        st.success(f"Using trained tabular model: {model_artifact.get('model_name', 'baseline regressor').replace('_', ' ').title()}")
-    else:
-        st.info("The trained tabular model was not found, so the panel will use the rule-based fallback.")
-
-    prediction_col1, prediction_col2 = st.columns(2)
-    with prediction_col1:
-        selected_crop = st.selectbox("Crop", ["Rice", "Maize"], index=0)
-        selected_state = st.selectbox(
-            "State",
-            sorted(coords_df["State"].unique()) if not coords_df.empty else ["Punjab", "West Bengal", "Tamil Nadu"],
-            index=0,
-        )
-        selected_season = st.selectbox("Season", ["Kharif", "Rabi", "Summer", "Autumn", "Winter", "Whole Year"], index=0)
-        selected_year = st.slider("Year", 1997, 2025, 2023)
-    with prediction_col2:
-        area_ha = st.number_input("Cultivated Area (hectares)", min_value=10.0, max_value=5000.0, value=250.0, step=5.0)
-        rainfall_mm = st.number_input("Annual Rainfall (mm)", min_value=200.0, max_value=3000.0, value=1200.0, step=25.0)
-
-    soil_col1, soil_col2, soil_col3 = st.columns(3)
-    with soil_col1:
-        fertilizer_kg = st.number_input("Fertilizer (kg/ha)", min_value=0.0, max_value=500.0, value=150.0, step=5.0)
-    with soil_col2:
-        pesticide_kg = st.number_input("Pesticide (kg/ha)", min_value=0.0, max_value=200.0, value=30.0, step=2.0)
-    with soil_col3:
-        soil_ph = st.number_input("Soil pH", min_value=3.0, max_value=9.5, value=6.5, step=0.1)
-
-    soc_value = st.number_input("Soil Organic Carbon (g/kg)", min_value=1.0, max_value=60.0, value=18.0, step=1.0)
-
-    if st.button("Predict Crop Yield", type="primary"):
-        if model_artifact is not None and not modeling_reference_df.empty:
-            predicted_yield = predict_with_tabular_model(
-                model_artifact,
-                modeling_reference_df,
-                selected_crop,
-                selected_state,
-                selected_season,
-                selected_year,
-                area_ha,
-                rainfall_mm,
-                fertilizer_kg,
-                pesticide_kg,
-            )
-            model_status = "Model active"
-            prediction_note = (
-                "This estimate uses the trained tabular model. User-entered field values are combined with "
-                "historical satellite/location medians for the selected crop, state, and season."
-            )
-        else:
-            predicted_yield = predict_crop_yield(
-                selected_crop,
-                selected_state,
-                selected_year,
-                area_ha,
-                rainfall_mm,
-                fertilizer_kg,
-                pesticide_kg,
-                soil_ph,
-                soc_value,
-            )
-            model_status = "Fallback active"
-            prediction_note = (
-                "This estimate uses the rule-based fallback because the trained model artifact or modeling dataset is unavailable."
-            )
-
-        st.markdown("<div class='prediction-box'>", unsafe_allow_html=True)
-        colA, colB, colC = st.columns(3)
-        with colA:
-            st.metric("Predicted Yield", f"{predicted_yield:.2f} tonnes/ha")
-        with colB:
-            st.metric("Model Status", model_status)
-        with colC:
-            st.metric("Crop", selected_crop)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("---")
-        st.subheader("Prediction Interpretation")
-        st.write(prediction_note)
-
-        scenario_df = pd.DataFrame(
-            {
-                "Feature": ["Area", "Rainfall", "Fertilizer", "Pesticide", "Soil pH", "Organic Carbon", "Season"],
-                "Value": [area_ha, rainfall_mm, fertilizer_kg, pesticide_kg, soil_ph, soc_value, selected_season],
-            }
-        )
-        st.dataframe(scenario_df, use_container_width=True)
-    else:
-        st.markdown("### 🔍 Live preview")
-        st.caption("Enter the crop and field conditions, then click Predict Crop Yield to see the estimate.")
-
-# ============================================================
-# PAGE 4: PROJECT PIPELINE & ARCHITECTURE
-# ============================================================
-elif menu_option == "🧠 Project Pipeline & Architecture":
-    st.markdown("### 🧠 Project Pipeline & Proposed Architecture")
-
-    # Project Status
-    st.markdown("#### 🚦 Development Status")
-    phases = [
-        ("📦 Raw Data Collection (Crop Yield, Rainfall, Fertilizer)", "✅ Complete"),
-        ("🛰️ Sentinel-2 Satellite Imagery via GEE Pipeline", "✅ Complete"),
-        ("🧪 SoilGrids Geochemical Data Extraction", "✅ Complete"),
-        ("⚙️ Data Preprocessing & Feature Engineering", "✅ Complete"),
-        ("📊 Exploratory Data Analysis Dashboard", "✅ Complete"),
-        ("🤖 Model Training & Evaluation", "🔧 In Progress"),
-        ("🔗 Multimodal Fusion Implementation", "📋 Planned"),
-    ]
-    for phase, status in phases:
-        st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;{status} &ensp; {phase}")
-
-    st.markdown("---")
-
-    # Architecture
-    m_col1, m_col2 = st.columns(2)
-
-    with m_col1:
-        st.markdown(
-            """
-            #### 🏢 Proposed Dual-Stream Pipeline
-            1. **Tabular Stream (MLP Branch)**:
-               * Inputs: Area, Rainfall, Fertilizer/ha, Pesticide/ha, Soil pH/SOC.
-               * Architecture: 3-Layer Dense MLP with BatchNorm & Dropout.
-            2. **Vision Stream (CNN/ViT Branch)**:
-               * Inputs: 4-Channel Sentinel-2 Optical RGB + NDVI Heatmaps `(64, 64, 4)`.
-               * Architecture: ResNet-18 Backbone pretrained on Remote Sensing imagery.
-            3. **Multimodal Fusion Head**:
-               * Concatenation of Tabular Embeddings (64-dim) + Vision Feature Vector (128-dim).
-               * Dense Regression Layers → Predict Yield (tonnes/ha).
-        """
-        )
-
-    with m_col2:
-        st.markdown("#### 📊 Data Readiness Summary")
-        ready_col1, ready_col2 = st.columns(2)
-        ready_col1.metric("Rice Samples", f"{len(rice_df):,}" if not rice_df.empty else "0")
-        ready_col2.metric("Maize Samples", f"{len(maize_df):,}" if not maize_df.empty else "0")
-
-        ready_col3, ready_col4 = st.columns(2)
-        ready_col3.metric("Satellite Feature Rows", f"{len(sentinel_df):,}" if not sentinel_df.empty else "0")
-        ready_col4.metric("Soil Profiles", f"{len(soil_df):,}" if not soil_df.empty else "0")
-
-        st.markdown("#### 🗂️ Multimodal Feature Summary")
-        feature_summary = pd.DataFrame(
-            {
-                "Data Source": ["Tabular (Crop Yield)", "Sentinel-2 Imagery", "SoilGrids"],
-                "Key Features": [
-                    "Area, Production, Rainfall, Fertilizer, Pesticide, Season, State",
-                    "NDVI, EVI, NDWI, NDRE, NIR, RED_EDGE (mean/std/min/max)",
-                    "pH, Nitrogen, SOC, Clay%, Sand%, Silt%",
-                ],
-                "Records": [
-                    f"{len(raw_df):,}" if not raw_df.empty else "—",
-                    f"{len(sentinel_df):,}" if not sentinel_df.empty else "—",
-                    f"{len(soil_df):,}" if not soil_df.empty else "—",
-                ],
-            }
-        )
-        st.dataframe(feature_summary, use_container_width=True, hide_index=True)
-
-    st.markdown("---")
-    st.markdown("#### 🎯 Next Steps")
-    st.markdown(
-        """
-    1. **Baseline Models** — Train Random Forest & XGBoost on tabular features; evaluate R², RMSE, MAE.
-    2. **CNN Feature Extractor** — Fine-tune ResNet-18 on Sentinel-2 NDVI/RGB patches per state.
-    3. **Multimodal Fusion** — Concatenate tabular embeddings + CNN features; train fusion regression head.
-    4. **Evaluation** — Compare tabular-only vs vision-only vs fused model performance on held-out test set.
-    """
-    )
-
-# Footer
-st.markdown("---")
-st.markdown(
-    "<div style='text-align: center; color: #9CA3AF; font-size: 0.85rem;'>Crop Yield Prediction using Multimodal Data Fusion | Built with Streamlit & Plotly</div>",
-    unsafe_allow_html=True,
-)
+if page == "Home":
+    home_dashboard(data, model_artifact)
+elif page == "Data Overview":
+    data_overview(data)
+elif page == "Crop Prediction":
+    crop_prediction_page(data, model_artifact)
+elif page == "Visualizations":
+    visualizations_page(data)
+elif page == "Map View":
+    map_page(data)
+elif page == "Reports":
+    reports_page(data)
+else:
+    settings_page()
