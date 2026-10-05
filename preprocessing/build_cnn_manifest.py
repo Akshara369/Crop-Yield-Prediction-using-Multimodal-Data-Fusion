@@ -1,13 +1,14 @@
-"""Build an auditable image-to-yield manifest and chronological grouped split.
+"""Build an auditable image-to-yield manifest and chronological split.
 
 Run from the repository root with:
     python preprocessing/build_cnn_manifest.py
 
-The split is chronological: years through 2013 train, 2014-2016 validation,
-and 2017 onward test. The partition is assigned by year, which keeps every
-state/crop/season record in a year together and prevents same-year leakage.
-Rows with uncertain targets, missing images, or image paths reused for
-different target keys remain in the manifest but are not marked usable.
+The split matches the tabular baseline: through 2016 train, 2017-2018
+validation, and 2019 onward test. The partition is assigned by year, which
+keeps every state/crop/season record in a year together and prevents
+same-year leakage. Rows with uncertain targets, missing images, or image
+paths reused for different target keys remain in the manifest but are not
+marked usable.
 """
 
 from __future__ import annotations
@@ -37,9 +38,9 @@ def norm(value: object) -> str:
 
 
 def assign_split(year: int) -> str:
-    if year <= 2013:
-        return "train"
     if year <= 2016:
+        return "train"
+    if year <= 2018:
         return "validation"
     return "test"
 

@@ -1,0 +1,14 @@
+feature_key,state,crop,year,season,yield,split,rgb,ndvi,tabular_predicted_yield
+bihar|maize|2019|rabi,Bihar,Maize,2019,Rabi,5.7365625,test,datasets/test_images/2019/rgb/bihar_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/bihar_2019_maize_rabi_ndvi.png,3.507154032489043
+goa|rice|2019|kharif,Goa,Rice,2019,Kharif,2.475,test,datasets/test_images/2019/rgb/goa_2019_rice_kharif_rgb.png,datasets/test_images/2019/ndvi/goa_2019_rice_kharif_ndvi.png,2.610753235842583
+goa|rice|2019|rabi,Goa,Rice,2019,Rabi,2.95,test,datasets/test_images/2019/rgb/goa_2019_rice_rabi_rgb.png,datasets/test_images/2019/ndvi/goa_2019_rice_rabi_ndvi.png,2.844392708850666
+gujarat|maize|2019|rabi,Gujarat,Maize,2019,Rabi,2.556190476,test,datasets/test_images/2019/rgb/gujarat_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/gujarat_2019_maize_rabi_ndvi.png,2.6833932201579485
+jharkhand|maize|2019|rabi,Jharkhand,Maize,2019,Rabi,1.985238095,test,datasets/test_images/2019/rgb/jharkhand_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/jharkhand_2019_maize_rabi_ndvi.png,2.4790245983544845
+maharashtra|maize|2019|rabi,Maharashtra,Maize,2019,Rabi,2.171333333,test,datasets/test_images/2019/rgb/maharashtra_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/maharashtra_2019_maize_rabi_ndvi.png,2.945307287035269
+meghalaya|rice|2019|rabi,Meghalaya,Rice,2019,Rabi,2.57,test,datasets/test_images/2019/rgb/meghalaya_2019_rice_rabi_rgb.png,datasets/test_images/2019/ndvi/meghalaya_2019_rice_rabi_ndvi.png,2.189707342578825
+puducherry|rice|2019|kharif,Puducherry,Rice,2019,Kharif,3.216666667,test,datasets/test_images/2019/rgb/puducherry_2019_rice_kharif_rgb.png,datasets/test_images/2019/ndvi/puducherry_2019_rice_kharif_ndvi.png,2.9462624623023594
+puducherry|rice|2019|rabi,Puducherry,Rice,2019,Rabi,3.883333333,test,datasets/test_images/2019/rgb/puducherry_2019_rice_rabi_rgb.png,datasets/test_images/2019/ndvi/puducherry_2019_rice_rabi_ndvi.png,3.2144515272370726
+tamil nadu|maize|2019|rabi,Tamil Nadu,Maize,2019,Rabi,6.841666667,test,datasets/test_images/2019/rgb/tamil_nadu_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/tamil_nadu_2019_maize_rabi_ndvi.png,5.637850158494407
+tripura|maize|2019|rabi,Tripura,Maize,2019,Rabi,2.41875,test,datasets/test_images/2019/rgb/tripura_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/tripura_2019_maize_rabi_ndvi.png,2.0474721219290366
+uttar pradesh|maize|2019|rabi,Uttar Pradesh,Maize,2019,Rabi,2.745813953,test,datasets/test_images/2019/rgb/uttar_pradesh_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/uttar_pradesh_2019_maize_rabi_ndvi.png,2.609924070560416
+west bengal|maize|2019|rabi,West Bengal,Maize,2019,Rabi,4.138235294,test,datasets/test_images/2019/rgb/west_bengal_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/west_bengal_2019_maize_rabi_ndvi.png,3.8988946259354655

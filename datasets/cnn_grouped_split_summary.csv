@@ -15,11 +15,11 @@ andhra pradesh|2010,2010,train,12,0,Andhra Pradesh
 andhra pradesh|2011,2011,train,12,0,Andhra Pradesh
 andhra pradesh|2012,2012,train,12,0,Andhra Pradesh
 andhra pradesh|2013,2013,train,12,0,Andhra Pradesh
-andhra pradesh|2014,2014,validation,12,0,Andhra Pradesh
-andhra pradesh|2015,2015,validation,12,0,Andhra Pradesh
-andhra pradesh|2016,2016,validation,12,0,Andhra Pradesh
-andhra pradesh|2017,2017,test,12,0,Andhra Pradesh
-andhra pradesh|2018,2018,test,12,0,Andhra Pradesh
+andhra pradesh|2014,2014,train,12,0,Andhra Pradesh
+andhra pradesh|2015,2015,train,12,0,Andhra Pradesh
+andhra pradesh|2016,2016,train,12,0,Andhra Pradesh
+andhra pradesh|2017,2017,validation,12,0,Andhra Pradesh
+andhra pradesh|2018,2018,validation,12,0,Andhra Pradesh
 andhra pradesh|2019,2019,test,12,0,Andhra Pradesh
 arunachal pradesh|1997,1997,train,6,0,Arunachal Pradesh
 arunachal pradesh|1998,1998,train,6,0,Arunachal Pradesh
@@ -38,11 +38,11 @@ arunachal pradesh|2010,2010,train,4,0,Arunachal Pradesh
 arunachal pradesh|2011,2011,train,4,0,Arunachal Pradesh
 arunachal pradesh|2012,2012,train,4,0,Arunachal Pradesh
 arunachal pradesh|2013,2013,train,4,0,Arunachal Pradesh
-arunachal pradesh|2014,2014,validation,4,0,Arunachal Pradesh
-arunachal pradesh|2015,2015,validation,4,0,Arunachal Pradesh
-arunachal pradesh|2016,2016,validation,4,0,Arunachal Pradesh
-arunachal pradesh|2017,2017,test,4,0,Arunachal Pradesh
-arunachal pradesh|2018,2018,test,4,0,Arunachal Pradesh
+arunachal pradesh|2014,2014,train,4,0,Arunachal Pradesh
+arunachal pradesh|2015,2015,train,4,0,Arunachal Pradesh
+arunachal pradesh|2016,2016,train,4,0,Arunachal Pradesh
+arunachal pradesh|2017,2017,validation,4,0,Arunachal Pradesh
+arunachal pradesh|2018,2018,validation,4,0,Arunachal Pradesh
 arunachal pradesh|2019,2019,test,4,0,Arunachal Pradesh
 assam|1997,1997,train,10,0,Assam
 assam|1998,1998,train,10,0,Assam
@@ -61,11 +61,11 @@ assam|2010,2010,train,10,2,Assam
 assam|2011,2011,train,10,2,Assam
 assam|2012,2012,train,8,2,Assam
 assam|2013,2013,train,10,2,Assam
-assam|2014,2014,validation,10,2,Assam
-assam|2015,2015,validation,10,2,Assam
-assam|2016,2016,validation,10,2,Assam
-assam|2017,2017,test,2,2,Assam
-assam|2018,2018,test,2,2,Assam
+assam|2014,2014,train,10,2,Assam
+assam|2015,2015,train,10,2,Assam
+assam|2016,2016,train,10,2,Assam
+assam|2017,2017,validation,2,2,Assam
+assam|2018,2018,validation,2,2,Assam
 assam|2019,2019,test,4,0,Assam
 bihar|1997,1997,train,20,0,Bihar
 bihar|1998,1998,train,12,0,Bihar
@@ -84,11 +84,11 @@ bihar|2010,2010,train,4,2,Bihar
 bihar|2011,2011,train,4,2,Bihar
 bihar|2012,2012,train,4,2,Bihar
 bihar|2013,2013,train,4,2,Bihar
-bihar|2014,2014,validation,4,2,Bihar
-bihar|2015,2015,validation,4,2,Bihar
-bihar|2016,2016,validation,4,2,Bihar
-bihar|2017,2017,test,4,2,Bihar
-bihar|2018,2018,test,4,2,Bihar
+bihar|2014,2014,train,4,2,Bihar
+bihar|2015,2015,train,4,2,Bihar
+bihar|2016,2016,train,4,2,Bihar
+bihar|2017,2017,validation,4,2,Bihar
+bihar|2018,2018,validation,4,2,Bihar
 bihar|2019,2019,test,4,2,Bihar
 chhattisgarh|1997,1997,train,2,0,Chhattisgarh
 chhattisgarh|1999,1999,train,2,0,Chhattisgarh
@@ -106,11 +106,11 @@ chhattisgarh|2010,2010,train,4,0,Chhattisgarh
 chhattisgarh|2011,2011,train,4,0,Chhattisgarh
 chhattisgarh|2012,2012,train,4,0,Chhattisgarh
 chhattisgarh|2013,2013,train,6,2,Chhattisgarh
-chhattisgarh|2014,2014,validation,4,0,Chhattisgarh
-chhattisgarh|2015,2015,validation,4,0,Chhattisgarh
-chhattisgarh|2016,2016,validation,4,0,Chhattisgarh
-chhattisgarh|2017,2017,test,4,0,Chhattisgarh
-chhattisgarh|2018,2018,test,4,0,Chhattisgarh
+chhattisgarh|2014,2014,train,4,0,Chhattisgarh
+chhattisgarh|2015,2015,train,4,0,Chhattisgarh
+chhattisgarh|2016,2016,train,4,0,Chhattisgarh
+chhattisgarh|2017,2017,validation,4,0,Chhattisgarh
+chhattisgarh|2018,2018,validation,4,0,Chhattisgarh
 chhattisgarh|2019,2019,test,4,0,Chhattisgarh
 delhi|1997,1997,train,2,0,Delhi
 delhi|1998,1998,train,4,0,Delhi
@@ -129,11 +129,11 @@ delhi|2010,2010,train,4,0,Delhi
 delhi|2011,2011,train,4,0,Delhi
 delhi|2012,2012,train,4,0,Delhi
 delhi|2013,2013,train,4,0,Delhi
-delhi|2014,2014,validation,4,0,Delhi
-delhi|2015,2015,validation,4,0,Delhi
-delhi|2016,2016,validation,4,0,Delhi
-delhi|2017,2017,test,4,0,Delhi
-delhi|2018,2018,test,4,0,Delhi
+delhi|2014,2014,train,4,0,Delhi
+delhi|2015,2015,train,4,0,Delhi
+delhi|2016,2016,train,4,0,Delhi
+delhi|2017,2017,validation,4,0,Delhi
+delhi|2018,2018,validation,4,0,Delhi
 delhi|2019,2019,test,4,0,Delhi
 goa|1997,1997,train,4,0,Goa
 goa|1998,1998,train,4,0,Goa
@@ -152,11 +152,11 @@ goa|2010,2010,train,4,4,Goa
 goa|2011,2011,train,4,4,Goa
 goa|2012,2012,train,4,4,Goa
 goa|2013,2013,train,4,4,Goa
-goa|2014,2014,validation,4,4,Goa
-goa|2015,2015,validation,4,4,Goa
-goa|2016,2016,validation,4,4,Goa
-goa|2017,2017,test,4,4,Goa
-goa|2018,2018,test,4,4,Goa
+goa|2014,2014,train,4,4,Goa
+goa|2015,2015,train,4,4,Goa
+goa|2016,2016,train,4,4,Goa
+goa|2017,2017,validation,4,4,Goa
+goa|2018,2018,validation,4,4,Goa
 goa|2019,2019,test,4,4,Goa
 gujarat|1997,1997,train,4,2,Gujarat
 gujarat|1998,1998,train,4,0,Gujarat
@@ -175,11 +175,11 @@ gujarat|2010,2010,train,6,2,Gujarat
 gujarat|2011,2011,train,6,2,Gujarat
 gujarat|2012,2012,train,6,2,Gujarat
 gujarat|2013,2013,train,6,2,Gujarat
-gujarat|2014,2014,validation,6,2,Gujarat
-gujarat|2015,2015,validation,6,2,Gujarat
-gujarat|2016,2016,validation,6,2,Gujarat
-gujarat|2017,2017,test,6,2,Gujarat
-gujarat|2018,2018,test,6,2,Gujarat
+gujarat|2014,2014,train,6,2,Gujarat
+gujarat|2015,2015,train,6,2,Gujarat
+gujarat|2016,2016,train,6,2,Gujarat
+gujarat|2017,2017,validation,6,2,Gujarat
+gujarat|2018,2018,validation,6,2,Gujarat
 gujarat|2019,2019,test,6,2,Gujarat
 haryana|1997,1997,train,6,0,Haryana
 haryana|1998,1998,train,6,0,Haryana
@@ -198,11 +198,11 @@ haryana|2010,2010,train,6,0,Haryana
 haryana|2011,2011,train,6,0,Haryana
 haryana|2012,2012,train,6,0,Haryana
 haryana|2013,2013,train,6,0,Haryana
-haryana|2014,2014,validation,6,0,Haryana
-haryana|2015,2015,validation,6,0,Haryana
-haryana|2016,2016,validation,6,0,Haryana
-haryana|2017,2017,test,6,0,Haryana
-haryana|2018,2018,test,4,0,Haryana
+haryana|2014,2014,train,6,0,Haryana
+haryana|2015,2015,train,6,0,Haryana
+haryana|2016,2016,train,6,0,Haryana
+haryana|2017,2017,validation,6,0,Haryana
+haryana|2018,2018,validation,4,0,Haryana
 haryana|2019,2019,test,4,0,Haryana
 himachal pradesh|1997,1997,train,2,0,Himachal Pradesh
 himachal pradesh|1998,1998,train,4,0,Himachal Pradesh
@@ -221,11 +221,11 @@ himachal pradesh|2010,2010,train,4,0,Himachal Pradesh
 himachal pradesh|2011,2011,train,4,0,Himachal Pradesh
 himachal pradesh|2012,2012,train,4,0,Himachal Pradesh
 himachal pradesh|2013,2013,train,4,0,Himachal Pradesh
-himachal pradesh|2014,2014,validation,4,0,Himachal Pradesh
-himachal pradesh|2015,2015,validation,4,0,Himachal Pradesh
-himachal pradesh|2016,2016,validation,4,0,Himachal Pradesh
-himachal pradesh|2017,2017,test,4,0,Himachal Pradesh
-himachal pradesh|2018,2018,test,4,0,Himachal Pradesh
+himachal pradesh|2014,2014,train,4,0,Himachal Pradesh
+himachal pradesh|2015,2015,train,4,0,Himachal Pradesh
+himachal pradesh|2016,2016,train,4,0,Himachal Pradesh
+himachal pradesh|2017,2017,validation,4,0,Himachal Pradesh
+himachal pradesh|2018,2018,validation,4,0,Himachal Pradesh
 himachal pradesh|2019,2019,test,4,0,Himachal Pradesh
 jammu and kashmir|1997,1997,train,4,0,Jammu and Kashmir
 jammu and kashmir|1998,1998,train,2,0,Jammu and Kashmir
@@ -244,11 +244,11 @@ jammu and kashmir|2010,2010,train,4,0,Jammu and Kashmir
 jammu and kashmir|2011,2011,train,4,0,Jammu and Kashmir
 jammu and kashmir|2012,2012,train,4,0,Jammu and Kashmir
 jammu and kashmir|2013,2013,train,2,0,Jammu and Kashmir
-jammu and kashmir|2014,2014,validation,4,0,Jammu and Kashmir
-jammu and kashmir|2015,2015,validation,4,0,Jammu and Kashmir
-jammu and kashmir|2016,2016,validation,4,0,Jammu and Kashmir
-jammu and kashmir|2017,2017,test,4,0,Jammu and Kashmir
-jammu and kashmir|2018,2018,test,4,0,Jammu and Kashmir
+jammu and kashmir|2014,2014,train,4,0,Jammu and Kashmir
+jammu and kashmir|2015,2015,train,4,0,Jammu and Kashmir
+jammu and kashmir|2016,2016,train,4,0,Jammu and Kashmir
+jammu and kashmir|2017,2017,validation,4,0,Jammu and Kashmir
+jammu and kashmir|2018,2018,validation,4,0,Jammu and Kashmir
 jammu and kashmir|2019,2019,test,4,0,Jammu and Kashmir
 jharkhand|1997,1997,train,2,0,Jharkhand
 jharkhand|1998,1998,train,2,0,Jharkhand
@@ -267,11 +267,11 @@ jharkhand|2010,2010,train,2,0,Jharkhand
 jharkhand|2011,2011,train,2,0,Jharkhand
 jharkhand|2012,2012,train,2,0,Jharkhand
 jharkhand|2013,2013,train,2,0,Jharkhand
-jharkhand|2014,2014,validation,2,0,Jharkhand
-jharkhand|2015,2015,validation,2,0,Jharkhand
-jharkhand|2016,2016,validation,2,0,Jharkhand
-jharkhand|2017,2017,test,6,2,Jharkhand
-jharkhand|2018,2018,test,6,2,Jharkhand
+jharkhand|2014,2014,train,2,0,Jharkhand
+jharkhand|2015,2015,train,2,0,Jharkhand
+jharkhand|2016,2016,train,2,0,Jharkhand
+jharkhand|2017,2017,validation,6,2,Jharkhand
+jharkhand|2018,2018,validation,6,2,Jharkhand
 jharkhand|2019,2019,test,6,2,Jharkhand
 karnataka|1997,1997,train,12,0,Karnataka
 karnataka|1998,1998,train,12,0,Karnataka
@@ -290,11 +290,11 @@ karnataka|2010,2010,train,12,0,Karnataka
 karnataka|2011,2011,train,8,0,Karnataka
 karnataka|2012,2012,train,12,0,Karnataka
 karnataka|2013,2013,train,12,0,Karnataka
-karnataka|2014,2014,validation,12,0,Karnataka
-karnataka|2015,2015,validation,12,0,Karnataka
-karnataka|2016,2016,validation,12,0,Karnataka
-karnataka|2017,2017,test,8,0,Karnataka
-karnataka|2018,2018,test,8,0,Karnataka
+karnataka|2014,2014,train,12,0,Karnataka
+karnataka|2015,2015,train,12,0,Karnataka
+karnataka|2016,2016,train,12,0,Karnataka
+karnataka|2017,2017,validation,8,0,Karnataka
+karnataka|2018,2018,validation,8,0,Karnataka
 karnataka|2019,2019,test,8,0,Karnataka
 kerala|1999,1999,train,6,0,Kerala
 kerala|2000,2000,train,8,0,Kerala
@@ -311,10 +311,10 @@ kerala|2010,2010,train,6,0,Kerala
 kerala|2011,2011,train,8,2,Kerala
 kerala|2012,2012,train,10,4,Kerala
 kerala|2013,2013,train,10,4,Kerala
-kerala|2014,2014,validation,8,2,Kerala
-kerala|2015,2015,validation,10,4,Kerala
-kerala|2016,2016,validation,10,4,Kerala
-kerala|2018,2018,test,2,0,Kerala
+kerala|2014,2014,train,8,2,Kerala
+kerala|2015,2015,train,10,4,Kerala
+kerala|2016,2016,train,10,4,Kerala
+kerala|2018,2018,validation,2,0,Kerala
 kerala|2019,2019,test,2,0,Kerala
 madhya pradesh|1997,1997,train,6,0,Madhya Pradesh
 madhya pradesh|1998,1998,train,6,0,Madhya Pradesh
@@ -333,11 +333,11 @@ madhya pradesh|2010,2010,train,4,0,Madhya Pradesh
 madhya pradesh|2011,2011,train,4,0,Madhya Pradesh
 madhya pradesh|2012,2012,train,4,0,Madhya Pradesh
 madhya pradesh|2013,2013,train,4,0,Madhya Pradesh
-madhya pradesh|2014,2014,validation,4,0,Madhya Pradesh
-madhya pradesh|2015,2015,validation,4,0,Madhya Pradesh
-madhya pradesh|2016,2016,validation,4,0,Madhya Pradesh
-madhya pradesh|2017,2017,test,4,0,Madhya Pradesh
-madhya pradesh|2018,2018,test,4,0,Madhya Pradesh
+madhya pradesh|2014,2014,train,4,0,Madhya Pradesh
+madhya pradesh|2015,2015,train,4,0,Madhya Pradesh
+madhya pradesh|2016,2016,train,4,0,Madhya Pradesh
+madhya pradesh|2017,2017,validation,4,0,Madhya Pradesh
+madhya pradesh|2018,2018,validation,4,0,Madhya Pradesh
 madhya pradesh|2019,2019,test,4,0,Madhya Pradesh
 maharashtra|1997,1997,train,16,0,Maharashtra
 maharashtra|1998,1998,train,14,0,Maharashtra
@@ -356,11 +356,11 @@ maharashtra|2010,2010,train,6,2,Maharashtra
 maharashtra|2011,2011,train,6,2,Maharashtra
 maharashtra|2012,2012,train,6,2,Maharashtra
 maharashtra|2013,2013,train,6,2,Maharashtra
-maharashtra|2014,2014,validation,6,2,Maharashtra
-maharashtra|2015,2015,validation,6,2,Maharashtra
-maharashtra|2016,2016,validation,6,2,Maharashtra
-maharashtra|2017,2017,test,6,2,Maharashtra
-maharashtra|2018,2018,test,6,2,Maharashtra
+maharashtra|2014,2014,train,6,2,Maharashtra
+maharashtra|2015,2015,train,6,2,Maharashtra
+maharashtra|2016,2016,train,6,2,Maharashtra
+maharashtra|2017,2017,validation,6,2,Maharashtra
+maharashtra|2018,2018,validation,6,2,Maharashtra
 maharashtra|2019,2019,test,6,2,Maharashtra
 manipur|1997,1997,train,6,0,Manipur
 manipur|1998,1998,train,14,0,Manipur
@@ -379,11 +379,11 @@ manipur|2010,2010,train,8,2,Manipur
 manipur|2011,2011,train,8,2,Manipur
 manipur|2012,2012,train,8,2,Manipur
 manipur|2013,2013,train,8,2,Manipur
-manipur|2014,2014,validation,8,2,Manipur
-manipur|2015,2015,validation,8,2,Manipur
-manipur|2016,2016,validation,8,2,Manipur
-manipur|2017,2017,test,8,2,Manipur
-manipur|2018,2018,test,6,2,Manipur
+manipur|2014,2014,train,8,2,Manipur
+manipur|2015,2015,train,8,2,Manipur
+manipur|2016,2016,train,8,2,Manipur
+manipur|2017,2017,validation,8,2,Manipur
+manipur|2018,2018,validation,6,2,Manipur
 manipur|2019,2019,test,2,0,Manipur
 meghalaya|1997,1997,train,4,0,Meghalaya
 meghalaya|1998,1998,train,4,0,Meghalaya
@@ -402,11 +402,11 @@ meghalaya|2010,2010,train,10,2,Meghalaya
 meghalaya|2011,2011,train,10,2,Meghalaya
 meghalaya|2012,2012,train,10,4,Meghalaya
 meghalaya|2013,2013,train,10,4,Meghalaya
-meghalaya|2014,2014,validation,10,4,Meghalaya
-meghalaya|2015,2015,validation,10,2,Meghalaya
-meghalaya|2016,2016,validation,10,2,Meghalaya
-meghalaya|2017,2017,test,4,4,Meghalaya
-meghalaya|2018,2018,test,4,4,Meghalaya
+meghalaya|2014,2014,train,10,4,Meghalaya
+meghalaya|2015,2015,train,10,2,Meghalaya
+meghalaya|2016,2016,train,10,2,Meghalaya
+meghalaya|2017,2017,validation,4,4,Meghalaya
+meghalaya|2018,2018,validation,4,4,Meghalaya
 meghalaya|2019,2019,test,6,2,Meghalaya
 mizoram|1997,1997,train,8,2,Mizoram
 mizoram|1998,1998,train,8,0,Mizoram
@@ -425,11 +425,11 @@ mizoram|2010,2010,train,8,0,Mizoram
 mizoram|2011,2011,train,8,0,Mizoram
 mizoram|2012,2012,train,8,0,Mizoram
 mizoram|2013,2013,train,8,0,Mizoram
-mizoram|2014,2014,validation,8,0,Mizoram
-mizoram|2015,2015,validation,8,0,Mizoram
-mizoram|2016,2016,validation,8,0,Mizoram
-mizoram|2017,2017,test,8,0,Mizoram
-mizoram|2018,2018,test,8,0,Mizoram
+mizoram|2014,2014,train,8,0,Mizoram
+mizoram|2015,2015,train,8,0,Mizoram
+mizoram|2016,2016,train,8,0,Mizoram
+mizoram|2017,2017,validation,8,0,Mizoram
+mizoram|2018,2018,validation,8,0,Mizoram
 mizoram|2019,2019,test,8,0,Mizoram
 nagaland|1997,1997,train,6,2,Nagaland
 nagaland|1998,1998,train,4,0,Nagaland
@@ -448,11 +448,11 @@ nagaland|2010,2010,train,12,0,Nagaland
 nagaland|2011,2011,train,12,0,Nagaland
 nagaland|2012,2012,train,12,0,Nagaland
 nagaland|2013,2013,train,12,0,Nagaland
-nagaland|2014,2014,validation,12,0,Nagaland
-nagaland|2015,2015,validation,12,0,Nagaland
-nagaland|2016,2016,validation,12,0,Nagaland
-nagaland|2017,2017,test,12,0,Nagaland
-nagaland|2018,2018,test,8,0,Nagaland
+nagaland|2014,2014,train,12,0,Nagaland
+nagaland|2015,2015,train,12,0,Nagaland
+nagaland|2016,2016,train,12,0,Nagaland
+nagaland|2017,2017,validation,12,0,Nagaland
+nagaland|2018,2018,validation,8,0,Nagaland
 nagaland|2019,2019,test,8,0,Nagaland
 odisha|1997,1997,train,8,0,Odisha
 odisha|1999,1999,train,10,2,Odisha
@@ -470,11 +470,11 @@ odisha|2010,2010,train,14,0,Odisha
 odisha|2011,2011,train,14,0,Odisha
 odisha|2012,2012,train,14,0,Odisha
 odisha|2013,2013,train,14,0,Odisha
-odisha|2014,2014,validation,14,0,Odisha
-odisha|2015,2015,validation,14,0,Odisha
-odisha|2016,2016,validation,14,0,Odisha
-odisha|2017,2017,test,14,0,Odisha
-odisha|2018,2018,test,14,0,Odisha
+odisha|2014,2014,train,14,0,Odisha
+odisha|2015,2015,train,14,0,Odisha
+odisha|2016,2016,train,14,0,Odisha
+odisha|2017,2017,validation,14,0,Odisha
+odisha|2018,2018,validation,14,0,Odisha
 odisha|2019,2019,test,2,0,Odisha
 puducherry|1997,1997,train,2,0,Puducherry
 puducherry|1999,1999,train,2,2,Puducherry
@@ -491,11 +491,11 @@ puducherry|2010,2010,train,6,6,Puducherry
 puducherry|2011,2011,train,6,6,Puducherry
 puducherry|2012,2012,train,6,6,Puducherry
 puducherry|2013,2013,train,6,6,Puducherry
-puducherry|2014,2014,validation,6,6,Puducherry
-puducherry|2015,2015,validation,6,6,Puducherry
-puducherry|2016,2016,validation,6,6,Puducherry
-puducherry|2017,2017,test,4,4,Puducherry
-puducherry|2018,2018,test,4,4,Puducherry
+puducherry|2014,2014,train,6,6,Puducherry
+puducherry|2015,2015,train,6,6,Puducherry
+puducherry|2016,2016,train,6,6,Puducherry
+puducherry|2017,2017,validation,4,4,Puducherry
+puducherry|2018,2018,validation,4,4,Puducherry
 puducherry|2019,2019,test,4,4,Puducherry
 punjab|1997,1997,train,6,0,Punjab
 punjab|1998,1998,train,6,0,Punjab
@@ -514,11 +514,11 @@ punjab|2010,2010,train,6,0,Punjab
 punjab|2011,2011,train,6,0,Punjab
 punjab|2012,2012,train,6,0,Punjab
 punjab|2013,2013,train,6,0,Punjab
-punjab|2014,2014,validation,6,0,Punjab
-punjab|2015,2015,validation,6,0,Punjab
-punjab|2016,2016,validation,6,0,Punjab
-punjab|2017,2017,test,6,0,Punjab
-punjab|2018,2018,test,4,0,Punjab
+punjab|2014,2014,train,6,0,Punjab
+punjab|2015,2015,train,6,0,Punjab
+punjab|2016,2016,train,6,0,Punjab
+punjab|2017,2017,validation,6,0,Punjab
+punjab|2018,2018,validation,4,0,Punjab
 punjab|2019,2019,test,4,0,Punjab
 sikkim|1997,1997,train,6,2,Sikkim
 sikkim|1998,1998,train,4,0,Sikkim
@@ -537,11 +537,11 @@ sikkim|2010,2010,train,4,0,Sikkim
 sikkim|2011,2011,train,4,0,Sikkim
 sikkim|2012,2012,train,4,0,Sikkim
 sikkim|2013,2013,train,4,0,Sikkim
-sikkim|2014,2014,validation,4,0,Sikkim
-sikkim|2015,2015,validation,4,0,Sikkim
-sikkim|2016,2016,validation,4,0,Sikkim
-sikkim|2017,2017,test,4,0,Sikkim
-sikkim|2018,2018,test,4,0,Sikkim
+sikkim|2014,2014,train,4,0,Sikkim
+sikkim|2015,2015,train,4,0,Sikkim
+sikkim|2016,2016,train,4,0,Sikkim
+sikkim|2017,2017,validation,4,0,Sikkim
+sikkim|2018,2018,validation,4,0,Sikkim
 sikkim|2019,2019,test,4,0,Sikkim
 tamil nadu|1997,1997,train,2,0,Tamil Nadu
 tamil nadu|1999,1999,train,4,0,Tamil Nadu
@@ -559,11 +559,11 @@ tamil nadu|2010,2010,train,4,0,Tamil Nadu
 tamil nadu|2011,2011,train,6,2,Tamil Nadu
 tamil nadu|2012,2012,train,4,0,Tamil Nadu
 tamil nadu|2013,2013,train,6,2,Tamil Nadu
-tamil nadu|2014,2014,validation,6,2,Tamil Nadu
-tamil nadu|2015,2015,validation,6,2,Tamil Nadu
-tamil nadu|2016,2016,validation,6,2,Tamil Nadu
-tamil nadu|2017,2017,test,6,2,Tamil Nadu
-tamil nadu|2018,2018,test,4,4,Tamil Nadu
+tamil nadu|2014,2014,train,6,2,Tamil Nadu
+tamil nadu|2015,2015,train,6,2,Tamil Nadu
+tamil nadu|2016,2016,train,6,2,Tamil Nadu
+tamil nadu|2017,2017,validation,6,2,Tamil Nadu
+tamil nadu|2018,2018,validation,4,4,Tamil Nadu
 tamil nadu|2019,2019,test,6,2,Tamil Nadu
 telangana|1998,1998,train,2,0,Telangana
 telangana|1999,1999,train,2,0,Telangana
@@ -581,11 +581,11 @@ telangana|2010,2010,train,2,0,Telangana
 telangana|2011,2011,train,2,0,Telangana
 telangana|2012,2012,train,2,0,Telangana
 telangana|2013,2013,train,8,0,Telangana
-telangana|2014,2014,validation,8,0,Telangana
-telangana|2015,2015,validation,8,0,Telangana
-telangana|2016,2016,validation,8,0,Telangana
-telangana|2017,2017,test,8,0,Telangana
-telangana|2018,2018,test,8,0,Telangana
+telangana|2014,2014,train,8,0,Telangana
+telangana|2015,2015,train,8,0,Telangana
+telangana|2016,2016,train,8,0,Telangana
+telangana|2017,2017,validation,8,0,Telangana
+telangana|2018,2018,validation,8,0,Telangana
 telangana|2019,2019,test,8,0,Telangana
 tripura|1997,1997,train,2,0,Tripura
 tripura|1998,1998,train,6,0,Tripura
@@ -604,11 +604,11 @@ tripura|2010,2010,train,6,0,Tripura
 tripura|2011,2011,train,6,0,Tripura
 tripura|2012,2012,train,6,0,Tripura
 tripura|2013,2013,train,6,0,Tripura
-tripura|2014,2014,validation,6,0,Tripura
-tripura|2015,2015,validation,8,2,Tripura
-tripura|2016,2016,validation,8,2,Tripura
-tripura|2017,2017,test,8,2,Tripura
-tripura|2018,2018,test,6,2,Tripura
+tripura|2014,2014,train,6,0,Tripura
+tripura|2015,2015,train,8,2,Tripura
+tripura|2016,2016,train,8,2,Tripura
+tripura|2017,2017,validation,8,2,Tripura
+tripura|2018,2018,validation,6,2,Tripura
 tripura|2019,2019,test,6,2,Tripura
 uttar pradesh|1997,1997,train,12,0,Uttar Pradesh
 uttar pradesh|1998,1998,train,6,0,Uttar Pradesh
@@ -627,11 +627,11 @@ uttar pradesh|2010,2010,train,6,2,Uttar Pradesh
 uttar pradesh|2011,2011,train,6,2,Uttar Pradesh
 uttar pradesh|2012,2012,train,6,2,Uttar Pradesh
 uttar pradesh|2013,2013,train,6,2,Uttar Pradesh
-uttar pradesh|2014,2014,validation,6,2,Uttar Pradesh
-uttar pradesh|2015,2015,validation,6,2,Uttar Pradesh
-uttar pradesh|2016,2016,validation,6,2,Uttar Pradesh
-uttar pradesh|2017,2017,test,6,2,Uttar Pradesh
-uttar pradesh|2018,2018,test,6,2,Uttar Pradesh
+uttar pradesh|2014,2014,train,6,2,Uttar Pradesh
+uttar pradesh|2015,2015,train,6,2,Uttar Pradesh
+uttar pradesh|2016,2016,train,6,2,Uttar Pradesh
+uttar pradesh|2017,2017,validation,6,2,Uttar Pradesh
+uttar pradesh|2018,2018,validation,6,2,Uttar Pradesh
 uttar pradesh|2019,2019,test,6,2,Uttar Pradesh
 uttarakhand|1997,1997,train,2,0,Uttarakhand
 uttarakhand|1998,1998,train,2,0,Uttarakhand
@@ -650,11 +650,11 @@ uttarakhand|2010,2010,train,8,0,Uttarakhand
 uttarakhand|2011,2011,train,4,0,Uttarakhand
 uttarakhand|2012,2012,train,4,0,Uttarakhand
 uttarakhand|2013,2013,train,4,0,Uttarakhand
-uttarakhand|2014,2014,validation,4,0,Uttarakhand
-uttarakhand|2015,2015,validation,4,0,Uttarakhand
-uttarakhand|2016,2016,validation,4,0,Uttarakhand
-uttarakhand|2017,2017,test,4,0,Uttarakhand
-uttarakhand|2018,2018,test,4,0,Uttarakhand
+uttarakhand|2014,2014,train,4,0,Uttarakhand
+uttarakhand|2015,2015,train,4,0,Uttarakhand
+uttarakhand|2016,2016,train,4,0,Uttarakhand
+uttarakhand|2017,2017,validation,4,0,Uttarakhand
+uttarakhand|2018,2018,validation,4,0,Uttarakhand
 uttarakhand|2019,2019,test,4,0,Uttarakhand
 uttarakhand|2020,2020,test,4,0,Uttarakhand
 west bengal|1997,1997,train,10,2,West Bengal
@@ -674,9 +674,9 @@ west bengal|2010,2010,train,4,2,West Bengal
 west bengal|2011,2011,train,4,2,West Bengal
 west bengal|2012,2012,train,4,2,West Bengal
 west bengal|2013,2013,train,4,2,West Bengal
-west bengal|2014,2014,validation,4,2,West Bengal
-west bengal|2015,2015,validation,4,2,West Bengal
-west bengal|2016,2016,validation,4,2,West Bengal
-west bengal|2017,2017,test,4,2,West Bengal
-west bengal|2018,2018,test,4,2,West Bengal
+west bengal|2014,2014,train,4,2,West Bengal
+west bengal|2015,2015,train,4,2,West Bengal
+west bengal|2016,2016,train,4,2,West Bengal
+west bengal|2017,2017,validation,4,2,West Bengal
+west bengal|2018,2018,validation,4,2,West Bengal
 west bengal|2019,2019,test,4,2,West Bengal

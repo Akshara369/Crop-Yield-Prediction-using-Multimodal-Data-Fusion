@@ -162,6 +162,51 @@ Generated artifacts:
 - `models/reports/feature_importance.png`
 
 `Production` is excluded from training to avoid target leakage, and a small number of implausible yield outliers above 15 tonnes/ha are filtered before model fitting.
+
+## CNN Image-Only Baseline
+
+The image baseline uses only complete RGB/NDVI pairs whose paths exist, whose
+yield target matches exactly, and whose image paths are not reused across
+target keys. It uses the same chronological year boundaries as the tabular
+baseline: train through 2016, validation in 2017-2018, and test from 2019.
+The current image collection has no eligible 2020 pairs, so its test set only
+covers 2019 and is too small for a definitive model comparison.
+
+Install the CNN dependencies in the Python environment used to run training:
+
+```bash
+python -m pip install -r requirements-cnn.txt
+```
+
+Build the manifest and aligned paired-sample CSVs, then train the image-only
+baseline:
+
+```bash
+python preprocessing/build_cnn_manifest.py
+python preprocessing/prepare_cnn_dataset.py
+python preprocessing/train_cnn_image_baseline.py
+```
+
+The preparation step writes `datasets/cnn_samples.csv` and the split files
+`datasets/cnn_train.csv`, `datasets/cnn_validation.csv`, and
+`datasets/cnn_test.csv`. The training step writes the Keras model,
+test predictions, and metrics under `models/`. It reports tabular Gradient
+Boosting metrics on the same eligible test samples for a like-for-like
+comparison. Treat these results as exploratory because the CNN is trained
+from scratch on a small image cohort and the test set is small.
+
+Current aligned test results (13 complete image pairs from 2019):
+
+| Model | Test RMSE | Test MAE | Test R2 |
+| --- | ---: | ---: | ---: |
+| Image-only CNN (RGB + NDVI) | 1.3560 | 0.9282 | 0.0610 |
+| Gradient Boosting (same 13 samples) | 0.7936 | 0.5489 | 0.6784 |
+
+This small test set is not sufficient to conclude that image-only modeling
+cannot help; the current result only shows that this CNN baseline is not
+ready to replace the tabular model. See `models/cnn_image_baseline_metrics.json`
+and `models/cnn_image_baseline_test_predictions.csv` for the full evaluation.
+
 ## Current Status
 
 The repository currently includes:
@@ -169,6 +214,7 @@ The repository currently includes:
 - A working interactive dashboard for exploring crop data and spatial inputs
 - Data preprocessing scripts for rice/maize and geospatial enrichment
 - A trained tabular baseline model integrated into the prediction interface
+- An auditable CNN manifest, aligned paired-image splits, and a trained image-only CNN baseline
 - A rule-based fallback when the trained model artifact is unavailable
 
 ## Future Improvements
@@ -181,7 +227,4 @@ The repository currently includes:
 ## License
 
 This project is intended for academic and research use. Please check the repository owner or institutional guidelines for licensing details before reuse or redistribution.
-
-
-
 
