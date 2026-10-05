@@ -1,0 +1,95 @@
+{
+  "dataset": {
+    "rows_before_outlier_filter": 1781,
+    "rows": 1774,
+    "removed_outlier_rows": 7,
+    "max_reasonable_yield": 15.0,
+    "features": 43,
+    "numeric_features": [
+      "Year",
+      "Area",
+      "Annual_Rainfall",
+      "Fertilizer",
+      "Pesticide",
+      "Latitude",
+      "Longitude",
+      "Image_Count",
+      "Cloud_Score_Threshold",
+      "Buffer_Degree",
+      "BLUE_max",
+      "BLUE_mean",
+      "BLUE_min",
+      "BLUE_stdDev",
+      "EVI_max",
+      "EVI_mean",
+      "EVI_min",
+      "EVI_stdDev",
+      "GREEN_max",
+      "GREEN_mean",
+      "GREEN_min",
+      "GREEN_stdDev",
+      "NDVI_max",
+      "NDVI_mean",
+      "NDVI_min",
+      "NDVI_stdDev",
+      "NDWI_max",
+      "NDWI_mean",
+      "NDWI_min",
+      "NDWI_stdDev",
+      "NIR_max",
+      "NIR_mean",
+      "NIR_min",
+      "NIR_stdDev",
+      "RED_max",
+      "RED_mean",
+      "RED_min",
+      "RED_stdDev",
+      "Fertilizer_per_Area",
+      "Pesticide_per_Area"
+    ],
+    "categorical_features": [
+      "State",
+      "Crop",
+      "Season"
+    ],
+    "target": "Yield"
+  },
+  "split": {
+    "train_years": "1997-2016",
+    "validation_years": "2017-2018",
+    "test_years": "2019-2020",
+    "train_rows": 1556,
+    "validation_rows": 150,
+    "test_rows": 68
+  },
+  "models": {
+    "dummy_mean": {
+      "validation": {
+        "rmse": 1.477692252000232,
+        "mae": 0.9144326371744472,
+        "r2": -0.1749200193881486
+      },
+      "test": {
+        "rmse": 1.6197953768433941,
+        "mae": 1.028396193975843,
+        "r2": -0.251965758079602
+      }
+    },
+    "random_forest": {
+      "validation": {
+        "rmse": 1.0030798306654887,
+        "mae": 0.5878142410208511,
+        "r2": 0.45860865658145256
+      },
+      "test": {
+        "rmse": 1.0719417028655882,
+        "mae": 0.6418213898369511,
+        "r2": 0.4517047609906373
+      }
+    }
+  },
+  "notes": [
+    "Production is excluded to avoid target leakage.",
+    "The saved model is trained on rows through the validation period for stronger future predictions."
+  ]
+}
