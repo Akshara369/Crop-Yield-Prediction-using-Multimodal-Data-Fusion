@@ -12,9 +12,13 @@ os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from PIL import Image
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+try:
+    import tensorflow as tf
+except ModuleNotFoundError:
+    tf = None
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -108,6 +112,20 @@ def predict(
 
 
 def main() -> None:
+    if tf is None:
+        print(
+            "TensorFlow is not installed, so the CNN baseline cannot be trained in "
+            "this environment."
+        )
+        print(
+            "Running the lightweight image-feature baseline instead. To train the "
+            "CNN later, install TensorFlow with: pip install tensorflow"
+        )
+        from run_image_feature_baselines import main as run_feature_baseline
+
+        run_feature_baseline()
+        return
+
     random.seed(RANDOM_SEED)
     np.random.seed(RANDOM_SEED)
     tf.keras.utils.set_random_seed(RANDOM_SEED)

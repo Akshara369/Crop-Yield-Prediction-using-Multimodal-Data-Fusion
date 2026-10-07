@@ -1,6 +1,7 @@
 import argparse
 import os
 from pathlib import Path
+from datetime import datetime
 from typing import Iterable
 
 import pandas as pd
@@ -9,8 +10,13 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 COORDS_PATH = ROOT / "datasets" / "state_coordinates.csv"
 FEATURES_PATH = ROOT / "datasets" / "harmonized_satellite_features.csv"
+FAILED_TARGETS_PATH = ROOT / "datasets" / "failed_satellite_targets.csv"
 OUTPUT_DIR = ROOT / "datasets" / "test_images"
 COMMON_BANDS = ["BLUE", "GREEN", "RED", "NIR"]
+
+
+class EarthEngineSetupError(RuntimeError):
+    """Raised when local Earth Engine credentials/project are not ready."""
 
 
 def slug(value: str) -> str:
@@ -37,29 +43,51 @@ def date_range_for_season(year: int, months: tuple[int, int]) -> tuple[str, str]
     return f"{start_year}-{start_month:02d}-01", f"{end_year}-{end_month:02d}-28"
 
 
-def initialize_earth_engine(project: str | None = None):
+def initialize_earth_engine(project: str | None = None, authenticate: bool = False):
     try:
         import ee
+    except ModuleNotFoundError as exc:
+        raise EarthEngineSetupError(
+            "Google Earth Engine is required for satellite extraction, but "
+            "`earthengine-api` is not installed. Install it with:\n"
+            "  pip install earthengine-api"
+        ) from exc
 
-        project_id = project or os.getenv("EE_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")
-        try:
-            if project_id:
-                ee.Initialize(project=project_id)
-            else:
-                ee.Initialize()
-        except Exception:
+    project_id = project or os.getenv("EE_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")
+    try:
+        if project_id:
+            ee.Initialize(project=project_id)
+        else:
+            ee.Initialize()
+        return ee
+    except Exception as exc:
+        if authenticate:
             ee.Authenticate()
             if project_id:
                 ee.Initialize(project=project_id)
             else:
                 ee.Initialize()
-        return ee
-    except Exception as exc:
-        raise RuntimeError(
-            "Google Earth Engine is required for clear Sentinel-2 composites. "
-            "Install earthengine-api, authenticate with `earthengine authenticate`, "
-            "and provide a Google Cloud project with --ee-project or EE_PROJECT."
+            return ee
+
+        project_hint = (
+            "Provide a Google Cloud project with `--ee-project YOUR_PROJECT_ID`, "
+            "or set it once with `$env:EE_PROJECT='YOUR_PROJECT_ID'`."
+            if not project_id
+            else f"Earth Engine project being used: {project_id}"
+        )
+        raise EarthEngineSetupError(
+            "Google Earth Engine is required for satellite extraction. "
+            "Your local Earth Engine session is not initialized.\n\n"
+            "Run these commands once in PowerShell:\n"
+            "  earthengine authenticate\n"
+            "  $env:EE_PROJECT='YOUR_PROJECT_ID'\n\n"
+            f"{project_hint}\n\n"
+            f"Original Earth Engine error: {exc}"
         ) from exc
+
+
+def validate_earth_engine_setup(project: str | None = None) -> None:
+    initialize_earth_engine(project, authenticate=False)
 
 
 def add_cloud_score_mask(ee, s2_collection, region, start_date: str, end_date: str, threshold: float):
@@ -145,12 +173,21 @@ def landsat_collection(ee, year: int, region, start_date: str, end_date: str):
         )
 
     if year <= 2012:
-        landsat5 = filtered("LANDSAT/LT05/C02/T1_L2", ["SR_B1", "SR_B2", "SR_B3", "SR_B4"])
-        landsat7 = filtered("LANDSAT/LE07/C02/T1_L2", ["SR_B1", "SR_B2", "SR_B3", "SR_B4"])
-        return landsat5.merge(landsat7), "Landsat 5/7 SR", 30
+        bands = ["SR_B1", "SR_B2", "SR_B3", "SR_B4"]
+        landsat5_t1 = filtered("LANDSAT/LT05/C02/T1_L2", bands)
+        landsat5_t2 = filtered("LANDSAT/LT05/C02/T2_L2", bands)
+        landsat7_t1 = filtered("LANDSAT/LE07/C02/T1_L2", bands)
+        landsat7_t2 = filtered("LANDSAT/LE07/C02/T2_L2", bands)
+        return (
+            landsat5_t1.merge(landsat5_t2).merge(landsat7_t1).merge(landsat7_t2),
+            "Landsat 5/7 SR T1/T2",
+            30,
+        )
 
-    landsat8 = filtered("LANDSAT/LC08/C02/T1_L2", ["SR_B2", "SR_B3", "SR_B4", "SR_B5"])
-    return landsat8, "Landsat 8 SR", 30
+    bands = ["SR_B2", "SR_B3", "SR_B4", "SR_B5"]
+    landsat8_t1 = filtered("LANDSAT/LC08/C02/T1_L2", bands)
+    landsat8_t2 = filtered("LANDSAT/LC08/C02/T2_L2", bands)
+    return landsat8_t1.merge(landsat8_t2), "Landsat 8 SR T1/T2", 30
 
 
 def download_file(url: str, path: Path) -> None:
@@ -323,6 +360,14 @@ def target_key(state: str, crop: str, year: int, season: str | None) -> tuple[st
     )
 
 
+def target_group_key(state: str, crop: str, year: int) -> tuple[str, str, int]:
+    return (
+        state.strip().casefold(),
+        crop.strip().casefold(),
+        int(year),
+    )
+
+
 def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int, str]]:
     if not path.exists():
         return set()
@@ -336,6 +381,65 @@ def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int
         target_key(row.State, row.Crop, row.Year, row.Season)
         for row in completed[["State", "Crop", "Year", "Season"]].itertuples(index=False)
     }
+
+
+def failed_target_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, int, str]]:
+    if not path.exists():
+        return set()
+
+    failed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year", "Season"}
+    if not required_columns.issubset(failed.columns):
+        return set()
+
+    return {
+        target_key(row.State, row.Crop, row.Year, row.Season)
+        for row in failed[["State", "Crop", "Year", "Season"]].itertuples(index=False)
+    }
+
+
+def failed_target_group_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, int]]:
+    if not path.exists():
+        return set()
+
+    failed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year"}
+    if not required_columns.issubset(failed.columns):
+        return set()
+
+    return {
+        target_group_key(row.State, row.Crop, row.Year)
+        for row in failed[["State", "Crop", "Year"]].itertuples(index=False)
+    }
+
+
+def save_failed_target(
+    state: str,
+    crop: str,
+    year: int,
+    season: str | None,
+    reason: str,
+    path: Path = FAILED_TARGETS_PATH,
+) -> None:
+    row = {
+        "State": state,
+        "Crop": crop,
+        "Year": int(year),
+        "Season": season or "Kharif",
+        "Reason": str(reason).replace("\n", " ").strip(),
+        "Failed_At": datetime.now().isoformat(timespec="seconds"),
+    }
+    new_df = pd.DataFrame([row])
+    if path.exists():
+        old_df = pd.read_csv(path)
+        merged = pd.concat([old_df, new_df], ignore_index=True)
+    else:
+        merged = new_df
+
+    merged = merged.drop_duplicates(
+        subset=["State", "Crop", "Year", "Season"], keep="last"
+    ).sort_values(["State", "Crop", "Year", "Season"])
+    merged.to_csv(path, index=False)
 
 
 def load_targets_from_crop_yield(
@@ -393,6 +497,7 @@ def main() -> None:
     parser.add_argument("--cloud-score-threshold", type=float, default=0.6, help="Cloud Score+ cs_cdf mask threshold.")
     parser.add_argument("--ee-project", default=None, help="Google Cloud project ID registered for Earth Engine.")
     parser.add_argument("--resume", action="store_true", help="Skip targets already saved in harmonized_satellite_features.csv.")
+    parser.add_argument("--retry-failed", action="store_true", help="Retry targets listed in failed_satellite_targets.csv.")
     args = parser.parse_args()
 
     coords_df = pd.read_csv(COORDS_PATH)
@@ -431,6 +536,46 @@ def main() -> None:
         targets = pd.DataFrame(pending, columns=targets.columns)
         print(f"[INFO] Resume mode: {len(completed)} completed targets found; {len(targets)} remain.")
 
+    if not args.retry_failed:
+        failed = failed_target_keys()
+        failed_groups = failed_target_group_keys()
+        pending = []
+        skipped_failed = 0
+        for _, target in targets.iterrows():
+            key = target_key(
+                str(target["State"]),
+                str(target["Crop"]),
+                int(target["Crop_Year"]),
+                str(target["Season"]) if pd.notna(target["Season"]) else None,
+            )
+            group_key = target_group_key(
+                str(target["State"]),
+                str(target["Crop"]),
+                int(target["Crop_Year"]),
+            )
+            if key in failed or group_key in failed_groups:
+                skipped_failed += 1
+            else:
+                pending.append(target)
+        targets = pd.DataFrame(pending, columns=targets.columns)
+        if skipped_failed:
+            print(
+                f"[INFO] Skipping {skipped_failed} known failed target/year groups from "
+                f"{FAILED_TARGETS_PATH.name}. Use --retry-failed to try them again."
+            )
+
+    if targets.empty:
+        print("[INFO] No targets to process.")
+        return
+
+    try:
+        validate_earth_engine_setup(args.ee_project)
+    except EarthEngineSetupError as exc:
+        parser.exit(status=1, message=f"[EARTH_ENGINE_SETUP_ERROR]\n{exc}\n")
+
+    failed = failed_target_keys() if not args.retry_failed else set()
+    failed_groups = failed_target_group_keys() if not args.retry_failed else set()
+
     for _, target in targets.iterrows():
         state_name = str(target["State"]).strip()
         state_row = coords_df[coords_df["State"].str.casefold() == state_name.casefold()]
@@ -443,6 +588,12 @@ def main() -> None:
         crop = str(target["Crop"]).strip()
         year = int(target["Crop_Year"])
         season = str(target["Season"]).strip() if pd.notna(target["Season"]) else None
+        key = target_key(state_name, crop, year, season)
+        group_key = target_group_key(state_name, crop, year)
+
+        if not args.retry_failed and (key in failed or group_key in failed_groups):
+            print(f"[SKIP] Known failed target: {state_name} {year} {crop} {season or 'Kharif'}")
+            continue
 
         try:
             row = fetch_sentinel2_gee_features(
@@ -459,7 +610,10 @@ def main() -> None:
             )
             save_feature_rows([row])
         except Exception as exc:
-            print(f"[FAILED] {state_name} {year} {crop}: {exc}")
+            print(f"[FAILED] {state_name} {year} {crop} {season or 'Kharif'}: {exc}")
+            save_failed_target(state_name, crop, year, season, str(exc))
+            failed.add(key)
+            failed_groups.add(group_key)
 
 if __name__ == "__main__":
     main()
