@@ -442,6 +442,29 @@ def save_failed_target(
     merged.to_csv(path, index=False)
 
 
+def clear_failed_target(
+    state: str,
+    crop: str,
+    year: int,
+    season: str | None,
+    path: Path = FAILED_TARGETS_PATH,
+) -> None:
+    if not path.exists():
+        return
+
+    failed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year", "Season"}
+    if failed.empty or not required_columns.issubset(failed.columns):
+        return
+
+    key = target_key(state, crop, year, season)
+    keep_mask = failed.apply(
+        lambda row: target_key(row["State"], row["Crop"], row["Year"], row["Season"]) != key,
+        axis=1,
+    )
+    failed.loc[keep_mask].to_csv(path, index=False)
+
+
 def load_targets_from_crop_yield(
     crops: Iterable[str],
     years: Iterable[int] | None,
@@ -609,6 +632,7 @@ def main() -> None:
                 ee_project=args.ee_project,
             )
             save_feature_rows([row])
+            clear_failed_target(state_name, crop, year, season)
         except Exception as exc:
             print(f"[FAILED] {state_name} {year} {crop} {season or 'Kharif'}: {exc}")
             save_failed_target(state_name, crop, year, season, str(exc))
