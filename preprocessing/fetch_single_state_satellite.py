@@ -488,6 +488,24 @@ def load_targets_from_crop_yield(
     return target[["State", "Crop", "Crop_Year", "Season"]].drop_duplicates()
 
 
+def load_targets_from_csv(path: Path) -> pd.DataFrame:
+    target = pd.read_csv(path)
+    target.columns = target.columns.str.strip()
+
+    required_columns = ["State", "Crop", "Crop_Year", "Season"]
+    missing_columns = [column for column in required_columns if column not in target.columns]
+    if missing_columns:
+        raise ValueError(
+            f"{path} is missing required target columns: {', '.join(missing_columns)}"
+        )
+
+    for column in ["State", "Crop", "Season"]:
+        target[column] = target[column].astype(str).str.strip()
+    target["Crop_Year"] = pd.to_numeric(target["Crop_Year"], errors="coerce").astype("Int64")
+    target = target.dropna(subset=required_columns)
+    return target[required_columns].drop_duplicates()
+
+
 def parse_years(years_arg: str | None) -> list[int] | None:
     if not years_arg:
         return None
@@ -512,6 +530,7 @@ def main() -> None:
     parser.add_argument("--season", default=None, help="Season label such as Kharif, Rabi, or Whole Year.")
     parser.add_argument("--all-states", action="store_true", help="Process every state in state_coordinates.csv.")
     parser.add_argument("--from-crop-yield", action="store_true", help="Use crop_yield.csv state/crop/year/season rows.")
+    parser.add_argument("--targets-csv", default=None, help="CSV containing State,Crop,Crop_Year,Season targets to fetch.")
     parser.add_argument("--crops", default="Rice,Maize", help="Comma-separated crops for --from-crop-yield.")
     parser.add_argument("--seasons", default=None, help="Comma-separated seasons for --from-crop-yield, e.g. Kharif,Rabi.")
     parser.add_argument("--years", default=None, help="Years for --from-crop-yield, e.g. 2018-2020 or 2020.")
@@ -525,7 +544,9 @@ def main() -> None:
 
     coords_df = pd.read_csv(COORDS_PATH)
 
-    if args.from_crop_yield:
+    if args.targets_csv:
+        targets = load_targets_from_csv(Path(args.targets_csv))
+    elif args.from_crop_yield:
         crops = [crop.strip() for crop in args.crops.split(",") if crop.strip()]
         seasons = [season.strip() for season in args.seasons.split(",") if season.strip()] if args.seasons else None
         years = parse_years(args.years)
