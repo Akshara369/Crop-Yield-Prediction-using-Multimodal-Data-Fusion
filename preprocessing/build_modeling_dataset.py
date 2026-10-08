@@ -10,7 +10,7 @@ CROP_YIELD_PATH = DATASETS_DIR / "crop_yield.csv"
 SATELLITE_FEATURES_PATH = DATASETS_DIR / "harmonized_satellite_features.csv"
 OUTPUT_PATH = DATASETS_DIR / "modeling_dataset.csv"
 
-TARGET_CROPS = {"rice", "maize"}
+TARGET_CROPS = {"rice", "maize", "moong(green gram)"}
 JOIN_KEYS = ["State_key", "Crop_key", "Year", "Season_key"]
 IMAGE_COLUMNS = {"RGB_Image", "NDVI_Image"}
 SATELLITE_METADATA_COLUMNS = {
