@@ -1,26 +1,26 @@
 group_id_state_year,year,split,image_records,eligible_image_records,states
-andhra pradesh|1997,1997,train,8,0,Andhra Pradesh
-andhra pradesh|1999,1999,train,8,0,Andhra Pradesh
-andhra pradesh|2000,2000,train,8,0,Andhra Pradesh
-andhra pradesh|2001,2001,train,8,4,Andhra Pradesh
-andhra pradesh|2002,2002,train,8,4,Andhra Pradesh
-andhra pradesh|2003,2003,train,8,0,Andhra Pradesh
-andhra pradesh|2004,2004,train,8,0,Andhra Pradesh
-andhra pradesh|2005,2005,train,8,0,Andhra Pradesh
-andhra pradesh|2006,2006,train,8,4,Andhra Pradesh
-andhra pradesh|2007,2007,train,8,4,Andhra Pradesh
-andhra pradesh|2008,2008,train,8,4,Andhra Pradesh
-andhra pradesh|2009,2009,train,8,4,Andhra Pradesh
-andhra pradesh|2010,2010,train,8,4,Andhra Pradesh
-andhra pradesh|2011,2011,train,8,4,Andhra Pradesh
-andhra pradesh|2012,2012,train,8,4,Andhra Pradesh
-andhra pradesh|2013,2013,train,8,4,Andhra Pradesh
-andhra pradesh|2014,2014,train,8,4,Andhra Pradesh
-andhra pradesh|2015,2015,train,8,4,Andhra Pradesh
-andhra pradesh|2016,2016,train,8,4,Andhra Pradesh
-andhra pradesh|2017,2017,validation,8,4,Andhra Pradesh
-andhra pradesh|2018,2018,validation,8,4,Andhra Pradesh
-andhra pradesh|2019,2019,test,8,4,Andhra Pradesh
+andhra pradesh|1997,1997,train,12,4,Andhra Pradesh
+andhra pradesh|1999,1999,train,12,0,Andhra Pradesh
+andhra pradesh|2000,2000,train,12,4,Andhra Pradesh
+andhra pradesh|2001,2001,train,12,8,Andhra Pradesh
+andhra pradesh|2002,2002,train,12,8,Andhra Pradesh
+andhra pradesh|2003,2003,train,12,4,Andhra Pradesh
+andhra pradesh|2004,2004,train,12,4,Andhra Pradesh
+andhra pradesh|2005,2005,train,12,4,Andhra Pradesh
+andhra pradesh|2006,2006,train,12,8,Andhra Pradesh
+andhra pradesh|2007,2007,train,12,8,Andhra Pradesh
+andhra pradesh|2008,2008,train,12,8,Andhra Pradesh
+andhra pradesh|2009,2009,train,12,8,Andhra Pradesh
+andhra pradesh|2010,2010,train,12,8,Andhra Pradesh
+andhra pradesh|2011,2011,train,12,8,Andhra Pradesh
+andhra pradesh|2012,2012,train,12,8,Andhra Pradesh
+andhra pradesh|2013,2013,train,12,8,Andhra Pradesh
+andhra pradesh|2014,2014,train,12,8,Andhra Pradesh
+andhra pradesh|2015,2015,train,12,8,Andhra Pradesh
+andhra pradesh|2016,2016,train,12,8,Andhra Pradesh
+andhra pradesh|2017,2017,validation,12,8,Andhra Pradesh
+andhra pradesh|2018,2018,validation,12,8,Andhra Pradesh
+andhra pradesh|2019,2019,test,12,8,Andhra Pradesh
 arunachal pradesh|1997,1997,train,4,2,Arunachal Pradesh
 arunachal pradesh|1998,1998,train,4,2,Arunachal Pradesh
 arunachal pradesh|1999,1999,train,4,2,Arunachal Pradesh
@@ -40,10 +40,10 @@ arunachal pradesh|2012,2012,train,4,0,Arunachal Pradesh
 arunachal pradesh|2013,2013,train,4,0,Arunachal Pradesh
 arunachal pradesh|2014,2014,train,4,0,Arunachal Pradesh
 arunachal pradesh|2015,2015,train,4,0,Arunachal Pradesh
-arunachal pradesh|2016,2016,train,4,0,Arunachal Pradesh
-arunachal pradesh|2017,2017,validation,4,0,Arunachal Pradesh
-arunachal pradesh|2018,2018,validation,4,0,Arunachal Pradesh
-arunachal pradesh|2019,2019,test,4,0,Arunachal Pradesh
+arunachal pradesh|2016,2016,train,6,2,Arunachal Pradesh
+arunachal pradesh|2017,2017,validation,6,2,Arunachal Pradesh
+arunachal pradesh|2018,2018,validation,6,2,Arunachal Pradesh
+arunachal pradesh|2019,2019,test,6,0,Arunachal Pradesh
 assam|1997,1997,train,10,0,Assam
 assam|1998,1998,train,10,0,Assam
 assam|1999,1999,train,10,0,Assam
@@ -69,49 +69,49 @@ assam|2018,2018,validation,8,8,Assam
 assam|2019,2019,test,10,6,Assam
 bihar|1997,1997,train,14,0,Bihar
 bihar|1998,1998,train,12,0,Bihar
-bihar|1999,1999,train,10,6,Bihar
-bihar|2000,2000,train,12,2,Bihar
-bihar|2001,2001,train,12,8,Bihar
-bihar|2002,2002,train,14,12,Bihar
-bihar|2003,2003,train,14,0,Bihar
-bihar|2004,2004,train,14,0,Bihar
-bihar|2005,2005,train,14,0,Bihar
-bihar|2006,2006,train,14,10,Bihar
-bihar|2007,2007,train,14,12,Bihar
-bihar|2008,2008,train,14,12,Bihar
-bihar|2009,2009,train,4,2,Bihar
-bihar|2010,2010,train,4,2,Bihar
-bihar|2011,2011,train,4,2,Bihar
-bihar|2012,2012,train,14,12,Bihar
-bihar|2013,2013,train,14,12,Bihar
-bihar|2014,2014,train,14,12,Bihar
-bihar|2015,2015,train,12,10,Bihar
-bihar|2016,2016,train,4,2,Bihar
-bihar|2017,2017,validation,4,2,Bihar
-bihar|2018,2018,validation,4,2,Bihar
-bihar|2019,2019,test,4,2,Bihar
+bihar|1999,1999,train,14,10,Bihar
+bihar|2000,2000,train,16,6,Bihar
+bihar|2001,2001,train,14,10,Bihar
+bihar|2002,2002,train,18,16,Bihar
+bihar|2003,2003,train,20,6,Bihar
+bihar|2004,2004,train,18,4,Bihar
+bihar|2005,2005,train,18,4,Bihar
+bihar|2006,2006,train,18,14,Bihar
+bihar|2007,2007,train,18,16,Bihar
+bihar|2008,2008,train,18,16,Bihar
+bihar|2009,2009,train,6,4,Bihar
+bihar|2010,2010,train,6,4,Bihar
+bihar|2011,2011,train,6,4,Bihar
+bihar|2012,2012,train,18,16,Bihar
+bihar|2013,2013,train,18,16,Bihar
+bihar|2014,2014,train,18,16,Bihar
+bihar|2015,2015,train,16,14,Bihar
+bihar|2016,2016,train,6,4,Bihar
+bihar|2017,2017,validation,6,4,Bihar
+bihar|2018,2018,validation,6,4,Bihar
+bihar|2019,2019,test,6,4,Bihar
 chhattisgarh|1997,1997,train,2,0,Chhattisgarh
 chhattisgarh|1999,1999,train,2,0,Chhattisgarh
-chhattisgarh|2000,2000,train,4,0,Chhattisgarh
-chhattisgarh|2001,2001,train,4,0,Chhattisgarh
-chhattisgarh|2002,2002,train,4,0,Chhattisgarh
-chhattisgarh|2003,2003,train,4,0,Chhattisgarh
-chhattisgarh|2004,2004,train,4,0,Chhattisgarh
-chhattisgarh|2005,2005,train,4,0,Chhattisgarh
-chhattisgarh|2006,2006,train,4,0,Chhattisgarh
-chhattisgarh|2007,2007,train,4,0,Chhattisgarh
-chhattisgarh|2008,2008,train,4,0,Chhattisgarh
-chhattisgarh|2009,2009,train,4,0,Chhattisgarh
-chhattisgarh|2010,2010,train,4,0,Chhattisgarh
-chhattisgarh|2011,2011,train,4,0,Chhattisgarh
-chhattisgarh|2012,2012,train,4,0,Chhattisgarh
-chhattisgarh|2013,2013,train,8,4,Chhattisgarh
-chhattisgarh|2014,2014,train,4,0,Chhattisgarh
-chhattisgarh|2015,2015,train,4,0,Chhattisgarh
-chhattisgarh|2016,2016,train,4,0,Chhattisgarh
-chhattisgarh|2017,2017,validation,4,0,Chhattisgarh
-chhattisgarh|2018,2018,validation,4,0,Chhattisgarh
-chhattisgarh|2019,2019,test,4,0,Chhattisgarh
+chhattisgarh|2000,2000,train,6,2,Chhattisgarh
+chhattisgarh|2001,2001,train,6,2,Chhattisgarh
+chhattisgarh|2002,2002,train,6,2,Chhattisgarh
+chhattisgarh|2003,2003,train,6,2,Chhattisgarh
+chhattisgarh|2004,2004,train,6,2,Chhattisgarh
+chhattisgarh|2005,2005,train,6,2,Chhattisgarh
+chhattisgarh|2006,2006,train,6,2,Chhattisgarh
+chhattisgarh|2007,2007,train,6,2,Chhattisgarh
+chhattisgarh|2008,2008,train,6,2,Chhattisgarh
+chhattisgarh|2009,2009,train,6,2,Chhattisgarh
+chhattisgarh|2010,2010,train,6,2,Chhattisgarh
+chhattisgarh|2011,2011,train,6,2,Chhattisgarh
+chhattisgarh|2012,2012,train,6,2,Chhattisgarh
+chhattisgarh|2013,2013,train,12,8,Chhattisgarh
+chhattisgarh|2014,2014,train,6,2,Chhattisgarh
+chhattisgarh|2015,2015,train,6,2,Chhattisgarh
+chhattisgarh|2016,2016,train,6,2,Chhattisgarh
+chhattisgarh|2017,2017,validation,6,2,Chhattisgarh
+chhattisgarh|2018,2018,validation,6,0,Chhattisgarh
+chhattisgarh|2019,2019,test,6,0,Chhattisgarh
 delhi|1997,1997,train,2,0,Delhi
 delhi|1998,1998,train,4,0,Delhi
 delhi|1999,1999,train,4,0,Delhi
@@ -158,98 +158,98 @@ goa|2016,2016,train,4,4,Goa
 goa|2017,2017,validation,4,4,Goa
 goa|2018,2018,validation,4,4,Goa
 goa|2019,2019,test,4,4,Goa
-gujarat|1997,1997,train,6,4,Gujarat
-gujarat|1998,1998,train,4,0,Gujarat
-gujarat|1999,1999,train,4,0,Gujarat
-gujarat|2000,2000,train,6,2,Gujarat
-gujarat|2001,2001,train,6,2,Gujarat
-gujarat|2002,2002,train,6,2,Gujarat
-gujarat|2003,2003,train,6,2,Gujarat
-gujarat|2004,2004,train,6,2,Gujarat
-gujarat|2005,2005,train,6,2,Gujarat
-gujarat|2006,2006,train,6,2,Gujarat
-gujarat|2007,2007,train,6,2,Gujarat
-gujarat|2008,2008,train,6,2,Gujarat
-gujarat|2009,2009,train,4,0,Gujarat
-gujarat|2010,2010,train,6,2,Gujarat
-gujarat|2011,2011,train,6,2,Gujarat
-gujarat|2012,2012,train,10,6,Gujarat
-gujarat|2013,2013,train,10,6,Gujarat
-gujarat|2014,2014,train,10,6,Gujarat
-gujarat|2015,2015,train,10,6,Gujarat
-gujarat|2016,2016,train,6,2,Gujarat
-gujarat|2017,2017,validation,6,2,Gujarat
-gujarat|2018,2018,validation,6,2,Gujarat
-gujarat|2019,2019,test,6,2,Gujarat
+gujarat|1997,1997,train,8,6,Gujarat
+gujarat|1998,1998,train,6,2,Gujarat
+gujarat|1999,1999,train,6,2,Gujarat
+gujarat|2000,2000,train,8,4,Gujarat
+gujarat|2001,2001,train,8,4,Gujarat
+gujarat|2002,2002,train,8,4,Gujarat
+gujarat|2003,2003,train,8,4,Gujarat
+gujarat|2004,2004,train,8,4,Gujarat
+gujarat|2005,2005,train,8,4,Gujarat
+gujarat|2006,2006,train,8,4,Gujarat
+gujarat|2007,2007,train,8,4,Gujarat
+gujarat|2008,2008,train,8,4,Gujarat
+gujarat|2009,2009,train,6,2,Gujarat
+gujarat|2010,2010,train,8,4,Gujarat
+gujarat|2011,2011,train,8,4,Gujarat
+gujarat|2012,2012,train,14,10,Gujarat
+gujarat|2013,2013,train,14,10,Gujarat
+gujarat|2014,2014,train,14,10,Gujarat
+gujarat|2015,2015,train,14,10,Gujarat
+gujarat|2016,2016,train,8,4,Gujarat
+gujarat|2017,2017,validation,8,4,Gujarat
+gujarat|2018,2018,validation,8,2,Gujarat
+gujarat|2019,2019,test,8,2,Gujarat
 haryana|1997,1997,train,4,2,Haryana
-haryana|1998,1998,train,4,2,Haryana
-haryana|1999,1999,train,4,2,Haryana
-haryana|2000,2000,train,4,2,Haryana
-haryana|2001,2001,train,4,2,Haryana
-haryana|2002,2002,train,4,2,Haryana
-haryana|2003,2003,train,4,2,Haryana
-haryana|2004,2004,train,4,2,Haryana
-haryana|2005,2005,train,4,2,Haryana
-haryana|2006,2006,train,4,2,Haryana
-haryana|2007,2007,train,4,2,Haryana
-haryana|2008,2008,train,4,2,Haryana
-haryana|2009,2009,train,4,2,Haryana
-haryana|2010,2010,train,4,2,Haryana
-haryana|2011,2011,train,4,2,Haryana
-haryana|2012,2012,train,4,2,Haryana
-haryana|2013,2013,train,4,2,Haryana
-haryana|2014,2014,train,4,2,Haryana
-haryana|2015,2015,train,4,2,Haryana
-haryana|2016,2016,train,4,2,Haryana
-haryana|2017,2017,validation,4,2,Haryana
-haryana|2018,2018,validation,4,0,Haryana
-haryana|2019,2019,test,4,0,Haryana
+haryana|1998,1998,train,6,4,Haryana
+haryana|1999,1999,train,6,4,Haryana
+haryana|2000,2000,train,6,4,Haryana
+haryana|2001,2001,train,6,4,Haryana
+haryana|2002,2002,train,6,4,Haryana
+haryana|2003,2003,train,6,4,Haryana
+haryana|2004,2004,train,6,4,Haryana
+haryana|2005,2005,train,6,4,Haryana
+haryana|2006,2006,train,6,4,Haryana
+haryana|2007,2007,train,6,4,Haryana
+haryana|2008,2008,train,6,4,Haryana
+haryana|2009,2009,train,6,4,Haryana
+haryana|2010,2010,train,6,4,Haryana
+haryana|2011,2011,train,6,4,Haryana
+haryana|2012,2012,train,6,4,Haryana
+haryana|2013,2013,train,6,4,Haryana
+haryana|2014,2014,train,6,4,Haryana
+haryana|2015,2015,train,6,4,Haryana
+haryana|2016,2016,train,6,4,Haryana
+haryana|2017,2017,validation,6,4,Haryana
+haryana|2018,2018,validation,6,0,Haryana
+haryana|2019,2019,test,6,0,Haryana
 himachal pradesh|1997,1997,train,2,0,Himachal Pradesh
-himachal pradesh|1998,1998,train,4,0,Himachal Pradesh
-himachal pradesh|1999,1999,train,4,0,Himachal Pradesh
-himachal pradesh|2000,2000,train,4,0,Himachal Pradesh
-himachal pradesh|2001,2001,train,4,0,Himachal Pradesh
-himachal pradesh|2002,2002,train,4,0,Himachal Pradesh
+himachal pradesh|1998,1998,train,6,2,Himachal Pradesh
+himachal pradesh|1999,1999,train,6,2,Himachal Pradesh
+himachal pradesh|2000,2000,train,6,2,Himachal Pradesh
+himachal pradesh|2001,2001,train,6,2,Himachal Pradesh
+himachal pradesh|2002,2002,train,6,2,Himachal Pradesh
 himachal pradesh|2003,2003,train,4,0,Himachal Pradesh
 himachal pradesh|2004,2004,train,4,0,Himachal Pradesh
-himachal pradesh|2005,2005,train,4,0,Himachal Pradesh
-himachal pradesh|2006,2006,train,4,0,Himachal Pradesh
-himachal pradesh|2007,2007,train,4,0,Himachal Pradesh
-himachal pradesh|2008,2008,train,4,0,Himachal Pradesh
-himachal pradesh|2009,2009,train,4,0,Himachal Pradesh
-himachal pradesh|2010,2010,train,4,0,Himachal Pradesh
-himachal pradesh|2011,2011,train,4,0,Himachal Pradesh
-himachal pradesh|2012,2012,train,4,0,Himachal Pradesh
-himachal pradesh|2013,2013,train,4,0,Himachal Pradesh
-himachal pradesh|2014,2014,train,4,0,Himachal Pradesh
-himachal pradesh|2015,2015,train,4,0,Himachal Pradesh
-himachal pradesh|2016,2016,train,4,0,Himachal Pradesh
-himachal pradesh|2017,2017,validation,4,0,Himachal Pradesh
-himachal pradesh|2018,2018,validation,4,0,Himachal Pradesh
-himachal pradesh|2019,2019,test,4,0,Himachal Pradesh
+himachal pradesh|2005,2005,train,6,2,Himachal Pradesh
+himachal pradesh|2006,2006,train,6,2,Himachal Pradesh
+himachal pradesh|2007,2007,train,6,2,Himachal Pradesh
+himachal pradesh|2008,2008,train,6,2,Himachal Pradesh
+himachal pradesh|2009,2009,train,6,2,Himachal Pradesh
+himachal pradesh|2010,2010,train,6,2,Himachal Pradesh
+himachal pradesh|2011,2011,train,6,2,Himachal Pradesh
+himachal pradesh|2012,2012,train,6,2,Himachal Pradesh
+himachal pradesh|2013,2013,train,6,2,Himachal Pradesh
+himachal pradesh|2014,2014,train,6,2,Himachal Pradesh
+himachal pradesh|2015,2015,train,6,2,Himachal Pradesh
+himachal pradesh|2016,2016,train,6,2,Himachal Pradesh
+himachal pradesh|2017,2017,validation,6,2,Himachal Pradesh
+himachal pradesh|2018,2018,validation,6,0,Himachal Pradesh
+himachal pradesh|2019,2019,test,6,0,Himachal Pradesh
 jammu and kashmir|1997,1997,train,4,0,Jammu and Kashmir
 jammu and kashmir|1998,1998,train,2,0,Jammu and Kashmir
 jammu and kashmir|1999,1999,train,4,0,Jammu and Kashmir
 jammu and kashmir|2000,2000,train,4,0,Jammu and Kashmir
-jammu and kashmir|2001,2001,train,4,0,Jammu and Kashmir
-jammu and kashmir|2002,2002,train,4,0,Jammu and Kashmir
-jammu and kashmir|2003,2003,train,4,0,Jammu and Kashmir
-jammu and kashmir|2004,2004,train,4,0,Jammu and Kashmir
-jammu and kashmir|2005,2005,train,4,0,Jammu and Kashmir
-jammu and kashmir|2006,2006,train,4,0,Jammu and Kashmir
-jammu and kashmir|2007,2007,train,4,0,Jammu and Kashmir
+jammu and kashmir|2001,2001,train,6,2,Jammu and Kashmir
+jammu and kashmir|2002,2002,train,6,2,Jammu and Kashmir
+jammu and kashmir|2003,2003,train,6,2,Jammu and Kashmir
+jammu and kashmir|2004,2004,train,6,2,Jammu and Kashmir
+jammu and kashmir|2005,2005,train,6,2,Jammu and Kashmir
+jammu and kashmir|2006,2006,train,6,2,Jammu and Kashmir
+jammu and kashmir|2007,2007,train,6,2,Jammu and Kashmir
 jammu and kashmir|2008,2008,train,2,0,Jammu and Kashmir
-jammu and kashmir|2009,2009,train,4,0,Jammu and Kashmir
-jammu and kashmir|2010,2010,train,4,0,Jammu and Kashmir
-jammu and kashmir|2011,2011,train,4,0,Jammu and Kashmir
-jammu and kashmir|2012,2012,train,4,0,Jammu and Kashmir
+jammu and kashmir|2009,2009,train,6,2,Jammu and Kashmir
+jammu and kashmir|2010,2010,train,6,2,Jammu and Kashmir
+jammu and kashmir|2011,2011,train,6,2,Jammu and Kashmir
+jammu and kashmir|2012,2012,train,6,2,Jammu and Kashmir
 jammu and kashmir|2013,2013,train,2,0,Jammu and Kashmir
-jammu and kashmir|2014,2014,train,4,0,Jammu and Kashmir
-jammu and kashmir|2015,2015,train,4,0,Jammu and Kashmir
-jammu and kashmir|2016,2016,train,4,0,Jammu and Kashmir
-jammu and kashmir|2017,2017,validation,4,0,Jammu and Kashmir
-jammu and kashmir|2018,2018,validation,4,0,Jammu and Kashmir
-jammu and kashmir|2019,2019,test,4,0,Jammu and Kashmir
+jammu and kashmir|2014,2014,train,6,2,Jammu and Kashmir
+jammu and kashmir|2015,2015,train,6,2,Jammu and Kashmir
+jammu and kashmir|2016,2016,train,6,2,Jammu and Kashmir
+jammu and kashmir|2017,2017,validation,6,2,Jammu and Kashmir
+jammu and kashmir|2018,2018,validation,6,2,Jammu and Kashmir
+jammu and kashmir|2019,2019,test,6,2,Jammu and Kashmir
 jharkhand|1997,1997,train,2,0,Jharkhand
 jharkhand|1998,1998,train,2,0,Jharkhand
 jharkhand|1999,1999,train,2,0,Jharkhand
@@ -270,32 +270,32 @@ jharkhand|2013,2013,train,4,2,Jharkhand
 jharkhand|2014,2014,train,8,6,Jharkhand
 jharkhand|2015,2015,train,2,0,Jharkhand
 jharkhand|2016,2016,train,2,0,Jharkhand
-jharkhand|2017,2017,validation,6,2,Jharkhand
-jharkhand|2018,2018,validation,6,2,Jharkhand
-jharkhand|2019,2019,test,6,2,Jharkhand
+jharkhand|2017,2017,validation,8,4,Jharkhand
+jharkhand|2018,2018,validation,8,2,Jharkhand
+jharkhand|2019,2019,test,8,2,Jharkhand
 karnataka|1997,1997,train,12,0,Karnataka
-karnataka|1998,1998,train,12,0,Karnataka
-karnataka|1999,1999,train,12,0,Karnataka
-karnataka|2000,2000,train,12,0,Karnataka
-karnataka|2001,2001,train,12,0,Karnataka
-karnataka|2002,2002,train,12,4,Karnataka
-karnataka|2003,2003,train,12,0,Karnataka
-karnataka|2004,2004,train,12,0,Karnataka
-karnataka|2005,2005,train,12,0,Karnataka
-karnataka|2006,2006,train,12,0,Karnataka
-karnataka|2007,2007,train,12,0,Karnataka
-karnataka|2008,2008,train,12,0,Karnataka
-karnataka|2009,2009,train,12,0,Karnataka
-karnataka|2010,2010,train,12,0,Karnataka
-karnataka|2011,2011,train,12,4,Karnataka
-karnataka|2012,2012,train,12,0,Karnataka
-karnataka|2013,2013,train,12,0,Karnataka
-karnataka|2014,2014,train,12,0,Karnataka
-karnataka|2015,2015,train,12,0,Karnataka
-karnataka|2016,2016,train,12,0,Karnataka
-karnataka|2017,2017,validation,12,4,Karnataka
-karnataka|2018,2018,validation,12,4,Karnataka
-karnataka|2019,2019,test,12,4,Karnataka
+karnataka|1998,1998,train,16,4,Karnataka
+karnataka|1999,1999,train,16,4,Karnataka
+karnataka|2000,2000,train,16,4,Karnataka
+karnataka|2001,2001,train,16,4,Karnataka
+karnataka|2002,2002,train,16,8,Karnataka
+karnataka|2003,2003,train,16,4,Karnataka
+karnataka|2004,2004,train,16,4,Karnataka
+karnataka|2005,2005,train,16,4,Karnataka
+karnataka|2006,2006,train,16,4,Karnataka
+karnataka|2007,2007,train,16,4,Karnataka
+karnataka|2008,2008,train,16,4,Karnataka
+karnataka|2009,2009,train,16,4,Karnataka
+karnataka|2010,2010,train,16,4,Karnataka
+karnataka|2011,2011,train,16,8,Karnataka
+karnataka|2012,2012,train,16,4,Karnataka
+karnataka|2013,2013,train,16,4,Karnataka
+karnataka|2014,2014,train,16,4,Karnataka
+karnataka|2015,2015,train,18,6,Karnataka
+karnataka|2016,2016,train,18,6,Karnataka
+karnataka|2017,2017,validation,18,10,Karnataka
+karnataka|2018,2018,validation,18,10,Karnataka
+karnataka|2019,2019,test,18,10,Karnataka
 kerala|1999,1999,train,6,0,Kerala
 kerala|2000,2000,train,8,0,Kerala
 kerala|2001,2001,train,8,2,Kerala
@@ -309,9 +309,9 @@ kerala|2008,2008,train,8,2,Kerala
 kerala|2009,2009,train,8,2,Kerala
 kerala|2010,2010,train,6,0,Kerala
 kerala|2011,2011,train,8,2,Kerala
-kerala|2012,2012,train,10,4,Kerala
-kerala|2013,2013,train,10,4,Kerala
-kerala|2014,2014,train,10,4,Kerala
+kerala|2012,2012,train,12,6,Kerala
+kerala|2013,2013,train,12,6,Kerala
+kerala|2014,2014,train,12,6,Kerala
 kerala|2015,2015,train,10,4,Kerala
 kerala|2016,2016,train,10,4,Kerala
 kerala|2017,2017,validation,8,8,Kerala
@@ -323,46 +323,46 @@ madhya pradesh|1999,1999,train,4,2,Madhya Pradesh
 madhya pradesh|2000,2000,train,4,2,Madhya Pradesh
 madhya pradesh|2001,2001,train,4,2,Madhya Pradesh
 madhya pradesh|2002,2002,train,4,2,Madhya Pradesh
-madhya pradesh|2003,2003,train,4,2,Madhya Pradesh
+madhya pradesh|2003,2003,train,6,4,Madhya Pradesh
 madhya pradesh|2004,2004,train,4,2,Madhya Pradesh
-madhya pradesh|2005,2005,train,4,2,Madhya Pradesh
-madhya pradesh|2006,2006,train,4,2,Madhya Pradesh
+madhya pradesh|2005,2005,train,6,4,Madhya Pradesh
+madhya pradesh|2006,2006,train,6,4,Madhya Pradesh
 madhya pradesh|2007,2007,train,4,2,Madhya Pradesh
 madhya pradesh|2008,2008,train,4,2,Madhya Pradesh
-madhya pradesh|2009,2009,train,2,0,Madhya Pradesh
-madhya pradesh|2010,2010,train,4,0,Madhya Pradesh
-madhya pradesh|2011,2011,train,4,0,Madhya Pradesh
-madhya pradesh|2012,2012,train,4,0,Madhya Pradesh
-madhya pradesh|2013,2013,train,4,0,Madhya Pradesh
-madhya pradesh|2014,2014,train,4,0,Madhya Pradesh
-madhya pradesh|2015,2015,train,4,0,Madhya Pradesh
-madhya pradesh|2016,2016,train,4,0,Madhya Pradesh
-madhya pradesh|2017,2017,validation,4,0,Madhya Pradesh
-madhya pradesh|2018,2018,validation,4,0,Madhya Pradesh
-madhya pradesh|2019,2019,test,4,0,Madhya Pradesh
-maharashtra|1997,1997,train,12,0,Maharashtra
-maharashtra|1998,1998,train,10,0,Maharashtra
-maharashtra|1999,1999,train,10,6,Maharashtra
-maharashtra|2000,2000,train,8,6,Maharashtra
-maharashtra|2001,2001,train,10,6,Maharashtra
-maharashtra|2002,2002,train,10,6,Maharashtra
-maharashtra|2003,2003,train,8,0,Maharashtra
-maharashtra|2004,2004,train,10,0,Maharashtra
-maharashtra|2005,2005,train,10,0,Maharashtra
-maharashtra|2006,2006,train,10,6,Maharashtra
-maharashtra|2007,2007,train,10,6,Maharashtra
-maharashtra|2008,2008,train,10,6,Maharashtra
-maharashtra|2009,2009,train,6,2,Maharashtra
-maharashtra|2010,2010,train,6,2,Maharashtra
-maharashtra|2011,2011,train,6,2,Maharashtra
-maharashtra|2012,2012,train,10,6,Maharashtra
-maharashtra|2013,2013,train,10,6,Maharashtra
-maharashtra|2014,2014,train,10,6,Maharashtra
-maharashtra|2015,2015,train,10,6,Maharashtra
-maharashtra|2016,2016,train,6,2,Maharashtra
-maharashtra|2017,2017,validation,6,2,Maharashtra
-maharashtra|2018,2018,validation,6,2,Maharashtra
-maharashtra|2019,2019,test,6,2,Maharashtra
+madhya pradesh|2009,2009,train,4,2,Madhya Pradesh
+madhya pradesh|2010,2010,train,6,2,Madhya Pradesh
+madhya pradesh|2011,2011,train,6,2,Madhya Pradesh
+madhya pradesh|2012,2012,train,6,2,Madhya Pradesh
+madhya pradesh|2013,2013,train,6,2,Madhya Pradesh
+madhya pradesh|2014,2014,train,6,2,Madhya Pradesh
+madhya pradesh|2015,2015,train,6,2,Madhya Pradesh
+madhya pradesh|2016,2016,train,6,2,Madhya Pradesh
+madhya pradesh|2017,2017,validation,6,2,Madhya Pradesh
+madhya pradesh|2018,2018,validation,6,0,Madhya Pradesh
+madhya pradesh|2019,2019,test,6,0,Madhya Pradesh
+maharashtra|1997,1997,train,14,2,Maharashtra
+maharashtra|1998,1998,train,12,2,Maharashtra
+maharashtra|1999,1999,train,12,8,Maharashtra
+maharashtra|2000,2000,train,10,8,Maharashtra
+maharashtra|2001,2001,train,12,8,Maharashtra
+maharashtra|2002,2002,train,12,8,Maharashtra
+maharashtra|2003,2003,train,10,2,Maharashtra
+maharashtra|2004,2004,train,12,2,Maharashtra
+maharashtra|2005,2005,train,12,2,Maharashtra
+maharashtra|2006,2006,train,12,8,Maharashtra
+maharashtra|2007,2007,train,12,8,Maharashtra
+maharashtra|2008,2008,train,12,8,Maharashtra
+maharashtra|2009,2009,train,8,4,Maharashtra
+maharashtra|2010,2010,train,8,4,Maharashtra
+maharashtra|2011,2011,train,8,4,Maharashtra
+maharashtra|2012,2012,train,12,8,Maharashtra
+maharashtra|2013,2013,train,12,8,Maharashtra
+maharashtra|2014,2014,train,12,8,Maharashtra
+maharashtra|2015,2015,train,14,10,Maharashtra
+maharashtra|2016,2016,train,8,4,Maharashtra
+maharashtra|2017,2017,validation,8,4,Maharashtra
+maharashtra|2018,2018,validation,8,2,Maharashtra
+maharashtra|2019,2019,test,8,2,Maharashtra
 manipur|1997,1997,train,4,2,Manipur
 manipur|1998,1998,train,8,2,Manipur
 manipur|1999,1999,train,4,2,Manipur
@@ -374,17 +374,17 @@ manipur|2004,2004,train,4,2,Manipur
 manipur|2005,2005,train,4,2,Manipur
 manipur|2006,2006,train,4,2,Manipur
 manipur|2007,2007,train,4,2,Manipur
-manipur|2008,2008,train,6,4,Manipur
-manipur|2009,2009,train,6,4,Manipur
-manipur|2010,2010,train,6,4,Manipur
-manipur|2011,2011,train,6,4,Manipur
-manipur|2012,2012,train,6,4,Manipur
-manipur|2013,2013,train,6,4,Manipur
-manipur|2014,2014,train,6,4,Manipur
-manipur|2015,2015,train,6,4,Manipur
-manipur|2016,2016,train,6,4,Manipur
-manipur|2017,2017,validation,6,4,Manipur
-manipur|2018,2018,validation,6,2,Manipur
+manipur|2008,2008,train,8,6,Manipur
+manipur|2009,2009,train,8,6,Manipur
+manipur|2010,2010,train,8,6,Manipur
+manipur|2011,2011,train,8,6,Manipur
+manipur|2012,2012,train,8,6,Manipur
+manipur|2013,2013,train,8,6,Manipur
+manipur|2014,2014,train,8,6,Manipur
+manipur|2015,2015,train,8,6,Manipur
+manipur|2016,2016,train,8,6,Manipur
+manipur|2017,2017,validation,8,6,Manipur
+manipur|2018,2018,validation,8,2,Manipur
 manipur|2019,2019,test,2,0,Manipur
 meghalaya|1997,1997,train,4,0,Meghalaya
 meghalaya|1998,1998,train,4,0,Meghalaya
@@ -413,11 +413,11 @@ mizoram|1997,1997,train,8,2,Mizoram
 mizoram|1998,1998,train,8,0,Mizoram
 mizoram|1999,1999,train,6,2,Mizoram
 mizoram|2000,2000,train,6,2,Mizoram
-mizoram|2001,2001,train,6,2,Mizoram
-mizoram|2002,2002,train,6,2,Mizoram
-mizoram|2003,2003,train,6,2,Mizoram
-mizoram|2004,2004,train,6,2,Mizoram
-mizoram|2005,2005,train,8,2,Mizoram
+mizoram|2001,2001,train,10,6,Mizoram
+mizoram|2002,2002,train,10,6,Mizoram
+mizoram|2003,2003,train,10,6,Mizoram
+mizoram|2004,2004,train,10,6,Mizoram
+mizoram|2005,2005,train,12,6,Mizoram
 mizoram|2006,2006,train,8,0,Mizoram
 mizoram|2007,2007,train,8,0,Mizoram
 mizoram|2008,2008,train,8,0,Mizoram
@@ -434,93 +434,93 @@ mizoram|2018,2018,validation,8,0,Mizoram
 mizoram|2019,2019,test,8,0,Mizoram
 nagaland|1997,1997,train,6,2,Nagaland
 nagaland|1998,1998,train,4,0,Nagaland
-nagaland|1999,1999,train,4,0,Nagaland
-nagaland|2000,2000,train,6,2,Nagaland
-nagaland|2001,2001,train,6,2,Nagaland
-nagaland|2002,2002,train,4,2,Nagaland
-nagaland|2003,2003,train,8,0,Nagaland
-nagaland|2004,2004,train,8,0,Nagaland
-nagaland|2005,2005,train,8,0,Nagaland
-nagaland|2006,2006,train,8,4,Nagaland
-nagaland|2007,2007,train,8,4,Nagaland
-nagaland|2008,2008,train,6,4,Nagaland
-nagaland|2009,2009,train,6,4,Nagaland
-nagaland|2010,2010,train,8,4,Nagaland
+nagaland|1999,1999,train,6,2,Nagaland
+nagaland|2000,2000,train,8,4,Nagaland
+nagaland|2001,2001,train,8,4,Nagaland
+nagaland|2002,2002,train,6,4,Nagaland
+nagaland|2003,2003,train,10,2,Nagaland
+nagaland|2004,2004,train,10,2,Nagaland
+nagaland|2005,2005,train,10,2,Nagaland
+nagaland|2006,2006,train,10,6,Nagaland
+nagaland|2007,2007,train,10,6,Nagaland
+nagaland|2008,2008,train,8,6,Nagaland
+nagaland|2009,2009,train,8,6,Nagaland
+nagaland|2010,2010,train,10,6,Nagaland
 nagaland|2011,2011,train,8,4,Nagaland
 nagaland|2012,2012,train,8,4,Nagaland
-nagaland|2013,2013,train,8,4,Nagaland
-nagaland|2014,2014,train,8,4,Nagaland
-nagaland|2015,2015,train,8,4,Nagaland
-nagaland|2016,2016,train,8,4,Nagaland
-nagaland|2017,2017,validation,8,4,Nagaland
-nagaland|2018,2018,validation,8,0,Nagaland
-nagaland|2019,2019,test,8,0,Nagaland
+nagaland|2013,2013,train,10,6,Nagaland
+nagaland|2014,2014,train,10,6,Nagaland
+nagaland|2015,2015,train,10,6,Nagaland
+nagaland|2016,2016,train,10,6,Nagaland
+nagaland|2017,2017,validation,10,6,Nagaland
+nagaland|2018,2018,validation,10,0,Nagaland
+nagaland|2019,2019,test,10,0,Nagaland
 odisha|1997,1997,train,8,0,Odisha
-odisha|1999,1999,train,10,2,Odisha
-odisha|2000,2000,train,10,2,Odisha
-odisha|2001,2001,train,4,0,Odisha
-odisha|2002,2002,train,4,0,Odisha
-odisha|2003,2003,train,6,2,Odisha
-odisha|2004,2004,train,14,0,Odisha
-odisha|2005,2005,train,14,0,Odisha
-odisha|2006,2006,train,14,0,Odisha
-odisha|2007,2007,train,14,0,Odisha
-odisha|2008,2008,train,14,0,Odisha
-odisha|2009,2009,train,14,0,Odisha
-odisha|2010,2010,train,14,0,Odisha
-odisha|2011,2011,train,14,0,Odisha
-odisha|2012,2012,train,14,0,Odisha
-odisha|2013,2013,train,14,0,Odisha
-odisha|2014,2014,train,14,0,Odisha
-odisha|2015,2015,train,14,0,Odisha
-odisha|2016,2016,train,14,0,Odisha
-odisha|2017,2017,validation,14,0,Odisha
-odisha|2018,2018,validation,14,0,Odisha
+odisha|1999,1999,train,14,6,Odisha
+odisha|2000,2000,train,12,4,Odisha
+odisha|2001,2001,train,6,2,Odisha
+odisha|2002,2002,train,6,2,Odisha
+odisha|2003,2003,train,8,4,Odisha
+odisha|2004,2004,train,20,6,Odisha
+odisha|2005,2005,train,20,6,Odisha
+odisha|2006,2006,train,20,6,Odisha
+odisha|2007,2007,train,20,6,Odisha
+odisha|2008,2008,train,20,6,Odisha
+odisha|2009,2009,train,20,6,Odisha
+odisha|2010,2010,train,20,6,Odisha
+odisha|2011,2011,train,20,6,Odisha
+odisha|2012,2012,train,20,6,Odisha
+odisha|2013,2013,train,20,6,Odisha
+odisha|2014,2014,train,20,6,Odisha
+odisha|2015,2015,train,20,6,Odisha
+odisha|2016,2016,train,20,6,Odisha
+odisha|2017,2017,validation,20,6,Odisha
+odisha|2018,2018,validation,20,6,Odisha
 odisha|2019,2019,test,2,0,Odisha
 puducherry|1997,1997,train,2,0,Puducherry
 puducherry|1999,1999,train,2,2,Puducherry
-puducherry|2000,2000,train,2,2,Puducherry
+puducherry|2000,2000,train,4,4,Puducherry
 puducherry|2001,2001,train,2,2,Puducherry
 puducherry|2002,2002,train,2,2,Puducherry
 puducherry|2004,2004,train,8,0,Puducherry
 puducherry|2005,2005,train,8,0,Puducherry
 puducherry|2006,2006,train,6,6,Puducherry
-puducherry|2007,2007,train,6,6,Puducherry
-puducherry|2008,2008,train,6,6,Puducherry
-puducherry|2009,2009,train,6,6,Puducherry
-puducherry|2010,2010,train,6,6,Puducherry
-puducherry|2011,2011,train,6,6,Puducherry
-puducherry|2012,2012,train,6,6,Puducherry
-puducherry|2013,2013,train,6,6,Puducherry
-puducherry|2014,2014,train,6,6,Puducherry
-puducherry|2015,2015,train,6,6,Puducherry
-puducherry|2016,2016,train,6,6,Puducherry
-puducherry|2017,2017,validation,6,6,Puducherry
-puducherry|2018,2018,validation,6,6,Puducherry
-puducherry|2019,2019,test,6,6,Puducherry
+puducherry|2007,2007,train,8,8,Puducherry
+puducherry|2008,2008,train,10,10,Puducherry
+puducherry|2009,2009,train,10,10,Puducherry
+puducherry|2010,2010,train,12,12,Puducherry
+puducherry|2011,2011,train,12,12,Puducherry
+puducherry|2012,2012,train,10,10,Puducherry
+puducherry|2013,2013,train,10,10,Puducherry
+puducherry|2014,2014,train,10,10,Puducherry
+puducherry|2015,2015,train,10,10,Puducherry
+puducherry|2016,2016,train,10,10,Puducherry
+puducherry|2017,2017,validation,10,10,Puducherry
+puducherry|2018,2018,validation,10,10,Puducherry
+puducherry|2019,2019,test,10,10,Puducherry
 punjab|1997,1997,train,4,2,Punjab
-punjab|1998,1998,train,4,2,Punjab
-punjab|1999,1999,train,4,2,Punjab
-punjab|2000,2000,train,4,2,Punjab
-punjab|2001,2001,train,4,2,Punjab
-punjab|2002,2002,train,4,2,Punjab
-punjab|2003,2003,train,4,2,Punjab
-punjab|2004,2004,train,4,2,Punjab
-punjab|2005,2005,train,4,2,Punjab
-punjab|2006,2006,train,4,2,Punjab
-punjab|2007,2007,train,4,2,Punjab
-punjab|2008,2008,train,4,2,Punjab
-punjab|2009,2009,train,4,2,Punjab
-punjab|2010,2010,train,4,2,Punjab
-punjab|2011,2011,train,4,2,Punjab
-punjab|2012,2012,train,4,2,Punjab
-punjab|2013,2013,train,4,2,Punjab
-punjab|2014,2014,train,4,2,Punjab
-punjab|2015,2015,train,4,2,Punjab
-punjab|2016,2016,train,4,2,Punjab
-punjab|2017,2017,validation,4,2,Punjab
-punjab|2018,2018,validation,4,0,Punjab
-punjab|2019,2019,test,4,0,Punjab
+punjab|1998,1998,train,6,4,Punjab
+punjab|1999,1999,train,6,4,Punjab
+punjab|2000,2000,train,6,4,Punjab
+punjab|2001,2001,train,6,4,Punjab
+punjab|2002,2002,train,6,4,Punjab
+punjab|2003,2003,train,6,4,Punjab
+punjab|2004,2004,train,6,4,Punjab
+punjab|2005,2005,train,6,4,Punjab
+punjab|2006,2006,train,6,4,Punjab
+punjab|2007,2007,train,6,4,Punjab
+punjab|2008,2008,train,6,4,Punjab
+punjab|2009,2009,train,6,4,Punjab
+punjab|2010,2010,train,6,4,Punjab
+punjab|2011,2011,train,6,4,Punjab
+punjab|2012,2012,train,6,4,Punjab
+punjab|2013,2013,train,6,4,Punjab
+punjab|2014,2014,train,6,4,Punjab
+punjab|2015,2015,train,6,4,Punjab
+punjab|2016,2016,train,6,4,Punjab
+punjab|2017,2017,validation,6,4,Punjab
+punjab|2018,2018,validation,6,0,Punjab
+punjab|2019,2019,test,6,0,Punjab
 sikkim|1997,1997,train,6,2,Sikkim
 sikkim|1998,1998,train,4,0,Sikkim
 sikkim|1999,1999,train,4,0,Sikkim
@@ -545,27 +545,27 @@ sikkim|2017,2017,validation,4,0,Sikkim
 sikkim|2018,2018,validation,4,0,Sikkim
 sikkim|2019,2019,test,4,0,Sikkim
 tamil nadu|1997,1997,train,2,0,Tamil Nadu
-tamil nadu|1999,1999,train,4,0,Tamil Nadu
-tamil nadu|2000,2000,train,4,0,Tamil Nadu
-tamil nadu|2001,2001,train,2,2,Tamil Nadu
-tamil nadu|2002,2002,train,4,0,Tamil Nadu
-tamil nadu|2003,2003,train,4,0,Tamil Nadu
-tamil nadu|2004,2004,train,4,0,Tamil Nadu
-tamil nadu|2005,2005,train,4,0,Tamil Nadu
-tamil nadu|2006,2006,train,4,4,Tamil Nadu
-tamil nadu|2007,2007,train,4,4,Tamil Nadu
-tamil nadu|2008,2008,train,4,4,Tamil Nadu
-tamil nadu|2009,2009,train,4,4,Tamil Nadu
-tamil nadu|2010,2010,train,4,0,Tamil Nadu
+tamil nadu|1999,1999,train,6,2,Tamil Nadu
+tamil nadu|2000,2000,train,6,2,Tamil Nadu
+tamil nadu|2001,2001,train,4,4,Tamil Nadu
+tamil nadu|2002,2002,train,6,2,Tamil Nadu
+tamil nadu|2003,2003,train,6,2,Tamil Nadu
+tamil nadu|2004,2004,train,6,2,Tamil Nadu
+tamil nadu|2005,2005,train,6,2,Tamil Nadu
+tamil nadu|2006,2006,train,6,6,Tamil Nadu
+tamil nadu|2007,2007,train,6,6,Tamil Nadu
+tamil nadu|2008,2008,train,6,6,Tamil Nadu
+tamil nadu|2009,2009,train,6,6,Tamil Nadu
+tamil nadu|2010,2010,train,6,2,Tamil Nadu
 tamil nadu|2011,2011,train,6,2,Tamil Nadu
-tamil nadu|2012,2012,train,4,0,Tamil Nadu
-tamil nadu|2013,2013,train,6,2,Tamil Nadu
-tamil nadu|2014,2014,train,6,2,Tamil Nadu
-tamil nadu|2015,2015,train,6,2,Tamil Nadu
-tamil nadu|2016,2016,train,6,2,Tamil Nadu
-tamil nadu|2017,2017,validation,12,8,Tamil Nadu
-tamil nadu|2018,2018,validation,10,10,Tamil Nadu
-tamil nadu|2019,2019,test,12,8,Tamil Nadu
+tamil nadu|2012,2012,train,6,2,Tamil Nadu
+tamil nadu|2013,2013,train,10,6,Tamil Nadu
+tamil nadu|2014,2014,train,10,6,Tamil Nadu
+tamil nadu|2015,2015,train,10,6,Tamil Nadu
+tamil nadu|2016,2016,train,10,6,Tamil Nadu
+tamil nadu|2017,2017,validation,16,12,Tamil Nadu
+tamil nadu|2018,2018,validation,14,14,Tamil Nadu
+tamil nadu|2019,2019,test,16,12,Tamil Nadu
 telangana|1998,1998,train,2,0,Telangana
 telangana|1999,1999,train,2,0,Telangana
 telangana|2000,2000,train,2,0,Telangana
@@ -581,103 +581,103 @@ telangana|2009,2009,train,2,0,Telangana
 telangana|2010,2010,train,2,0,Telangana
 telangana|2011,2011,train,2,0,Telangana
 telangana|2012,2012,train,2,0,Telangana
-telangana|2013,2013,train,8,0,Telangana
-telangana|2014,2014,train,8,0,Telangana
-telangana|2015,2015,train,8,0,Telangana
-telangana|2016,2016,train,8,0,Telangana
-telangana|2017,2017,validation,8,0,Telangana
-telangana|2018,2018,validation,8,0,Telangana
-telangana|2019,2019,test,8,0,Telangana
+telangana|2013,2013,train,12,4,Telangana
+telangana|2014,2014,train,12,4,Telangana
+telangana|2015,2015,train,12,4,Telangana
+telangana|2016,2016,train,12,4,Telangana
+telangana|2017,2017,validation,12,4,Telangana
+telangana|2018,2018,validation,12,0,Telangana
+telangana|2019,2019,test,12,0,Telangana
 tripura|1997,1997,train,2,0,Tripura
-tripura|1998,1998,train,4,2,Tripura
+tripura|1998,1998,train,6,4,Tripura
 tripura|1999,1999,train,4,2,Tripura
 tripura|2000,2000,train,4,2,Tripura
 tripura|2001,2001,train,4,2,Tripura
 tripura|2002,2002,train,4,2,Tripura
 tripura|2003,2003,train,4,2,Tripura
-tripura|2004,2004,train,4,2,Tripura
-tripura|2005,2005,train,4,2,Tripura
-tripura|2006,2006,train,4,2,Tripura
-tripura|2007,2007,train,4,2,Tripura
-tripura|2008,2008,train,4,2,Tripura
-tripura|2009,2009,train,4,2,Tripura
-tripura|2010,2010,train,4,2,Tripura
-tripura|2011,2011,train,4,2,Tripura
-tripura|2012,2012,train,4,2,Tripura
-tripura|2013,2013,train,4,2,Tripura
-tripura|2014,2014,train,4,2,Tripura
-tripura|2015,2015,train,8,6,Tripura
-tripura|2016,2016,train,6,4,Tripura
-tripura|2017,2017,validation,6,4,Tripura
-tripura|2018,2018,validation,6,2,Tripura
-tripura|2019,2019,test,6,2,Tripura
-uttar pradesh|1997,1997,train,8,0,Uttar Pradesh
-uttar pradesh|1998,1998,train,8,6,Uttar Pradesh
-uttar pradesh|1999,1999,train,8,6,Uttar Pradesh
-uttar pradesh|2000,2000,train,8,4,Uttar Pradesh
-uttar pradesh|2001,2001,train,8,4,Uttar Pradesh
-uttar pradesh|2002,2002,train,8,0,Uttar Pradesh
-uttar pradesh|2003,2003,train,10,0,Uttar Pradesh
+tripura|2004,2004,train,6,4,Tripura
+tripura|2005,2005,train,6,4,Tripura
+tripura|2006,2006,train,6,4,Tripura
+tripura|2007,2007,train,6,4,Tripura
+tripura|2008,2008,train,6,4,Tripura
+tripura|2009,2009,train,6,4,Tripura
+tripura|2010,2010,train,6,4,Tripura
+tripura|2011,2011,train,6,4,Tripura
+tripura|2012,2012,train,6,4,Tripura
+tripura|2013,2013,train,6,4,Tripura
+tripura|2014,2014,train,6,4,Tripura
+tripura|2015,2015,train,12,10,Tripura
+tripura|2016,2016,train,10,8,Tripura
+tripura|2017,2017,validation,10,8,Tripura
+tripura|2018,2018,validation,10,4,Tripura
+tripura|2019,2019,test,10,4,Tripura
+uttar pradesh|1997,1997,train,12,4,Uttar Pradesh
+uttar pradesh|1998,1998,train,12,10,Uttar Pradesh
+uttar pradesh|1999,1999,train,12,10,Uttar Pradesh
+uttar pradesh|2000,2000,train,12,8,Uttar Pradesh
+uttar pradesh|2001,2001,train,12,8,Uttar Pradesh
+uttar pradesh|2002,2002,train,12,4,Uttar Pradesh
+uttar pradesh|2003,2003,train,14,4,Uttar Pradesh
 uttar pradesh|2004,2004,train,6,2,Uttar Pradesh
 uttar pradesh|2005,2005,train,4,0,Uttar Pradesh
 uttar pradesh|2006,2006,train,10,6,Uttar Pradesh
-uttar pradesh|2007,2007,train,10,6,Uttar Pradesh
-uttar pradesh|2008,2008,train,6,2,Uttar Pradesh
-uttar pradesh|2009,2009,train,6,2,Uttar Pradesh
-uttar pradesh|2010,2010,train,6,2,Uttar Pradesh
-uttar pradesh|2011,2011,train,8,4,Uttar Pradesh
-uttar pradesh|2012,2012,train,10,6,Uttar Pradesh
-uttar pradesh|2013,2013,train,10,6,Uttar Pradesh
-uttar pradesh|2014,2014,train,10,6,Uttar Pradesh
-uttar pradesh|2015,2015,train,10,6,Uttar Pradesh
-uttar pradesh|2016,2016,train,6,2,Uttar Pradesh
-uttar pradesh|2017,2017,validation,6,2,Uttar Pradesh
-uttar pradesh|2018,2018,validation,6,2,Uttar Pradesh
-uttar pradesh|2019,2019,test,6,2,Uttar Pradesh
+uttar pradesh|2007,2007,train,14,10,Uttar Pradesh
+uttar pradesh|2008,2008,train,8,4,Uttar Pradesh
+uttar pradesh|2009,2009,train,8,4,Uttar Pradesh
+uttar pradesh|2010,2010,train,8,4,Uttar Pradesh
+uttar pradesh|2011,2011,train,12,8,Uttar Pradesh
+uttar pradesh|2012,2012,train,14,10,Uttar Pradesh
+uttar pradesh|2013,2013,train,14,10,Uttar Pradesh
+uttar pradesh|2014,2014,train,14,10,Uttar Pradesh
+uttar pradesh|2015,2015,train,14,10,Uttar Pradesh
+uttar pradesh|2016,2016,train,8,4,Uttar Pradesh
+uttar pradesh|2017,2017,validation,8,4,Uttar Pradesh
+uttar pradesh|2018,2018,validation,8,2,Uttar Pradesh
+uttar pradesh|2019,2019,test,8,2,Uttar Pradesh
 uttarakhand|1997,1997,train,2,0,Uttarakhand
 uttarakhand|1998,1998,train,2,0,Uttarakhand
 uttarakhand|1999,1999,train,2,0,Uttarakhand
-uttarakhand|2000,2000,train,8,0,Uttarakhand
-uttarakhand|2001,2001,train,8,0,Uttarakhand
-uttarakhand|2002,2002,train,8,0,Uttarakhand
-uttarakhand|2003,2003,train,8,0,Uttarakhand
-uttarakhand|2004,2004,train,8,3,Uttarakhand
-uttarakhand|2005,2005,train,8,0,Uttarakhand
-uttarakhand|2006,2006,train,8,0,Uttarakhand
-uttarakhand|2007,2007,train,8,4,Uttarakhand
-uttarakhand|2008,2008,train,4,0,Uttarakhand
-uttarakhand|2009,2009,train,8,0,Uttarakhand
-uttarakhand|2010,2010,train,8,0,Uttarakhand
-uttarakhand|2011,2011,train,8,4,Uttarakhand
-uttarakhand|2012,2012,train,8,4,Uttarakhand
-uttarakhand|2013,2013,train,8,4,Uttarakhand
-uttarakhand|2014,2014,train,8,4,Uttarakhand
-uttarakhand|2015,2015,train,6,2,Uttarakhand
-uttarakhand|2016,2016,train,4,0,Uttarakhand
-uttarakhand|2017,2017,validation,4,0,Uttarakhand
-uttarakhand|2018,2018,validation,4,0,Uttarakhand
-uttarakhand|2019,2019,test,4,0,Uttarakhand
-uttarakhand|2020,2020,test,4,0,Uttarakhand
-west bengal|1997,1997,train,10,2,West Bengal
-west bengal|1998,1998,train,10,0,West Bengal
-west bengal|1999,1999,train,10,0,West Bengal
-west bengal|2000,2000,train,10,2,West Bengal
-west bengal|2001,2001,train,10,2,West Bengal
-west bengal|2002,2002,train,10,2,West Bengal
-west bengal|2003,2003,train,10,0,West Bengal
-west bengal|2004,2004,train,10,0,West Bengal
-west bengal|2005,2005,train,10,0,West Bengal
-west bengal|2006,2006,train,10,2,West Bengal
-west bengal|2007,2007,train,14,2,West Bengal
-west bengal|2008,2008,train,14,2,West Bengal
-west bengal|2009,2009,train,4,2,West Bengal
-west bengal|2010,2010,train,4,2,West Bengal
-west bengal|2011,2011,train,14,12,West Bengal
-west bengal|2012,2012,train,14,12,West Bengal
-west bengal|2013,2013,train,14,12,West Bengal
-west bengal|2014,2014,train,14,12,West Bengal
-west bengal|2015,2015,train,4,2,West Bengal
-west bengal|2016,2016,train,4,2,West Bengal
-west bengal|2017,2017,validation,4,2,West Bengal
-west bengal|2018,2018,validation,4,2,West Bengal
-west bengal|2019,2019,test,4,2,West Bengal
+uttarakhand|2000,2000,train,12,4,Uttarakhand
+uttarakhand|2001,2001,train,12,4,Uttarakhand
+uttarakhand|2002,2002,train,12,4,Uttarakhand
+uttarakhand|2003,2003,train,12,4,Uttarakhand
+uttarakhand|2004,2004,train,12,7,Uttarakhand
+uttarakhand|2005,2005,train,12,4,Uttarakhand
+uttarakhand|2006,2006,train,12,4,Uttarakhand
+uttarakhand|2007,2007,train,12,8,Uttarakhand
+uttarakhand|2008,2008,train,6,2,Uttarakhand
+uttarakhand|2009,2009,train,12,4,Uttarakhand
+uttarakhand|2010,2010,train,12,4,Uttarakhand
+uttarakhand|2011,2011,train,10,6,Uttarakhand
+uttarakhand|2012,2012,train,10,6,Uttarakhand
+uttarakhand|2013,2013,train,12,8,Uttarakhand
+uttarakhand|2014,2014,train,12,8,Uttarakhand
+uttarakhand|2015,2015,train,10,6,Uttarakhand
+uttarakhand|2016,2016,train,6,2,Uttarakhand
+uttarakhand|2017,2017,validation,6,2,Uttarakhand
+uttarakhand|2018,2018,validation,6,0,Uttarakhand
+uttarakhand|2019,2019,test,6,0,Uttarakhand
+uttarakhand|2020,2020,test,6,0,Uttarakhand
+west bengal|1997,1997,train,14,6,West Bengal
+west bengal|1998,1998,train,14,4,West Bengal
+west bengal|1999,1999,train,14,4,West Bengal
+west bengal|2000,2000,train,14,6,West Bengal
+west bengal|2001,2001,train,14,6,West Bengal
+west bengal|2002,2002,train,14,6,West Bengal
+west bengal|2003,2003,train,14,4,West Bengal
+west bengal|2004,2004,train,14,4,West Bengal
+west bengal|2005,2005,train,14,4,West Bengal
+west bengal|2006,2006,train,14,6,West Bengal
+west bengal|2007,2007,train,20,8,West Bengal
+west bengal|2008,2008,train,20,8,West Bengal
+west bengal|2009,2009,train,8,6,West Bengal
+west bengal|2010,2010,train,8,6,West Bengal
+west bengal|2011,2011,train,20,18,West Bengal
+west bengal|2012,2012,train,20,18,West Bengal
+west bengal|2013,2013,train,20,18,West Bengal
+west bengal|2014,2014,train,20,18,West Bengal
+west bengal|2015,2015,train,8,6,West Bengal
+west bengal|2016,2016,train,8,6,West Bengal
+west bengal|2017,2017,validation,8,6,West Bengal
+west bengal|2018,2018,validation,8,6,West Bengal
+west bengal|2019,2019,test,8,6,West Bengal

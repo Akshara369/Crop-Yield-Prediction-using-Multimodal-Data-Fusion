@@ -17,7 +17,7 @@ TUNING_PATH = ROOT / "models" / "multimodal_tuning_results.csv"
 MODELING_DATASET_PATH = DATASETS_DIR / "modeling_dataset.csv"
 REPORTS_DIR = ROOT / "models" / "reports"
 
-TARGET_CROPS = ["Rice", "Maize"]
+TARGET_CROPS = ["Rice", "Maize", "Moong(Green Gram)"]
 SEASONS = ["Kharif", "Rabi", "Summer", "Autumn", "Winter", "Whole Year"]
 EXCLUDED_COLUMNS = {
     "Yield", "Production", "Start_Date", "End_Date", "RGB_Image", "NDVI_Image", "Satellite_Source"
@@ -392,6 +392,10 @@ def fallback_prediction(crop, area, rainfall, fertilizer_rate, pesticide_rate):
     rainfall_norm = max((rainfall - 600) / 1000, 0)
     fertilizer_norm = max((fertilizer_rate - 50) / 200, 0)
     pesticide_norm = max((pesticide_rate - 10) / 80, 0)
+    if "moong" in crop.lower():
+        base = 0.52
+        estimate = base + 0.15 * rainfall_norm + 0.10 * fertilizer_norm + 0.05 * pesticide_norm
+        return float(np.clip(estimate, 0.1, 2.0))
     base = 2.8 if crop == "Rice" else 2.2
     estimate = base + 0.55 * area_norm + 1.2 * rainfall_norm + 0.95 * fertilizer_norm + 0.35 * pesticide_norm
     return float(np.clip(estimate, 1.0, 9.5 if crop == "Rice" else 8.5))
