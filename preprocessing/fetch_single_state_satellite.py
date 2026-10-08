@@ -352,20 +352,30 @@ def save_feature_rows(rows: list[dict], path: Path = FEATURES_PATH) -> None:
 
 
 def target_key(state: str, crop: str, year: int, season: str | None) -> tuple[str, str, int, str]:
+    if pd.isna(state) or pd.isna(crop) or pd.isna(year):
+        raise ValueError("Target key fields State, Crop, and Year must not be empty.")
+
     return (
-        state.strip().casefold(),
-        crop.strip().casefold(),
+        str(state).strip().casefold(),
+        str(crop).strip().casefold(),
         int(year),
-        (season or "").strip().casefold(),
+        "" if pd.isna(season) else str(season).strip().casefold(),
     )
 
 
 def target_group_key(state: str, crop: str, year: int) -> tuple[str, str, int]:
+    if pd.isna(state) or pd.isna(crop) or pd.isna(year):
+        raise ValueError("Target group key fields State, Crop, and Year must not be empty.")
+
     return (
-        state.strip().casefold(),
-        crop.strip().casefold(),
+        str(state).strip().casefold(),
+        str(crop).strip().casefold(),
         int(year),
     )
+
+
+def valid_target_key_rows(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[columns].dropna(subset=["State", "Crop", "Year"])
 
 
 def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int, str]]:
@@ -377,10 +387,8 @@ def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int
     if not required_columns.issubset(completed.columns):
         return set()
 
-    return {
-        target_key(row.State, row.Crop, row.Year, row.Season)
-        for row in completed[["State", "Crop", "Year", "Season"]].itertuples(index=False)
-    }
+    rows = valid_target_key_rows(completed, ["State", "Crop", "Year", "Season"])
+    return {target_key(row.State, row.Crop, row.Year, row.Season) for row in rows.itertuples(index=False)}
 
 
 def failed_target_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, int, str]]:
@@ -392,10 +400,8 @@ def failed_target_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, 
     if not required_columns.issubset(failed.columns):
         return set()
 
-    return {
-        target_key(row.State, row.Crop, row.Year, row.Season)
-        for row in failed[["State", "Crop", "Year", "Season"]].itertuples(index=False)
-    }
+    rows = valid_target_key_rows(failed, ["State", "Crop", "Year", "Season"])
+    return {target_key(row.State, row.Crop, row.Year, row.Season) for row in rows.itertuples(index=False)}
 
 
 def failed_target_group_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, int]]:
@@ -407,10 +413,8 @@ def failed_target_group_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str,
     if not required_columns.issubset(failed.columns):
         return set()
 
-    return {
-        target_group_key(row.State, row.Crop, row.Year)
-        for row in failed[["State", "Crop", "Year"]].itertuples(index=False)
-    }
+    rows = valid_target_key_rows(failed, ["State", "Crop", "Year"])
+    return {target_group_key(row.State, row.Crop, row.Year) for row in rows.itertuples(index=False)}
 
 
 def save_failed_target(
