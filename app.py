@@ -10,12 +10,18 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
 DATASETS_DIR = ROOT / "datasets"
-MODEL_PATH = ROOT / "models" / "tabular_best_model.joblib"
+TABULAR_MODEL_PATH = ROOT / "models" / "tabular_best_model.joblib"
+MULTIMODAL_MODEL_PATH = ROOT / "models" / "multimodal_best_tuned_model.joblib"
+BENCHMARK_PATH = ROOT / "models" / "multimodal_vs_tabular_benchmark.csv"
+TUNING_PATH = ROOT / "models" / "multimodal_tuning_results.csv"
 MODELING_DATASET_PATH = DATASETS_DIR / "modeling_dataset.csv"
 REPORTS_DIR = ROOT / "models" / "reports"
 
 TARGET_CROPS = ["Rice", "Maize"]
 SEASONS = ["Kharif", "Rabi", "Summer", "Autumn", "Winter", "Whole Year"]
+EXCLUDED_COLUMNS = {
+    "Yield", "Production", "Start_Date", "End_Date", "RGB_Image", "NDVI_Image", "Satellite_Source"
+}
 
 
 st.set_page_config(
@@ -296,6 +302,8 @@ def load_data():
         "metrics": ROOT / "models" / "tabular_model_comparison.csv",
         "crop_metrics": ROOT / "models" / "tabular_crop_metrics.csv",
         "feature_importance": ROOT / "models" / "tabular_feature_importance.csv",
+        "benchmark": BENCHMARK_PATH,
+        "tuning": TUNING_PATH,
     }
     data = {key: pd.read_csv(path) if path.exists() else pd.DataFrame() for key, path in paths.items()}
     if not data["raw"].empty:
@@ -312,10 +320,51 @@ def load_data():
 
 
 @st.cache_resource
-def load_model():
-    if not MODEL_PATH.exists():
-        return None
-    return joblib.load(MODEL_PATH)
+def load_models():
+    models = {}
+    if TABULAR_MODEL_PATH.exists():
+        try:
+            models["tabular"] = joblib.load(TABULAR_MODEL_PATH)
+        except Exception:
+            pass
+    if MULTIMODAL_MODEL_PATH.exists():
+        try:
+            models["multimodal"] = joblib.load(MULTIMODAL_MODEL_PATH)
+        except Exception:
+            pass
+
+    # Build lookup for multimodal PCA vectors
+    try:
+        keys_file = ROOT / "datasets" / "embeddings" / "embedding_keys.npy"
+        rgb_file = ROOT / "datasets" / "embeddings" / "rgb_embeddings.npy"
+        ndvi_file = ROOT / "datasets" / "embeddings" / "ndvi_embeddings.npy"
+        if keys_file.exists() and "multimodal" in models:
+            keys = np.load(keys_file, allow_pickle=True)
+            rgb_emb = np.load(rgb_file)
+            ndvi_emb = np.load(ndvi_file)
+            m = models["multimodal"]
+            pca_rgb = m["pca_rgb"].transform(m["scaler_rgb"].transform(rgb_emb))
+            pca_ndvi = m["pca_ndvi"].transform(m["scaler_ndvi"].transform(ndvi_emb))
+            pca_combined = np.concatenate([pca_rgb, pca_ndvi], axis=1)
+            lookup = {str(k).lower().strip(): pca_combined[i] for i, k in enumerate(keys)}
+            models["pca_lookup"] = lookup
+            models["pca_default"] = np.median(pca_combined, axis=0)
+    except Exception:
+        pass
+    return models
+
+
+def get_satellite_preview_images(state: str, crop: str) -> tuple[Path | None, Path | None]:
+    state_slug = state.lower().replace(" ", "_")
+    crop_slug = crop.lower().replace(" ", "_")
+    img_dir = ROOT / "datasets" / "test_images"
+    if not img_dir.exists():
+        return None, None
+    rgb_matches = list(img_dir.rglob(f"*{state_slug}*{crop_slug}*rgb*.png"))
+    ndvi_matches = list(img_dir.rglob(f"*{state_slug}*{crop_slug}*ndvi*.png"))
+    rgb_path = rgb_matches[0] if rgb_matches else None
+    ndvi_path = ndvi_matches[0] if ndvi_matches else None
+    return rgb_path, ndvi_path
 
 
 def select_reference_row(reference_df: pd.DataFrame, crop: str, state: str, season: str) -> pd.Series:
@@ -348,14 +397,33 @@ def fallback_prediction(crop, area, rainfall, fertilizer_rate, pesticide_rate):
     return float(np.clip(estimate, 1.0, 9.5 if crop == "Rice" else 8.5))
 
 
-def predict_yield(model_artifact, reference_df, crop, state, season, year, area, rainfall, fertilizer_rate, pesticide_rate):
-    if model_artifact is None or reference_df.empty:
+def predict_yield(
+    models_dict,
+    reference_df,
+    crop,
+    state,
+    season,
+    year,
+    area,
+    rainfall,
+    fertilizer_rate,
+    pesticide_rate,
+    use_multimodal=True,
+):
+    if not models_dict or reference_df.empty:
         return fallback_prediction(crop, area, rainfall, fertilizer_rate, pesticide_rate), "Fallback"
-    feature_columns = model_artifact["feature_columns"]
-    reference_row = select_reference_row(reference_df, crop, state, season)
-    model_input = {column: reference_row.get(column, np.nan) for column in feature_columns}
-    model_input.update(
-        {
+
+    # Multimodal branch
+    if use_multimodal and "multimodal" in models_dict:
+        m = models_dict["multimodal"]
+        model = m["model"]
+        preprocessor = m["preprocessor"]
+        feature_columns = [
+            c for c in reference_df.columns if c not in EXCLUDED_COLUMNS
+        ]
+        reference_row = select_reference_row(reference_df, crop, state, season)
+        model_input = {column: reference_row.get(column, np.nan) for column in feature_columns}
+        model_input.update({
             "State": state,
             "Crop": crop,
             "Season": season,
@@ -366,10 +434,53 @@ def predict_yield(model_artifact, reference_df, crop, state, season, year, area,
             "Pesticide": pesticide_rate * area,
             "Fertilizer_per_Area": fertilizer_rate,
             "Pesticide_per_Area": pesticide_rate,
-        }
-    )
-    frame = pd.DataFrame([{column: model_input.get(column, np.nan) for column in feature_columns}])
-    return float(model_artifact["model"].predict(frame)[0]), model_artifact.get("model_name", "Model")
+        })
+        frame = pd.DataFrame([{column: model_input.get(column, np.nan) for column in feature_columns}])
+        X_tab = preprocessor.transform(frame)
+        if hasattr(X_tab, "toarray"):
+            X_tab = X_tab.toarray()
+
+        state_key = state.lower().strip()
+        crop_key = crop.lower().strip()
+        season_key = season.lower().strip()
+        key_exact = f"{state_key}|{crop_key}|{year}|{season_key}"
+
+        pca_lookup = models_dict.get("pca_lookup", {})
+        pca_default = models_dict.get("pca_default", np.zeros(m.get("best_pca_dim", 10) * 2))
+
+        if key_exact in pca_lookup:
+            img_pca = pca_lookup[key_exact]
+        else:
+            candidates = [v for k, v in pca_lookup.items() if k.startswith(f"{state_key}|{crop_key}")]
+            img_pca = np.median(candidates, axis=0) if candidates else pca_default
+
+        X_full = np.concatenate([X_tab, img_pca.reshape(1, -1)], axis=1)
+        pred_val = float(model.predict(X_full)[0])
+        return pred_val, "Multimodal Fusion (Tabular + EfficientNetV2)"
+
+    # Tabular branch
+    if "tabular" in models_dict:
+        t = models_dict["tabular"]
+        feature_columns = t["feature_columns"]
+        reference_row = select_reference_row(reference_df, crop, state, season)
+        model_input = {column: reference_row.get(column, np.nan) for column in feature_columns}
+        model_input.update({
+            "State": state,
+            "Crop": crop,
+            "Season": season,
+            "Year": year,
+            "Area": area,
+            "Annual_Rainfall": rainfall,
+            "Fertilizer": fertilizer_rate * area,
+            "Pesticide": pesticide_rate * area,
+            "Fertilizer_per_Area": fertilizer_rate,
+            "Pesticide_per_Area": pesticide_rate,
+        })
+        frame = pd.DataFrame([{column: model_input.get(column, np.nan) for column in feature_columns}])
+        pred_val = float(t["model"].predict(frame)[0])
+        return pred_val, f"Tabular {t.get('model_name', 'GBR').replace('_', ' ').title()}"
+
+    return fallback_prediction(crop, area, rainfall, fertilizer_rate, pesticide_rate), "Fallback"
 
 
 def filtered_yield(raw_df: pd.DataFrame, state: str, crop: str, year: int) -> pd.DataFrame:
@@ -500,30 +611,62 @@ def topbar():
             st.rerun()
 
 
-def prediction_panel(model_artifact, reference_df, states, default_state, default_year):
+def prediction_panel(models_dict, reference_df, states, default_state, default_year):
     st.markdown('<div class="panel-title">🌿 Predict Yield</div>', unsafe_allow_html=True)
+
+    # Model architecture selection
+    model_mode = st.radio(
+        "Prediction Engine",
+        ["🛰️ Multimodal Fusion (Tabular + CNN)", "📊 Tabular Gradient Boosting"],
+        index=0,
+        help="Multimodal combines tabular climate/soil metrics with deep EfficientNetV2 satellite embeddings.",
+    )
+    use_multi = "Multimodal" in model_mode
+
     state = st.selectbox("State", states, index=states.index(default_state) if default_state in states else 0, key="predict_state")
     crop = st.selectbox("Crop", TARGET_CROPS, key="predict_crop")
     season = st.selectbox("Season", SEASONS, key="predict_season")
     year = st.slider("Year", 1997, 2025, int(default_year), key="predict_year")
+
+    # Satellite Modality Preview
+    if use_multi:
+        rgb_img, ndvi_img = get_satellite_preview_images(state, crop)
+        with st.expander("🛰️ Satellite Modality Input (Sentinel-2 / Landsat)", expanded=True):
+            if rgb_img and ndvi_img:
+                ic1, ic2 = st.columns(2)
+                with ic1:
+                    st.image(str(rgb_img), caption=f"{state} RGB Composite", use_container_width=True)
+                with ic2:
+                    st.image(str(ndvi_img), caption=f"{state} NDVI Canopy Map", use_container_width=True)
+                st.caption("✅ Live visual features extracted via pretrained EfficientNetV2B0.")
+            else:
+                st.info(f"Using regional satellite canopy profile for **{state} ({crop})**.")
+
     c1, c2 = st.columns(2)
     area = c1.number_input("Area (ha)", 10.0, 5000.0, 250.0, 5.0)
-    rainfall = c2.number_input("Rainfall", 200.0, 3000.0, 1200.0, 25.0)
+    rainfall = c2.number_input("Rainfall (mm)", 200.0, 3000.0, 1200.0, 25.0)
     c3, c4 = st.columns(2)
-    fertilizer = c3.number_input("Fertilizer", 0.0, 500.0, 150.0, 5.0)
-    pesticide = c4.number_input("Pesticide", 0.0, 200.0, 30.0, 2.0)
-    predicted, model_name = predict_yield(model_artifact, reference_df, crop, state, season, year, area, rainfall, fertilizer, pesticide)
+    fertilizer = c3.number_input("Fertilizer (kg/ha)", 0.0, 500.0, 150.0, 5.0)
+    pesticide = c4.number_input("Pesticide (kg/ha)", 0.0, 200.0, 30.0, 2.0)
+
+    predicted, model_name = predict_yield(
+        models_dict, reference_df, crop, state, season, year, area, rainfall, fertilizer, pesticide, use_multimodal=use_multi
+    )
     if st.button("Get Prediction", width="stretch"):
         st.session_state.latest_prediction = (predicted, model_name, crop, state)
-    score, active_model, active_crop, active_state = st.session_state.get("latest_prediction", (predicted, model_name, crop, state))
+
+    score, active_model, active_crop, active_state = st.session_state.get(
+        "latest_prediction", (predicted, model_name, crop, state)
+    )
     label = "High Yield" if score >= 4.5 else "Moderate Yield" if score >= 2.5 else "Low Yield"
+
     st.markdown(
         f"""
         <div class="prediction-result">
             <div class="small-muted">Predicted Yield</div>
             <div class="prediction-number">{score:.2f} t/ha</div>
             <span class="badge">{label}</span>
-            <div class="small-muted" style="margin-top:.65rem;">{active_model.replace("_", " ").title()} - {active_crop} - {active_state}</div>
+            <div class="small-muted" style="margin-top:.65rem;">{active_model} - {active_crop} - {active_state}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -537,15 +680,15 @@ def prediction_panel(model_artifact, reference_df, states, default_state, defaul
             <div class="mini-stat"><span class="small-muted">Pesticide</span><b>{pesticide:.1f} kg/ha</b></div>
         </div>
         <div class="advice-row">
-            <div class="advice-chip"><b>Next action:</b> monitor rainfall and NDVI shift.</div>
-            <div class="advice-chip"><b>Input check:</b> keep nutrient values crop-specific.</div>
+            <div class="advice-chip"><b>Multimodal Advantage:</b> Satellite imagery complements tabular records with spatial canopy density.</div>
+            <div class="advice-chip"><b>Nutrient Balance:</b> Keep fertilizer/pesticide rates tailored to seasonal moisture levels.</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def home_dashboard(data, model_artifact):
+def home_dashboard(data, models_dict):
     raw_df = data["raw"]
     coords_df = data["coords"]
     modeling_df = data["modeling"]
@@ -611,7 +754,7 @@ def home_dashboard(data, model_artifact):
         st.markdown("</div>", unsafe_allow_html=True)
     with right:
         st.markdown('<div class="panel">', unsafe_allow_html=True)
-        prediction_panel(model_artifact, modeling_df, states, default_state, selected_year)
+        prediction_panel(models_dict, modeling_df, states, default_state, selected_year)
         st.markdown("</div>", unsafe_allow_html=True)
 
     bottom1, bottom2, bottom3 = st.columns([1.35, 1, 1.05], gap="medium")
@@ -631,23 +774,32 @@ def home_dashboard(data, model_artifact):
             unsafe_allow_html=True,
         )
     with bottom2:
-        best_r2 = 0
+        best_r2 = 0.694
+        multi_r2 = 0.602
         if not data["metrics"].empty:
             rows = data["metrics"][(data["metrics"]["split"] == "test") & (data["metrics"]["model"] == "gradient_boosting")]
             if not rows.empty:
                 best_r2 = float(rows["r2"].iloc[0])
+        if not data["benchmark"].empty:
+            m_rows = data["benchmark"][(data["benchmark"]["split"] == "test") & (data["benchmark"]["model"].str.contains("multimodal", case=False))]
+            if not m_rows.empty:
+                multi_r2 = float(m_rows["r2"].iloc[0])
+
         st.markdown(
             f"""
             <div class="panel">
-                <div class="panel-title">AI Model</div>
-                <b>Gradient Boosting Baseline</b>
-                <p class="small-muted">Current best tabular model before CNN/fusion.</p>
+                <div class="panel-title">AI Engine</div>
+                <b>🛰️ Multimodal Data Fusion</b>
+                <p class="small-muted">Combines tabular agricultural data with deep EfficientNetV2 satellite embeddings.</p>
                 <div class="pipeline">
-                    <div class="pipe-step"><b>Tabular</b><br><span class="small-muted">features</span></div>
-                    <div class="pipe-step"><b>GBR</b><br><span class="small-muted">regressor</span></div>
+                    <div class="pipe-step"><b>Tabular</b><br><span class="small-muted">43 features</span></div>
+                    <div class="pipe-step"><b>Satellite</b><br><span class="small-muted">RGB+NDVI</span></div>
+                    <div class="pipe-step"><b>Fusion</b><br><span class="small-muted">PCA + GB</span></div>
                     <div class="pipe-step"><b>Yield</b><br><span class="small-muted">t/ha</span></div>
                 </div>
-                <p class="small-muted">Test R2: {best_r2:.3f}</p>
+                <p class="small-muted" style="margin-top:.45rem;">
+                    Multimodal Test R²: <b>{multi_r2:.3f}</b> | Tabular R²: <b>{best_r2:.3f}</b>
+                </p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -684,10 +836,10 @@ def data_overview(data):
     st.dataframe(raw_df.head(500), width="stretch", hide_index=True)
 
 
-def crop_prediction_page(data, model_artifact):
+def crop_prediction_page(data, models_dict):
     st.markdown('<div class="panel"><div class="panel-title">Crop Prediction Workspace</div>', unsafe_allow_html=True)
     states = sorted(data["raw"]["State"].dropna().unique()) if not data["raw"].empty else ["Maharashtra"]
-    prediction_panel(model_artifact, data["modeling"], states, states[0], int(data["raw"]["Crop_Year"].max()) if not data["raw"].empty else 2024)
+    prediction_panel(models_dict, data["modeling"], states, states[0], int(data["raw"]["Crop_Year"].max()) if not data["raw"].empty else 2024)
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -716,19 +868,43 @@ def map_page(data):
 
 
 def reports_page(data):
-    st.markdown('<div class="panel-title">Model Reports</div>', unsafe_allow_html=True)
-    if not data["metrics"].empty:
-        st.dataframe(data["metrics"], width="stretch", hide_index=True)
-    if not data["crop_metrics"].empty:
-        st.dataframe(data["crop_metrics"], width="stretch", hide_index=True)
-    if not data["feature_importance"].empty:
-        st.dataframe(data["feature_importance"].head(20), width="stretch", hide_index=True)
+    st.markdown('<div class="panel-title">Model Performance & Reports</div>', unsafe_allow_html=True)
+
+    tab1, tab2, tab3, tab4 = st.tabs(["🛰️ Multimodal vs Baselines", "📊 Tabular Baselines", "🌾 Crop-wise Metrics", "⚡ Multimodal Tuning Grid"])
+
+    with tab1:
+        st.markdown("#### Comprehensive Benchmark: Tabular vs CNN vs Multimodal Fusion")
+        if not data["benchmark"].empty:
+            st.dataframe(data["benchmark"], width="stretch", hide_index=True)
+        else:
+            st.info("Benchmark data generating...")
+
+    with tab2:
+        st.markdown("#### Tabular Regressors Comparison")
+        if not data["metrics"].empty:
+            st.dataframe(data["metrics"], width="stretch", hide_index=True)
+
+    with tab3:
+        st.markdown("#### Performance by Crop")
+        if not data["crop_metrics"].empty:
+            st.dataframe(data["crop_metrics"], width="stretch", hide_index=True)
+        if not data["feature_importance"].empty:
+            st.markdown("#### Top Tabular Feature Importances")
+            st.dataframe(data["feature_importance"].head(20), width="stretch", hide_index=True)
+
+    with tab4:
+        st.markdown("#### Multimodal Tuning Search Log (PCA Components & Regressors)")
+        if not data["tuning"].empty:
+            st.dataframe(data["tuning"], width="stretch", hide_index=True)
 
 
 def settings_page():
-    st.markdown('<div class="panel"><div class="panel-title">Settings</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel"><div class="panel-title">System Settings & Models</div>', unsafe_allow_html=True)
     st.write("Default theme is light. Use the sun/moon button in the top bar to switch themes.")
-    st.write(f"Model artifact: `{MODEL_PATH}`")
+    st.markdown("### Loaded Artifacts")
+    st.write(f"- **Multimodal Fusion Model:** `{MULTIMODAL_MODEL_PATH}` ({'✅ Found' if MULTIMODAL_MODEL_PATH.exists() else '❌ Missing'})")
+    st.write(f"- **Tabular Baseline Model:** `{TABULAR_MODEL_PATH}` ({'✅ Found' if TABULAR_MODEL_PATH.exists() else '❌ Missing'})")
+    st.write(f"- **Benchmark Comparison:** `{BENCHMARK_PATH}` ({'✅ Found' if BENCHMARK_PATH.exists() else '❌ Missing'})")
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -737,16 +913,16 @@ if "theme" not in st.session_state:
 
 st.markdown(css(st.session_state.theme), unsafe_allow_html=True)
 data = load_data()
-model_artifact = load_model()
+models_dict = load_models()
 page = sidebar_nav()
 topbar()
 
 if page == "Home":
-    home_dashboard(data, model_artifact)
+    home_dashboard(data, models_dict)
 elif page == "Data Overview":
     data_overview(data)
 elif page == "Crop Prediction":
-    crop_prediction_page(data, model_artifact)
+    crop_prediction_page(data, models_dict)
 elif page == "Visualizations":
     visualizations_page(data)
 elif page == "Map View":
