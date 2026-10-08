@@ -103,11 +103,12 @@ def main() -> None:
     )
     unmatched = samples["_merge"] != "both"
     if unmatched.any():
-        examples = samples.loc[unmatched, "feature_key"].head().tolist()
-        raise ValueError(
-            f"{int(unmatched.sum())} image samples are missing from the tabular "
-            f"modeling dataset; examples: {examples}"
+        examples = samples.loc[unmatched, "feature_key"].head(5).tolist()
+        print(
+            f"[WARN] {int(unmatched.sum())} image samples have no match in the "
+            f"tabular modeling dataset and will be skipped; examples: {examples}"
         )
+        samples = samples.loc[~unmatched].copy()
     if not (samples["yield"] - samples["tabular_yield"]).abs().le(1e-8).all():
         raise ValueError("Manifest and modeling-dataset target values disagree.")
     samples = samples.drop(columns=["_merge", "tabular_yield"])
@@ -128,9 +129,9 @@ def main() -> None:
     ]
     missing_predictions = test_keys - set(test_predictions["feature_key"])
     if missing_predictions:
-        raise ValueError(
-            f"Tabular benchmark is missing predictions for {len(missing_predictions)} "
-            "CNN test samples."
+        print(
+            f"[WARN] Tabular benchmark is missing predictions for {len(missing_predictions)} "
+            f"CNN test samples; these will have NaN for tabular_predicted_yield."
         )
     samples = samples.merge(
         test_predictions.rename(

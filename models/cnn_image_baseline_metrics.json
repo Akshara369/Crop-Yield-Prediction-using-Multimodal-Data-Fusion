@@ -11,29 +11,29 @@
       96
     ],
     "yield_scaled_using_training_mean_and_std": {
-      "mean": 2.6177793340482456,
-      "std": 0.9276696754704029
+      "mean": 2.533379997092838,
+      "std": 1.2266708378235462
     }
   },
   "split_years": {
-    "train": "<=2016 (228 samples)",
-    "validation": "2017-2018 (33 samples)",
-    "test": ">=2019 (13 samples)"
+    "train": "<=2016 (377 samples)",
+    "validation": "2017-2018 (43 samples)",
+    "test": ">=2019 (15 samples)"
   },
-  "epochs_trained": 37,
-  "best_validation_loss_scaled": 0.6162616014480591,
+  "epochs_trained": 26,
+  "best_validation_loss_scaled": 0.5308167934417725,
   "test": {
     "cnn_image_only": {
-      "rmse": 1.356049230906898,
-      "mae": 0.9282030458324069,
-      "r2": 0.060980476305874776
+      "rmse": 1.6060659258472105,
+      "mae": 1.220486839555705,
+      "r2": -0.05027522475572965
     },
     "tabular_gradient_boosting_same_samples": {
-      "rmse": 0.7935703429757444,
-      "mae": 0.5488950616163841,
-      "r2": 0.6784159007605085
+      "rmse": 0.8340160518125614,
+      "mae": 0.6156799720870952,
+      "r2": 0.7167791622446622
     },
-    "sample_count": 13
+    "sample_count": 15
   },
   "limitations": [
     "The test set has few eligible image pairs; test metrics are exploratory.",

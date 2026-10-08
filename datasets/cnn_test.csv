@@ -1,4 +1,6 @@
 feature_key,state,crop,year,season,yield,split,rgb,ndvi,tabular_predicted_yield
+andhra pradesh|maize|2019|kharif,Andhra Pradesh,Maize,2019,Kharif,4.653076923,test,datasets/test_images/2019/rgb/andhra_pradesh_2019_maize_kharif_rgb.png,datasets/test_images/2019/ndvi/andhra_pradesh_2019_maize_kharif_ndvi.png,3.749679844560028
+andhra pradesh|maize|2019|rabi,Andhra Pradesh,Maize,2019,Rabi,6.698461538,test,datasets/test_images/2019/rgb/andhra_pradesh_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/andhra_pradesh_2019_maize_rabi_ndvi.png,5.502294836146536
 bihar|maize|2019|rabi,Bihar,Maize,2019,Rabi,5.7365625,test,datasets/test_images/2019/rgb/bihar_2019_maize_rabi_rgb.png,datasets/test_images/2019/ndvi/bihar_2019_maize_rabi_ndvi.png,3.507154032489043
 goa|rice|2019|kharif,Goa,Rice,2019,Kharif,2.475,test,datasets/test_images/2019/rgb/goa_2019_rice_kharif_rgb.png,datasets/test_images/2019/ndvi/goa_2019_rice_kharif_ndvi.png,2.610753235842583
 goa|rice|2019|rabi,Goa,Rice,2019,Rabi,2.95,test,datasets/test_images/2019/rgb/goa_2019_rice_rabi_rgb.png,datasets/test_images/2019/ndvi/goa_2019_rice_rabi_ndvi.png,2.844392708850666
