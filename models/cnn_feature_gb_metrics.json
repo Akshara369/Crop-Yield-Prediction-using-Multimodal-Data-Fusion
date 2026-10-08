@@ -1,0 +1,116 @@
+{
+  "strategy": "pretrained_cnn_feature_extractor_plus_gradient_boosting",
+  "backbone": "EfficientNetV2B0_imagenet",
+  "image_size": [
+    224,
+    224
+  ],
+  "pca_components": {
+    "rgb": 30,
+    "ndvi": 30,
+    "rgb_variance_retained": 0.6507282853126526,
+    "ndvi_variance_retained": 0.648915708065033
+  },
+  "feature_dimensions": {
+    "tabular": 78,
+    "rgb_pca": 30,
+    "ndvi_pca": 30,
+    "total_combined": 138
+  },
+  "sample_counts": {
+    "total_with_images": 1506,
+    "train": 1374,
+    "validation": 104,
+    "test": 28
+  },
+  "results": {
+    "combined_tabular_cnn": {
+      "validation": {
+        "rmse": 0.8358142753087684,
+        "mae": 0.5018138132523013,
+        "r2": 0.6861095274582742
+      },
+      "test": {
+        "rmse": 1.0922585115962853,
+        "mae": 0.682565648216466,
+        "r2": 0.5778912971241319
+      }
+    },
+    "tabular_only_same_samples": {
+      "validation": {
+        "rmse": 0.8520830685835454,
+        "mae": 0.5042319761600176,
+        "r2": 0.6737710964946055
+      },
+      "test": {
+        "rmse": 1.0777569545886232,
+        "mae": 0.6281513790838061,
+        "r2": 0.5890252888527163
+      }
+    }
+  },
+  "top_10_features": [
+    {
+      "feature": "numeric__Latitude",
+      "importance": 0.29614760419983566
+    },
+    {
+      "feature": "numeric__Longitude",
+      "importance": 0.054625782232287125
+    },
+    {
+      "feature": "categorical__Season_Rabi",
+      "importance": 0.050811234136764916
+    },
+    {
+      "feature": "numeric__Year",
+      "importance": 0.0483065236725377
+    },
+    {
+      "feature": "numeric__GREEN_stdDev",
+      "importance": 0.0426125427909402
+    },
+    {
+      "feature": "ndvi_pca_28",
+      "importance": 0.03169217640749404
+    },
+    {
+      "feature": "numeric__Fertilizer",
+      "importance": 0.02911166620859373
+    },
+    {
+      "feature": "numeric__Area",
+      "importance": 0.02901941051542332
+    },
+    {
+      "feature": "ndvi_pca_1",
+      "importance": 0.028256320982301478
+    },
+    {
+      "feature": "categorical__State_Tamil Nadu",
+      "importance": 0.02807079724056836
+    }
+  ],
+  "top_5_image_features": [
+    {
+      "feature": "ndvi_pca_28",
+      "importance": 0.03169217640749404
+    },
+    {
+      "feature": "ndvi_pca_1",
+      "importance": 0.028256320982301478
+    },
+    {
+      "feature": "ndvi_pca_6",
+      "importance": 0.02325461875881524
+    },
+    {
+      "feature": "ndvi_pca_0",
+      "importance": 0.023157242026546267
+    },
+    {
+      "feature": "ndvi_pca_16",
+      "importance": 0.01744444179263305
+    }
+  ]
+}
