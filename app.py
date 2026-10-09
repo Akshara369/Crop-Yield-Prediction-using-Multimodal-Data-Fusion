@@ -17,7 +17,7 @@ TUNING_PATH = ROOT / "models" / "multimodal_tuning_results.csv"
 MODELING_DATASET_PATH = DATASETS_DIR / "modeling_dataset.csv"
 REPORTS_DIR = ROOT / "models" / "reports"
 
-TARGET_CROPS = ["Rice", "Maize", "Moong(Green Gram)"]
+TARGET_CROPS = ["Rice", "Maize", "Moong(Green Gram)", "Urad"]
 SEASONS = ["Kharif", "Rabi", "Summer", "Autumn", "Winter", "Whole Year"]
 EXCLUDED_COLUMNS = {
     "Yield", "Production", "Start_Date", "End_Date", "RGB_Image", "NDVI_Image", "Satellite_Source"
@@ -453,13 +453,21 @@ def load_models():
 
 
 def get_satellite_preview_images(state: str, crop: str) -> tuple[Path | None, Path | None]:
-    state_slug = state.lower().replace(" ", "_")
-    crop_slug = crop.lower().replace(" ", "_")
+    state_slug = re.sub(r"[^a-z0-9]+", "_", state.lower()).strip("_")
+    crop_tokens = [c for c in re.findall(r"[a-z0-9]+", crop.lower()) if c not in ("green", "gram")]
+    if not crop_tokens:
+        crop_tokens = re.findall(r"[a-z0-9]+", crop.lower())
+    main_token = crop_tokens[0] if crop_tokens else "rice"
+
     img_dir = ROOT / "datasets" / "test_images"
     if not img_dir.exists():
         return None, None
-    rgb_matches = list(img_dir.rglob(f"*{state_slug}*{crop_slug}*rgb*.png"))
-    ndvi_matches = list(img_dir.rglob(f"*{state_slug}*{crop_slug}*ndvi*.png"))
+    rgb_matches = list(img_dir.rglob(f"*{state_slug}*{main_token}*rgb*.png"))
+    ndvi_matches = list(img_dir.rglob(f"*{state_slug}*{main_token}*ndvi*.png"))
+    if not rgb_matches:
+        rgb_matches = list(img_dir.rglob(f"*{main_token}*rgb*.png"))
+    if not ndvi_matches:
+        ndvi_matches = list(img_dir.rglob(f"*{main_token}*ndvi*.png"))
     rgb_path = rgb_matches[0] if rgb_matches else None
     ndvi_path = ndvi_matches[0] if ndvi_matches else None
     return rgb_path, ndvi_path

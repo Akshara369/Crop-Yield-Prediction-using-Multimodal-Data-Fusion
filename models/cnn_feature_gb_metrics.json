@@ -8,109 +8,109 @@
   "pca_components": {
     "rgb": 30,
     "ndvi": 30,
-    "rgb_variance_retained": 0.6507282853126526,
-    "ndvi_variance_retained": 0.648915708065033
+    "rgb_variance_retained": 0.6355684995651245,
+    "ndvi_variance_retained": 0.6355169415473938
   },
   "feature_dimensions": {
-    "tabular": 78,
+    "tabular": 80,
     "rgb_pca": 30,
     "ndvi_pca": 30,
-    "total_combined": 138
+    "total_combined": 140
   },
   "sample_counts": {
-    "total_with_images": 1506,
-    "train": 1374,
-    "validation": 104,
-    "test": 28
+    "total_with_images": 3261,
+    "train": 2812,
+    "validation": 318,
+    "test": 131
   },
   "results": {
     "combined_tabular_cnn": {
       "validation": {
-        "rmse": 0.8358142753087684,
-        "mae": 0.5018138132523013,
-        "r2": 0.6861095274582742
+        "rmse": 0.5862828646761138,
+        "mae": 0.3700566706064807,
+        "r2": 0.8288257311257458
       },
       "test": {
-        "rmse": 1.0922585115962853,
-        "mae": 0.682565648216466,
-        "r2": 0.5778912971241319
+        "rmse": 0.6350484273977764,
+        "mae": 0.41759831070146436,
+        "r2": 0.8198657493127357
       }
     },
     "tabular_only_same_samples": {
       "validation": {
-        "rmse": 0.8520830685835454,
-        "mae": 0.5042319761600176,
-        "r2": 0.6737710964946055
+        "rmse": 0.5907922721955569,
+        "mae": 0.36571221839316076,
+        "r2": 0.8261824232490845
       },
       "test": {
-        "rmse": 1.0777569545886232,
-        "mae": 0.6281513790838061,
-        "r2": 0.5890252888527163
+        "rmse": 0.6292054275245298,
+        "mae": 0.4203781511467033,
+        "r2": 0.8231652845516075
       }
     }
   },
   "top_10_features": [
     {
+      "feature": "categorical__Crop_Urad",
+      "importance": 0.2604650648326612
+    },
+    {
+      "feature": "categorical__Crop_Moong(Green Gram)",
+      "importance": 0.16788537614234314
+    },
+    {
       "feature": "numeric__Latitude",
-      "importance": 0.29614760419983566
+      "importance": 0.11593487395283954
+    },
+    {
+      "feature": "categorical__Crop_Rice",
+      "importance": 0.09642090800055661
+    },
+    {
+      "feature": "categorical__Crop_Maize",
+      "importance": 0.0837100487038622
     },
     {
       "feature": "numeric__Longitude",
-      "importance": 0.054625782232287125
-    },
-    {
-      "feature": "categorical__Season_Rabi",
-      "importance": 0.050811234136764916
-    },
-    {
-      "feature": "numeric__Year",
-      "importance": 0.0483065236725377
-    },
-    {
-      "feature": "numeric__GREEN_stdDev",
-      "importance": 0.0426125427909402
-    },
-    {
-      "feature": "ndvi_pca_28",
-      "importance": 0.03169217640749404
+      "importance": 0.02250187266495563
     },
     {
       "feature": "numeric__Fertilizer",
-      "importance": 0.02911166620859373
+      "importance": 0.022196242236501768
+    },
+    {
+      "feature": "numeric__Year",
+      "importance": 0.019909154368979172
+    },
+    {
+      "feature": "categorical__Season_Rabi",
+      "importance": 0.019537529608814507
     },
     {
       "feature": "numeric__Area",
-      "importance": 0.02901941051542332
-    },
-    {
-      "feature": "ndvi_pca_1",
-      "importance": 0.028256320982301478
-    },
-    {
-      "feature": "categorical__State_Tamil Nadu",
-      "importance": 0.02807079724056836
+      "importance": 0.018693445554310954
     }
   ],
   "top_5_image_features": [
     {
-      "feature": "ndvi_pca_28",
-      "importance": 0.03169217640749404
-    },
-    {
       "feature": "ndvi_pca_1",
-      "importance": 0.028256320982301478
+      "importance": 0.014927047196462727
     },
     {
-      "feature": "ndvi_pca_6",
-      "importance": 0.02325461875881524
+      "feature": "ndvi_pca_24",
+      "importance": 0.007177498720809916
     },
     {
-      "feature": "ndvi_pca_0",
-      "importance": 0.023157242026546267
+      "feature": "rgb_pca_1",
+      "importance": 0.004198928690074893
     },
     {
-      "feature": "ndvi_pca_16",
-      "importance": 0.01744444179263305
+      "feature": "rgb_pca_3",
+      "importance": 0.003866307419097998
+    },
+    {
+      "feature": "rgb_pca_2",
+      "importance": 0.002871208318085806
     }
   ]
 }
