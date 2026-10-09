@@ -277,8 +277,105 @@ def css(theme: str) -> str:
     div[data-testid="stMetric"] label, div[data-testid="stMetric"] [data-testid="stMetricDelta"] {{
         color: var(--muted) !important;
     }}
-    h1, h2, h3, h4, h5, h6, p, label, span {{
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
+    }}
+    header[data-testid="stHeader"] * {{
+        color: var(--text) !important;
+    }}
+    h1, h2, h3, h4, h5, h6 {{
+        color: var(--text) !important;
         letter-spacing: 0;
+    }}
+    p, label, span {{
+        letter-spacing: 0;
+    }}
+    /* Enhanced Widget Label Visibility for Dark and Light Mode */
+    div[data-testid="stWidgetLabel"] label,
+    div[data-testid="stWidgetLabel"] label p,
+    div[data-testid="stWidgetLabel"] p,
+    .stSelectbox label,
+    .stSelectbox label p,
+    .stSlider label,
+    .stSlider label p,
+    .stNumberInput label,
+    .stNumberInput label p,
+    .stRadio label,
+    .stRadio label p,
+    .stTextInput label,
+    .stTextInput label p,
+    .stFileUploader label,
+    .stFileUploader label p,
+    label[data-testid="stWidgetLabel"] {{
+        color: {"#f0f8ff" if dark else "#0f2336"} !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+        opacity: 1 !important;
+    }}
+    /* Slider numbers and ticks */
+    .stSlider [data-testid="stTickBarMin"],
+    .stSlider [data-testid="stTickBarMax"],
+    .stSlider div[data-testid="stMarkdownContainer"] p {{
+        color: {"#cbdbe8" if dark else "#587083"} !important;
+        font-weight: 600 !important;
+    }}
+    .stSlider [data-testid="stThumbValue"] {{
+        color: var(--text) !important;
+        font-weight: 700 !important;
+    }}
+    /* Dropdowns and select controls */
+    div[data-baseweb="select"] > div {{
+        background-color: {"#0f2638" if dark else "#ffffff"} !important;
+        border-color: var(--border) !important;
+        color: var(--text) !important;
+    }}
+    div[data-baseweb="select"] * {{
+        color: var(--text) !important;
+    }}
+    div[data-baseweb="popover"],
+    ul[data-baseweb="menu"],
+    li[data-baseweb="menu-item"] {{
+        background-color: {"#0c2132" if dark else "#ffffff"} !important;
+        color: var(--text) !important;
+    }}
+    li[data-baseweb="menu-item"]:hover {{
+        background-color: {"#163750" if dark else "#f0f8ff"} !important;
+    }}
+    /* Number Inputs */
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="base-input"] > input {{
+        background-color: {"#0f2638" if dark else "#ffffff"} !important;
+        border-color: var(--border) !important;
+        color: var(--text) !important;
+    }}
+    button[data-testid="stNumberInputStepDown"],
+    button[data-testid="stNumberInputStepUp"] {{
+        background-color: {"#143249" if dark else "#f0f4f8"} !important;
+        color: var(--text) !important;
+    }}
+    button[data-testid="stNumberInputStepDown"] svg,
+    button[data-testid="stNumberInputStepUp"] svg {{
+        fill: var(--text) !important;
+    }}
+    /* Radio Option Text */
+    div[data-testid="stRadio"] label div[data-testid="stMarkdownContainer"] p,
+    div[data-testid="stRadio"] label p {{
+        color: var(--text) !important;
+        font-weight: 600 !important;
+    }}
+    /* File uploader dropzone */
+    div[data-testid="stFileUploaderDropzone"] {{
+        background: {"#0c2132" if dark else "#f8fbff"} !important;
+        border: 1px dashed var(--border) !important;
+        color: var(--text) !important;
+    }}
+    div[data-testid="stFileUploaderDropzone"] * {{
+        color: var(--text) !important;
+    }}
+    div[data-testid="stFileUploaderDropzone"] button {{
+        background: {"#163750" if dark else "#e2edf5"} !important;
+        color: var(--text) !important;
+        border: 1px solid var(--border) !important;
     }}
     @media (max-width: 900px) {{
         .topbar, .tagline, .pipeline {{
@@ -612,61 +709,43 @@ def topbar():
 
 
 def prediction_panel(models_dict, reference_df, states, default_state, default_year, default_crop="Rice"):
-    st.markdown('<div class="panel-title">🌿 Predict Crop Yield</div>', unsafe_allow_html=True)
+    col_input, col_result = st.columns([1.1, 0.9], gap="large")
 
-    # Engine selector
-    model_mode = st.radio(
-        "Prediction Engine",
-        ["🛰️ Multimodal Fusion (Tabular + CNN)", "📊 Tabular Gradient Boosting"],
-        index=0,
-        horizontal=True,
-        help="Multimodal combines tabular soil/weather metrics with deep EfficientNetV2 satellite embeddings.",
-    )
-    use_multi = "Multimodal" in model_mode
+    with col_input:
+        st.markdown('<div class="panel-title">🌿 Forecasting Parameters</div>', unsafe_allow_html=True)
 
-    # Wrap in form to prevent constant re-rendering and eliminate stale prediction state
-    with st.form("yield_prediction_form"):
-        r1_c1, r1_c2 = st.columns(2)
-        state_idx = states.index(default_state) if default_state in states else 0
-        state = r1_c1.selectbox("State", states, index=state_idx)
-        crop_idx = TARGET_CROPS.index(default_crop) if default_crop in TARGET_CROPS else 0
-        crop = r1_c2.selectbox("Crop", TARGET_CROPS, index=crop_idx)
+        # Engine selector
+        model_mode = st.radio(
+            "Prediction Engine",
+            ["🛰️ Multimodal Fusion (Tabular + CNN)", "📊 Tabular Gradient Boosting"],
+            index=0,
+            horizontal=True,
+            help="Multimodal combines tabular soil/weather metrics with deep EfficientNetV2 satellite embeddings.",
+        )
+        use_multi = "Multimodal" in model_mode
 
-        r2_c1, r2_c2 = st.columns(2)
-        season = r2_c1.selectbox("Season", SEASONS)
-        year = r2_c2.slider("Year", 1997, 2025, int(default_year))
+        # Wrap in form to prevent constant re-rendering and eliminate stale prediction state
+        with st.form("yield_prediction_form"):
+            r1_c1, r1_c2 = st.columns(2)
+            state_idx = states.index(default_state) if default_state in states else 0
+            state = r1_c1.selectbox("State", states, index=state_idx)
+            crop_idx = TARGET_CROPS.index(default_crop) if default_crop in TARGET_CROPS else 0
+            crop = r1_c2.selectbox("Crop", TARGET_CROPS, index=crop_idx)
 
-        # Satellite Modality Preview & Upload Section
-        if use_multi:
-            st.markdown("##### 🛰️ Satellite & Canopy Modality")
-            rgb_img, ndvi_img = get_satellite_preview_images(state, crop)
-            if rgb_img and ndvi_img:
-                ic1, ic2 = st.columns(2)
-                with ic1:
-                    st.image(str(rgb_img), caption=f"{state} RGB Composite", use_container_width=True)
-                with ic2:
-                    st.image(str(ndvi_img), caption=f"{state} NDVI Canopy Map", use_container_width=True)
-            else:
-                st.info(f"Using regional satellite canopy profile for **{state} ({crop})**.")
+            r2_c1, r2_c2 = st.columns(2)
+            season = r2_c1.selectbox("Season", SEASONS)
+            year = r2_c2.slider("Year", 1997, 2025, int(default_year))
 
-            uploaded_scene = st.file_uploader(
-                "Upload Custom Drone / Satellite Scene (Optional)",
-                type=["png", "jpg", "jpeg"],
-                help="Upload a field image to test custom canopy features.",
-            )
-            if uploaded_scene:
-                st.image(uploaded_scene, caption="Uploaded Field Image", width=220)
+            st.markdown("##### 🧪 Agricultural & Climate Inputs")
+            c1, c2 = st.columns(2)
+            area = c1.number_input("Field Area (ha)", 10.0, 5000.0, 250.0, 10.0)
+            rainfall = c2.number_input("Annual Rainfall (mm)", 200.0, 3000.0, 1200.0, 50.0)
 
-        st.markdown("##### 🧪 Agricultural & Climate Inputs")
-        c1, c2 = st.columns(2)
-        area = c1.number_input("Field Area (ha)", 10.0, 5000.0, 250.0, 10.0)
-        rainfall = c2.number_input("Annual Rainfall (mm)", 200.0, 3000.0, 1200.0, 50.0)
+            c3, c4 = st.columns(2)
+            fertilizer = c3.number_input("Fertilizer Rate (kg/ha)", 0.0, 500.0, 150.0, 10.0)
+            pesticide = c4.number_input("Pesticide Rate (kg/ha)", 0.0, 200.0, 30.0, 5.0)
 
-        c3, c4 = st.columns(2)
-        fertilizer = c3.number_input("Fertilizer Rate (kg/ha)", 0.0, 500.0, 150.0, 10.0)
-        pesticide = c4.number_input("Pesticide Rate (kg/ha)", 0.0, 200.0, 30.0, 5.0)
-
-        submit_btn = st.form_submit_button("⚡ Run Yield Prediction", use_container_width=True)
+            submit_btn = st.form_submit_button("⚡ Run Yield Prediction", use_container_width=True)
 
     # Compute prediction on submit or initialize default
     if submit_btn:
@@ -704,51 +783,78 @@ def prediction_panel(models_dict, reference_df, states, default_state, default_y
             "is_multimodal": use_multi,
         }
 
-    score = pred_data["score"]
-    is_multi_pred = pred_data["is_multimodal"]
-    label = "High Yield" if score >= 4.0 else "Moderate Yield" if score >= 2.0 else "Low Yield"
+    with col_result:
+        st.markdown('<div class="panel-title">📊 Forecast Results & Explainability</div>', unsafe_allow_html=True)
+        score = pred_data["score"]
+        is_multi_pred = pred_data["is_multimodal"]
+        label = "High Yield" if score >= 4.0 else "Moderate Yield" if score >= 2.0 else "Low Yield"
 
-    st.markdown(
-        f"""
-        <div class="prediction-result">
-            <div class="small-muted">Predicted Crop Yield</div>
-            <div class="prediction-number">{score:.2f} t/ha</div>
-            <span class="badge">{label}</span>
-            <div class="small-muted" style="margin-top:.65rem;">
-                <b>Engine:</b> {pred_data['model_name']} | <b>Target:</b> {pred_data['crop']} ({pred_data['state']}, {pred_data['season']})
+        st.markdown(
+            f"""
+            <div class="prediction-result">
+                <div class="small-muted">Predicted Crop Yield</div>
+                <div class="prediction-number">{score:.2f} t/ha</div>
+                <span class="badge">{label}</span>
+                <div class="small-muted" style="margin-top:.65rem;">
+                    <b>Engine:</b> {pred_data['model_name']}<br>
+                    <b>Target:</b> {pred_data['crop']} ({pred_data['state']}, {pred_data['season']})
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+            """,
+            unsafe_allow_html=True,
+        )
 
-    # Explainability & Modality Attribution
-    st.markdown("<div style='margin-top:0.75rem; font-weight:700; font-size:0.85rem;'>Feature Modality Contribution</div>", unsafe_allow_html=True)
-    if is_multi_pred:
-        st.caption("Multimodal fusion combines spatial canopy texture with agro-climatic records:")
-        st.progress(0.42, text="🌧️ Climate & Rainfall Dynamics: 42%")
-        st.progress(0.30, text="🧪 Soil Health & Nutrients (NPK): 30%")
-        st.progress(0.28, text="🛰️ Satellite Canopy Density (NDVI/RGB): 28%")
-    else:
-        st.caption("Tabular baseline relying solely on scalar records:")
-        st.progress(0.55, text="🌧️ Climate & Rainfall Dynamics: 55%")
-        st.progress(0.45, text="🧪 Soil Health & Nutrients (NPK): 45%")
+        # Explainability & Modality Attribution
+        st.markdown("<div style='margin-top:1rem; font-weight:700; font-size:0.92rem;'>Feature Modality Contribution</div>", unsafe_allow_html=True)
+        if is_multi_pred:
+            st.caption("Multimodal fusion combines spatial canopy texture with agro-climatic records:")
+            st.progress(0.42, text="🌧️ Climate & Rainfall Dynamics: 42%")
+            st.progress(0.30, text="🧪 Soil Health & Nutrients (NPK): 30%")
+            st.progress(0.28, text="🛰️ Satellite Canopy Density (NDVI/RGB): 28%")
+        else:
+            st.caption("Tabular baseline relying solely on scalar records:")
+            st.progress(0.55, text="🌧️ Climate & Rainfall Dynamics: 55%")
+            st.progress(0.45, text="🧪 Soil Health & Nutrients (NPK): 45%")
 
-    st.markdown(
-        f"""
-        <div class="mini-grid">
-            <div class="mini-stat"><span class="small-muted">Rainfall</span><b>{pred_data['rainfall']:.0f} mm</b></div>
-            <div class="mini-stat"><span class="small-muted">Area</span><b>{pred_data['area']:.0f} ha</b></div>
-            <div class="mini-stat"><span class="small-muted">Fertilizer</span><b>{pred_data['fertilizer']:.1f} kg/ha</b></div>
-            <div class="mini-stat"><span class="small-muted">Pesticide</span><b>{pred_data['pesticide']:.1f} kg/ha</b></div>
-        </div>
-        <div class="advice-row">
-            <div class="advice-chip"><b>Multimodal Synergy:</b> Visual canopy density complements tabular rainfall and fertilizer metrics.</div>
-            <div class="advice-chip"><b>Actionable Insight:</b> Ensure nutrient application matches seasonal moisture levels.</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        st.markdown(
+            f"""
+            <div class="mini-grid" style="margin-top: 1rem;">
+                <div class="mini-stat"><span class="small-muted">Rainfall</span><b>{pred_data['rainfall']:.0f} mm</b></div>
+                <div class="mini-stat"><span class="small-muted">Area</span><b>{pred_data['area']:.0f} ha</b></div>
+                <div class="mini-stat"><span class="small-muted">Fertilizer</span><b>{pred_data['fertilizer']:.1f} kg/ha</b></div>
+                <div class="mini-stat"><span class="small-muted">Pesticide</span><b>{pred_data['pesticide']:.1f} kg/ha</b></div>
+            </div>
+            <div class="advice-row">
+                <div class="advice-chip"><b>Multimodal Synergy:</b> Visual canopy density complements tabular rainfall and fertilizer metrics.</div>
+                <div class="advice-chip"><b>Actionable Insight:</b> Ensure nutrient application matches seasonal moisture levels.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Satellite Modality Preview & Upload Section (Shifted downwards below inputs and results)
+    if use_multi:
+        st.markdown('<div class="panel" style="margin-top: 1.5rem;">', unsafe_allow_html=True)
+        st.markdown(f'<div class="panel-title">🛰️ Satellite Remote Sensing & Canopy Modality — {pred_data["state"]} ({pred_data["crop"]})</div>', unsafe_allow_html=True)
+
+        rgb_img, ndvi_img = get_satellite_preview_images(pred_data["state"], pred_data["crop"])
+        ic1, ic2 = st.columns(2)
+        if rgb_img and ndvi_img:
+            with ic1:
+                st.image(str(rgb_img), caption=f"{pred_data['state']} Sentinel-2 RGB Composite", use_container_width=True)
+            with ic2:
+                st.image(str(ndvi_img), caption=f"{pred_data['state']} MODIS/Sentinel NDVI Canopy Index Map", use_container_width=True)
+        else:
+            st.info(f"Using regional satellite canopy profile for **{pred_data['state']} ({pred_data['crop']})**.")
+
+        uploaded_scene = st.file_uploader(
+            "Upload Custom Drone / Satellite Scene (Optional)",
+            type=["png", "jpg", "jpeg"],
+            help="Upload a field image to test custom canopy features.",
+        )
+        if uploaded_scene:
+            st.image(uploaded_scene, caption="Uploaded Field Image", width=260)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def home_dashboard(data, models_dict):
@@ -802,7 +908,7 @@ def home_dashboard(data, models_dict):
         unsafe_allow_html=True,
     )
 
-    left, right = st.columns([1.55, 1.45], gap="large")
+    left, right = st.columns([1.1, 0.9], gap="large")
     with left:
         st.markdown(f'<div class="panel"><div class="panel-title">Geospatial Distribution - {selected_metric}</div>', unsafe_allow_html=True)
         st.plotly_chart(make_map(coords_df, df, selected_metric), width="stretch")
@@ -819,27 +925,34 @@ def home_dashboard(data, models_dict):
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
-        c_tr1, c_tr2 = st.columns(2)
-        with c_tr1:
-            st.markdown(f'<div class="panel"><div class="panel-title">{selected_metric} Trend</div>', unsafe_allow_html=True)
-            st.plotly_chart(make_line_chart(df if not df.empty else crop_all, selected_metric, trend_years), width="stretch")
-            st.markdown("</div>", unsafe_allow_html=True)
-        with c_tr2:
-            st.markdown('<div class="panel"><div class="panel-title">Crop Area Share</div>', unsafe_allow_html=True)
-            dist_df = raw_df[raw_df["Crop_Year"] <= selected_year] if not raw_df.empty else raw_df
-            st.plotly_chart(make_distribution_chart(dist_df), width="stretch")
-            st.markdown("</div>", unsafe_allow_html=True)
-
         st.markdown(f'<div class="panel"><div class="panel-title">Top States by {selected_metric}</div>', unsafe_allow_html=True)
         top_source = df if selected_state == "All States" else crop_all[crop_all["Crop_Year"] <= selected_year]
         st.plotly_chart(make_top_states_chart(top_source, selected_metric), width="stretch")
         st.markdown("</div>", unsafe_allow_html=True)
 
     with right:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        active_state = selected_state if selected_state != "All States" else default_state
-        prediction_panel(models_dict, modeling_df, states, active_state, selected_year, default_crop=selected_crop)
+        st.markdown(f'<div class="panel"><div class="panel-title">{selected_metric} Trend Over Time</div>', unsafe_allow_html=True)
+        st.plotly_chart(make_line_chart(df if not df.empty else crop_all, selected_metric, trend_years), width="stretch")
         st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown('<div class="panel"><div class="panel-title">Crop Area Distribution</div>', unsafe_allow_html=True)
+        dist_df = raw_df[raw_df["Crop_Year"] <= selected_year] if not raw_df.empty else raw_df
+        st.plotly_chart(make_distribution_chart(dist_df), width="stretch")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown(
+            """
+            <div class="panel" style="border-left: 4px solid var(--accent); background: rgba(34,197,94,0.06);">
+                <div class="panel-title" style="margin-bottom: 0.35rem;">🚀 AI Yield Forecasting</div>
+                <p style="font-size: 0.88rem; color: var(--text-dim); margin-bottom: 0.75rem; line-height: 1.45;">
+                    Generate real-time yield forecasts using our multimodal deep fusion model (Satellite CNN + Tabular MLP) or gradient boosted baselines.
+                    Upload custom field scenes, simulate rainfall/fertilizer scenarios, and inspect modality attributions.
+                </p>
+                <div class="small-muted">💡 Navigate to <b>📈 Yield Forecast</b> in the sidebar to perform predictions.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def data_overview(data):
@@ -857,10 +970,19 @@ def data_overview(data):
 
 
 def crop_prediction_page(data, models_dict):
-    st.markdown('<div class="panel"><div class="panel-title">Forecast Yield</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="panel" style="margin-bottom: 1rem;">
+            <div class="panel-title" style="font-size: 1.25rem;">🌾 Multimodal Crop Yield Prediction & Forecasting</div>
+            <div class="small-muted">
+                Run deep multimodal inference combining remote sensing canopy vegetation indices (NDVI/RGB) with regional soil health and historical weather indicators.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     states = sorted(data["raw"]["State"].dropna().unique()) if not data["raw"].empty else ["Maharashtra"]
     prediction_panel(models_dict, data["modeling"], states, states[0], int(data["raw"]["Crop_Year"].max()) if not data["raw"].empty else 2024, default_crop="Rice")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def visualizations_page(data):
