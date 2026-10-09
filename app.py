@@ -37,20 +37,20 @@ def css(theme: str) -> str:
     return f"""
     <style>
     :root {{
-        --bg: {"#071527" if dark else "#eef5f1"};
-        --panel: {"#0c2138" if dark else "#ffffff"};
-        --panel-soft: {"#102b48" if dark else "#f8fbff"};
-        --border: {"rgba(125, 181, 255, 0.25)" if dark else "rgba(35, 95, 125, 0.15)"};
+        --bg: {"#071b2a" if dark else "#eef5f1"};
+        --panel: {"#112b3d" if dark else "#ffffff"};
+        --panel-soft: {"#0e2334" if dark else "#f8fbff"};
+        --border: {"rgba(130, 190, 255, 0.28)" if dark else "rgba(35, 95, 125, 0.15)"};
         --text: {"#edf7ff" if dark else "#0f2336"};
-        --muted: {"#a9bdd3" if dark else "#587083"};
+        --muted: {"#b0c7d8" if dark else "#587083"};
         --green: #22c97a;
         --blue: #2ea8ff;
-        --shadow: {"0 18px 45px rgba(0,0,0,.28)" if dark else "0 16px 35px rgba(31,78,96,.10)"};
+        --shadow: {"0 18px 42px rgba(3, 11, 21, 0.42)" if dark else "0 16px 35px rgba(31,78,96,.10)"};
     }}
     .stApp {{
         background:
-            radial-gradient(circle at 18% -8%, {"rgba(31,196,143,.20)" if dark else "rgba(34,201,122,.20)"}, transparent 28%),
-            linear-gradient(135deg, var(--bg), {"#091d33" if dark else "#f8fbff"});
+            radial-gradient(circle at 18% -8%, {"rgba(34,201,122,.18)" if dark else "rgba(34,201,122,.20)"}, transparent 28%),
+            linear-gradient(135deg, var(--bg), {"#0a2031" if dark else "#f8fbff"});
         color: var(--text);
     }}
     .block-container {{
@@ -59,7 +59,7 @@ def css(theme: str) -> str:
         max-width: 1500px;
     }}
     section[data-testid="stSidebar"] {{
-        background: {"linear-gradient(180deg,#061527,#0b2138)" if dark else "linear-gradient(180deg,#f8fffb,#e8f4f1)"};
+        background: {"linear-gradient(180deg,#081a2a,#0d2337)" if dark else "linear-gradient(180deg,#f8fffb,#e8f4f1)"};
         border-right: 1px solid var(--border);
     }}
     section[data-testid="stSidebar"] * {{
@@ -75,7 +75,7 @@ def css(theme: str) -> str:
         gap: 1rem;
         padding: .85rem 1rem 1.05rem;
         border: 1px solid var(--border);
-        background: {"rgba(9,29,51,.74)" if dark else "rgba(255,255,255,.78)"};
+        background: {"linear-gradient(180deg, rgba(16,34,49,.9), rgba(9,23,35,.86))" if dark else "rgba(255,255,255,.78)"};
         box-shadow: var(--shadow);
         border-radius: 18px;
         backdrop-filter: blur(16px);
@@ -126,8 +126,8 @@ def css(theme: str) -> str:
     }}
     .panel {{
         border: 1px solid var(--border);
-        border-radius: 14px;
-        background: {"rgba(12,33,56,.78)" if dark else "rgba(255,255,255,.88)"};
+        border-radius: 16px;
+        background: {"rgba(17, 38, 52, 0.88)" if dark else "rgba(255,255,255,.88)"};
         box-shadow: var(--shadow);
         padding: 1rem;
         margin-bottom: 1rem;
@@ -141,8 +141,8 @@ def css(theme: str) -> str:
     .metric-card {{
         min-height: 116px;
         border: 1px solid var(--border);
-        border-radius: 14px;
-        background: linear-gradient(135deg, {"rgba(13,42,69,.92), rgba(9,28,48,.86)" if dark else "#ffffff, #f5fbff"});
+        border-radius: 16px;
+        background: linear-gradient(135deg, {"rgba(18, 42, 58, 0.98), rgba(11, 27, 40, 0.9)" if dark else "#ffffff, #f5fbff"});
         box-shadow: var(--shadow);
         padding: 1rem;
         display: flex;
@@ -187,8 +187,8 @@ def css(theme: str) -> str:
     .prediction-result {{
         border-radius: 14px;
         padding: 1rem;
-        background: linear-gradient(135deg, rgba(34,201,122,.18), rgba(46,168,255,.14));
-        border: 1px solid rgba(34,201,122,.35);
+        background: {"linear-gradient(135deg, rgba(34,201,122,.18), rgba(46,168,255,.14))" if dark else "linear-gradient(135deg, rgba(34,201,122,.12), rgba(46,168,255,.10))"};
+        border: 1px solid {"rgba(34,201,122,.35)" if dark else "rgba(34,201,122,.22)"};
     }}
     .prediction-number {{
         font-size: 2rem;
@@ -234,7 +234,7 @@ def css(theme: str) -> str:
         border-radius: 12px;
         padding: .65rem;
         text-align: center;
-        background: var(--panel-soft);
+        background: {"rgba(13, 27, 38, 0.95)" if dark else "var(--panel-soft)"};
         min-height: 82px;
         font-size: .82rem;
         line-height: 1.25;
@@ -570,22 +570,17 @@ def sidebar_nav():
         <div class="side-brand">
             <div style="font-size:2.2rem;">🌱</div>
             <div style="font-weight:900;font-size:1.15rem;">Crop Yield</div>
-            <div class="small-muted">Multimodal data fusion</div>
+            <div class="small-muted">Smart farm planning</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
     pages = {
-        "Home": "🏠 Home",
-        "Data Overview": "🗄️ Data Overview",
-        "Crop Prediction": "📈 Crop Prediction",
-        "Visualizations": "📊 Visualizations",
-        "Map View": "📍 Map View",
-        "Reports": "📋 Reports",
-        "Settings": "⚙️ Settings",
+        "Home": "🏠 Dashboard",
+        "Crop Prediction": "📈 Yield Forecast",
     }
     choice = st.sidebar.radio("Navigation", list(pages.keys()), format_func=lambda key: pages[key], label_visibility="collapsed")
-    st.sidebar.markdown('<div style="height:2rem;"></div><div class="small-muted">Data-driven agriculture for sustainable decisions.</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div style="height:2rem;"></div><div class="small-muted">Actionable crop insights for better farm planning.</div>', unsafe_allow_html=True)
     return choice
 
 
@@ -599,7 +594,7 @@ def topbar():
                     <div class="brand-mark">🌾</div>
                     <div>
                         <h1>Crop Yield Prediction</h1>
-                        <p>Using Multimodal Data Fusion</p>
+                        <p>Actionable field insights</p>
                     </div>
                 </div>
                 <div class="tagline">
@@ -792,6 +787,21 @@ def home_dashboard(data, models_dict):
     with m4:
         metric_card("🧪", "Soil Health (avg)", f"{soil_score:.2f}", "state profile", "linear-gradient(145deg,#f97316,#f59e0b)")
 
+    st.markdown(
+        """
+        <div class="panel" style="margin-top: .5rem; margin-bottom: 1rem;">
+            <div class="panel-title">Multimodal Data Used</div>
+            <div class="pipeline">
+                <div class="pipe-step"><div class="pipe-icon">🛰️</div><b>Satellite</b><br><span class="small-muted">NDVI, EVI, NIR</span></div>
+                <div class="pipe-step"><div class="pipe-icon">☁️</div><b>Weather</b><br><span class="small-muted">Rainfall, climate</span></div>
+                <div class="pipe-step"><div class="pipe-icon">🧱</div><b>Soil</b><br><span class="small-muted">pH, SOC, NPK</span></div>
+                <div class="pipe-step"><div class="pipe-icon">🗄️</div><b>Crop Data</b><br><span class="small-muted">Area, seasons</span></div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     left, right = st.columns([1.55, 1.45], gap="large")
     with left:
         st.markdown(f'<div class="panel"><div class="panel-title">Geospatial Distribution - {selected_metric}</div>', unsafe_allow_html=True)
@@ -831,87 +841,23 @@ def home_dashboard(data, models_dict):
         prediction_panel(models_dict, modeling_df, states, active_state, selected_year, default_crop=selected_crop)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    bottom1, bottom2, bottom3 = st.columns([1.35, 1, 1.05], gap="medium")
-    with bottom1:
-        st.markdown(
-            """
-            <div class="panel">
-                <div class="panel-title">Multimodal Data Used</div>
-                <div class="pipeline">
-                    <div class="pipe-step"><div class="pipe-icon">🛰️</div><b>Satellite</b><br><span class="small-muted">NDVI, EVI, NIR</span></div>
-                    <div class="pipe-step"><div class="pipe-icon">☁️</div><b>Weather</b><br><span class="small-muted">Rainfall, climate</span></div>
-                    <div class="pipe-step"><div class="pipe-icon">🧱</div><b>Soil</b><br><span class="small-muted">pH, SOC, NPK</span></div>
-                    <div class="pipe-step"><div class="pipe-icon">🗄️</div><b>Crop Data</b><br><span class="small-muted">Area, seasons</span></div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with bottom2:
-        best_r2 = 0.694
-        multi_r2 = 0.602
-        if not data["metrics"].empty:
-            rows = data["metrics"][(data["metrics"]["split"] == "test") & (data["metrics"]["model"] == "gradient_boosting")]
-            if not rows.empty:
-                best_r2 = float(rows["r2"].iloc[0])
-        if not data["benchmark"].empty:
-            m_rows = data["benchmark"][(data["benchmark"]["split"] == "test") & (data["benchmark"]["model"].str.contains("multimodal", case=False))]
-            if not m_rows.empty:
-                multi_r2 = float(m_rows["r2"].iloc[0])
-
-        st.markdown(
-            f"""
-            <div class="panel">
-                <div class="panel-title">AI Engine</div>
-                <b>🛰️ Multimodal Data Fusion</b>
-                <p class="small-muted">Combines tabular agricultural data with deep EfficientNetV2 satellite embeddings.</p>
-                <div class="pipeline">
-                    <div class="pipe-step"><b>Tabular</b><br><span class="small-muted">43 features</span></div>
-                    <div class="pipe-step"><b>Satellite</b><br><span class="small-muted">RGB+NDVI</span></div>
-                    <div class="pipe-step"><b>Fusion</b><br><span class="small-muted">PCA + GB</span></div>
-                    <div class="pipe-step"><b>Yield</b><br><span class="small-muted">t/ha</span></div>
-                </div>
-                <p class="small-muted" style="margin-top:.45rem;">
-                    Multimodal Test R²: <b>{multi_r2:.3f}</b> | Tabular R²: <b>{best_r2:.3f}</b>
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with bottom3:
-        st.markdown(
-            """
-            <div class="panel">
-                <div class="panel-title">Data & Processing Pipeline</div>
-                <div class="pipeline">
-                    <div class="pipe-step"><div class="pipe-icon">📄</div>Collect</div>
-                    <div class="pipe-step"><div class="pipe-icon">🧹</div>Clean</div>
-                    <div class="pipe-step"><div class="pipe-icon">🔗</div>Merge</div>
-                    <div class="pipe-step"><div class="pipe-icon">🧠</div>Train</div>
-                    <div class="pipe-step"><div class="pipe-icon">🌿</div>Predict</div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
 
 def data_overview(data):
-    st.markdown('<div class="panel-title">Data Overview</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Farm Data Overview</div>', unsafe_allow_html=True)
     raw_df = data["raw"]
     if raw_df.empty:
         st.warning("No crop yield data found.")
         return
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Rows", f"{len(raw_df):,}")
-    col2.metric("States", raw_df["State"].nunique())
+    col1.metric("Records", f"{len(raw_df):,}")
+    col2.metric("Regions", raw_df["State"].nunique())
     col3.metric("Crops", ", ".join(TARGET_CROPS))
-    col4.metric("Years", f"{int(raw_df['Crop_Year'].min())}-{int(raw_df['Crop_Year'].max())}")
+    col4.metric("Coverage", f"{int(raw_df['Crop_Year'].min())}-{int(raw_df['Crop_Year'].max())}")
     st.dataframe(raw_df.head(500), width="stretch", hide_index=True)
 
 
 def crop_prediction_page(data, models_dict):
-    st.markdown('<div class="panel"><div class="panel-title">Crop Prediction Workspace</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel"><div class="panel-title">Forecast Yield</div>', unsafe_allow_html=True)
     states = sorted(data["raw"]["State"].dropna().unique()) if not data["raw"].empty else ["Maharashtra"]
     prediction_panel(models_dict, data["modeling"], states, states[0], int(data["raw"]["Crop_Year"].max()) if not data["raw"].empty else 2024, default_crop="Rice")
     st.markdown("</div>", unsafe_allow_html=True)
@@ -942,32 +888,32 @@ def map_page(data):
 
 
 def reports_page(data):
-    st.markdown('<div class="panel-title">Model Performance & Reports</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel-title">Performance Dashboard</div>', unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["🛰️ Multimodal vs Baselines", "📊 Tabular Baselines", "🌾 Crop-wise Metrics", "⚡ Multimodal Tuning Grid"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📈 Yield Benchmark", "📊 Regional Trends", "🌾 Crop Insights", "⚡ Model Tuning"])
 
     with tab1:
-        st.markdown("#### Comprehensive Benchmark: Tabular vs CNN vs Multimodal Fusion")
+        st.markdown("#### Benchmark: Model performance comparison")
         if not data["benchmark"].empty:
             st.dataframe(data["benchmark"], width="stretch", hide_index=True)
         else:
             st.info("Benchmark data generating...")
 
     with tab2:
-        st.markdown("#### Tabular Regressors Comparison")
+        st.markdown("#### Tabular model comparison")
         if not data["metrics"].empty:
             st.dataframe(data["metrics"], width="stretch", hide_index=True)
 
     with tab3:
-        st.markdown("#### Performance by Crop")
+        st.markdown("#### Crop-level performance")
         if not data["crop_metrics"].empty:
             st.dataframe(data["crop_metrics"], width="stretch", hide_index=True)
         if not data["feature_importance"].empty:
-            st.markdown("#### Top Tabular Feature Importances")
+            st.markdown("#### Key drivers behind yield")
             st.dataframe(data["feature_importance"].head(20), width="stretch", hide_index=True)
 
     with tab4:
-        st.markdown("#### Multimodal Tuning Search Log (PCA Components & Regressors)")
+        st.markdown("#### Model tuning and optimization log")
         if not data["tuning"].empty:
             st.dataframe(data["tuning"], width="stretch", hide_index=True)
 
