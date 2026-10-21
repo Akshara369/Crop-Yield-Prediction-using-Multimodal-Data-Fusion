@@ -1,8 +1,6 @@
-# Academic Project Report (Draft)
-
 **Title:** Crop Yield Prediction Using Multimodal Data Fusion  
 **Domain:** Machine Learning, Computer Vision, Geospatial Remote Sensing & Precision Agriculture  
-**Focus Crops:** Rice (*Oryza sativa*) and Maize (*Zea mays*) across India  
+**Focus Crops:** Rice  and Maize across India  
 **Status:** Mid-Project Interim Draft / Pre-Completion Technical Report  
 
 ---
