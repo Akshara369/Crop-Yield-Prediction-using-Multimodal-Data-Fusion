@@ -1,12 +1,21 @@
 State,Crop,Year,Season,Reason,Failed_At
 Andhra Pradesh,Maize,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-07T21:29:26
 Andhra Pradesh,Maize,1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-07T21:29:31
+<<<<<<< HEAD
 Andhra Pradesh,Moong(Green Gram),1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-09T13:27:03
 Andhra Pradesh,Moong(Green Gram),1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-09T13:27:10
 Andhra Pradesh,Rice,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-07T21:29:36
 Andhra Pradesh,Rice,1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-07T21:29:42
 Andhra Pradesh,Urad,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-09T12:44:15
 Andhra Pradesh,Urad,1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-09T12:44:25
+=======
+Andhra Pradesh,Moong(Green Gram),1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-09T15:47:42
+Andhra Pradesh,Moong(Green Gram),1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-09T15:47:44
+Andhra Pradesh,Rice,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-07T21:29:36
+Andhra Pradesh,Rice,1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-07T21:29:42
+Andhra Pradesh,Urad,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-07-01 to 1998-10-28,2026-10-09T15:25:12
+Andhra Pradesh,Urad,1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Andhra Pradesh in 1998-11-01 to 1999-04-28,2026-10-09T15:25:15
+>>>>>>> 10ee5115a10a1a4182db2960828ef4d06eb2e11e
 Kerala,Rice,1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Kerala in 1998-07-01 to 1998-10-28,2026-10-07T21:28:57
 Kerala,Rice,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Kerala in 1998-03-01 to 1998-06-28,2026-10-07T21:29:01
 Kerala,Rice,1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Kerala in 1998-07-01 to 1998-10-28,2026-10-07T21:29:05
@@ -14,6 +23,7 @@ Kerala,Rice,1999,Summer,No Landsat 5/7 SR T1/T2 scenes found for Kerala in 1999-
 Kerala,Rice,2010,Summer,No Landsat 5/7 SR T1/T2 scenes found for Kerala in 2010-03-01 to 2010-06-28,2026-10-07T21:29:22
 Madhya Pradesh,Maize,2009,Whole Year,User memory limit exceeded.,2026-10-07T21:30:06
 Madhya Pradesh,Rice,2009,Whole Year,User memory limit exceeded.,2026-10-07T21:30:18
+<<<<<<< HEAD
 Madhya Pradesh,Urad,2008,Rabi,User memory limit exceeded.,2026-10-09T12:45:41
 Odisha,Maize,1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-07T21:30:23
 Odisha,Maize,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-07T21:30:27
@@ -21,18 +31,34 @@ Odisha,Maize,1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998
 Odisha,Moong(Green Gram),1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T13:26:22
 Odisha,Moong(Green Gram),1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-09T13:26:29
 Odisha,Moong(Green Gram),1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T13:26:36
+=======
+Madhya Pradesh,Urad,2008,Rabi,User memory limit exceeded.,2026-10-09T15:25:42
+Odisha,Maize,1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-07T21:30:23
+Odisha,Maize,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-07T21:30:27
+Odisha,Maize,1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-07T21:30:32
+Odisha,Moong(Green Gram),1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T15:48:44
+Odisha,Moong(Green Gram),1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-09T15:48:47
+Odisha,Moong(Green Gram),1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T15:48:50
+>>>>>>> 10ee5115a10a1a4182db2960828ef4d06eb2e11e
 Odisha,Rice,1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-07T21:30:36
 Odisha,Rice,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-07T21:30:42
 Odisha,Rice,1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-07T21:30:46
 Odisha,Rice,1999,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1999-03-01 to 1999-06-28,2026-10-07T21:29:54
+<<<<<<< HEAD
 Odisha,Urad,1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T12:45:47
 Odisha,Urad,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-09T12:45:52
 Odisha,Urad,1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T12:45:57
+=======
+Odisha,Urad,1998,Autumn,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T15:25:44
+Odisha,Urad,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-03-01 to 1998-06-28,2026-10-09T15:25:46
+Odisha,Urad,1998,Winter,No Landsat 5/7 SR T1/T2 scenes found for Odisha in 1998-07-01 to 1998-10-28,2026-10-09T15:25:50
+>>>>>>> 10ee5115a10a1a4182db2960828ef4d06eb2e11e
 Puducherry,Rice,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Puducherry in 1998-07-01 to 1998-10-28,2026-10-07T21:28:43
 Puducherry,Rice,1998,Rabi,No Landsat 5/7 SR T1/T2 scenes found for Puducherry in 1998-11-01 to 1999-04-28,2026-10-07T21:28:48
 Puducherry,Rice,1998,Summer,No Landsat 5/7 SR T1/T2 scenes found for Puducherry in 1998-03-01 to 1998-06-28,2026-10-07T21:28:54
 Puducherry,Rice,2003,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Puducherry in 2003-07-01 to 2003-10-28,2026-10-07T21:29:15
 Tamil Nadu,Maize,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-07T21:29:47
+<<<<<<< HEAD
 Tamil Nadu,Moong(Green Gram),1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-09T13:27:17
 Tamil Nadu,Rice,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-07T21:29:50
 Tamil Nadu,Urad,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-09T12:46:01
@@ -42,4 +68,15 @@ Tripura,Moong(Green Gram),2004,Rabi,User memory limit exceeded.,2026-10-09T13:27
 Tripura,Moong(Green Gram),2008,Rabi,User memory limit exceeded.,2026-10-09T13:18:53
 Tripura,Urad,2004,Rabi,User memory limit exceeded.,2026-10-09T12:46:33
 Tripura,Urad,2008,Rabi,User memory limit exceeded.,2026-10-09T12:46:49
+=======
+Tamil Nadu,Moong(Green Gram),1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-09T15:47:48
+Tamil Nadu,Rice,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-07T21:29:50
+Tamil Nadu,Urad,1998,Kharif,No Landsat 5/7 SR T1/T2 scenes found for Tamil Nadu in 1998-07-01 to 1998-10-28,2026-10-09T15:25:53
+Tripura,Moong(Green Gram),1999,Whole Year,User memory limit exceeded.,2026-10-09T15:48:32
+Tripura,Moong(Green Gram),2000,Whole Year,User memory limit exceeded.,2026-10-09T15:48:43
+Tripura,Moong(Green Gram),2004,Rabi,User memory limit exceeded.,2026-10-09T15:48:11
+Tripura,Moong(Green Gram),2008,Rabi,User memory limit exceeded.,2026-10-09T15:48:18
+Tripura,Urad,2004,Rabi,User memory limit exceeded.,2026-10-09T15:26:03
+Tripura,Urad,2008,Rabi,User memory limit exceeded.,2026-10-09T15:26:15
+>>>>>>> 10ee5115a10a1a4182db2960828ef4d06eb2e11e
 West Bengal,Rice,2019,Autumn,"Google Earth Engine is required for satellite extraction. Your local Earth Engine session is not initialized.  Run these commands once in PowerShell:   earthengine authenticate   $env:EE_PROJECT='YOUR_PROJECT_ID'  Earth Engine project being used: crop-yield-prediction-509513  Original Earth Engine error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1081)')))",2026-10-07T19:27:29

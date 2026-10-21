@@ -57,7 +57,7 @@ def resolve_image_path(value: object) -> Path | None:
 def main() -> None:
     features = pd.read_csv(FEATURES_PATH)
     targets = pd.read_csv(TARGETS_PATH)
-    targets = targets[targets["Crop"].map(norm).isin({"rice", "maize", "moong green gram"})].copy()
+    targets = targets[targets["Crop"].map(norm).isin({"rice", "maize", "moong green gram", "urad"})].copy()
 
     for frame, crop_col, year_col in (
         (features, "Crop", "Year"),

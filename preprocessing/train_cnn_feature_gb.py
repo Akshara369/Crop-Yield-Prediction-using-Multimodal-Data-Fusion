@@ -218,39 +218,57 @@ def main() -> None:
     ndvi_cache = EMBEDDINGS_DIR / "ndvi_embeddings.npy"
     keys_cache = EMBEDDINGS_DIR / "embedding_keys.npy"
 
-    use_cache = False
+    use_full_cache = False
+    cached_map = {}
     if rgb_cache.is_file() and ndvi_cache.is_file() and keys_cache.is_file():
         cached_keys = np.load(keys_cache, allow_pickle=True)
         if np.array_equal(cached_keys, merged["feature_key"].to_numpy()):
-            use_cache = True
-            print("Using cached embeddings.")
+            use_full_cache = True
+            rgb_embeddings = np.load(rgb_cache)
+            ndvi_embeddings = np.load(ndvi_cache)
+            print("Using cached embeddings (exact key match).")
+        else:
+            cached_rgb = np.load(rgb_cache)
+            cached_ndvi = np.load(ndvi_cache)
+            if len(cached_keys) == len(cached_rgb) == len(cached_ndvi):
+                for i, k in enumerate(cached_keys):
+                    cached_map[k] = (cached_rgb[i], cached_ndvi[i])
+                print(f"Found {len(cached_map)} existing cached embeddings to reuse.")
 
-    if use_cache:
-        rgb_embeddings = np.load(rgb_cache)
-        ndvi_embeddings = np.load(ndvi_cache)
-    else:
-        print("Loading pretrained EfficientNetV2B0 backbone...")
-        backbone = EfficientNetV2B0(
-            include_top=False,
-            weights="imagenet",
-            pooling="avg",
-            input_shape=(*IMAGE_SIZE, 3),
-        )
-        backbone.trainable = False
+    if not use_full_cache:
+        keys_list = merged["feature_key"].tolist()
+        missing_indices = [i for i, k in enumerate(keys_list) if k not in cached_map]
+        print(f"Total images required: {len(keys_list)}. Cached: {len(keys_list) - len(missing_indices)}. New to extract: {len(missing_indices)}.")
 
-        print(f"Extracting RGB embeddings for {len(merged)} images...")
-        rgb_embeddings = extract_embeddings_batch(
-            merged["RGB_Image"].tolist(), backbone, batch_size=16
-        )
-        print(f"Extracting NDVI embeddings for {len(merged)} images...")
-        ndvi_embeddings = extract_embeddings_batch(
-            merged["NDVI_Image"].tolist(), backbone, batch_size=16
-        )
+        if missing_indices:
+            print("Loading pretrained EfficientNetV2B0 backbone...")
+            backbone = EfficientNetV2B0(
+                include_top=False,
+                weights="imagenet",
+                pooling="avg",
+                input_shape=(*IMAGE_SIZE, 3),
+            )
+            backbone.trainable = False
+
+            new_rgb_paths = merged["RGB_Image"].iloc[missing_indices].tolist()
+            new_ndvi_paths = merged["NDVI_Image"].iloc[missing_indices].tolist()
+
+            print(f"Extracting RGB embeddings for {len(missing_indices)} new images...")
+            new_rgb = extract_embeddings_batch(new_rgb_paths, backbone, batch_size=32)
+            print(f"Extracting NDVI embeddings for {len(missing_indices)} new images...")
+            new_ndvi = extract_embeddings_batch(new_ndvi_paths, backbone, batch_size=32)
+
+            for idx, orig_i in enumerate(missing_indices):
+                cached_map[keys_list[orig_i]] = (new_rgb[idx], new_ndvi[idx])
+
+        # Assemble full arrays in the exact order of merged
+        rgb_embeddings = np.array([cached_map[k][0] for k in keys_list])
+        ndvi_embeddings = np.array([cached_map[k][1] for k in keys_list])
 
         np.save(rgb_cache, rgb_embeddings)
         np.save(ndvi_cache, ndvi_embeddings)
         np.save(keys_cache, merged["feature_key"].to_numpy())
-        print(f"Cached embeddings to {EMBEDDINGS_DIR.relative_to(ROOT)}/")
+        print(f"Saved complete embeddings cache ({len(merged)} rows) to {EMBEDDINGS_DIR.relative_to(ROOT)}/")
 
     print(f"RGB embedding shape: {rgb_embeddings.shape}, NDVI embedding shape: {ndvi_embeddings.shape}")
 
