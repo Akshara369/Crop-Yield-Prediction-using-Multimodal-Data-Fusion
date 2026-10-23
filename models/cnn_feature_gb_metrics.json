@@ -1,0 +1,116 @@
+{
+  "strategy": "pretrained_cnn_feature_extractor_plus_gradient_boosting",
+  "backbone": "EfficientNetV2B0_imagenet",
+  "image_size": [
+    224,
+    224
+  ],
+  "pca_components": {
+    "rgb": 30,
+    "ndvi": 30,
+    "rgb_variance_retained": 0.6355684995651245,
+    "ndvi_variance_retained": 0.6355169415473938
+  },
+  "feature_dimensions": {
+    "tabular": 80,
+    "rgb_pca": 30,
+    "ndvi_pca": 30,
+    "total_combined": 140
+  },
+  "sample_counts": {
+    "total_with_images": 3261,
+    "train": 2812,
+    "validation": 318,
+    "test": 131
+  },
+  "results": {
+    "combined_tabular_cnn": {
+      "validation": {
+        "rmse": 0.5862828646761138,
+        "mae": 0.3700566706064807,
+        "r2": 0.8288257311257458
+      },
+      "test": {
+        "rmse": 0.6350484273977764,
+        "mae": 0.41759831070146436,
+        "r2": 0.8198657493127357
+      }
+    },
+    "tabular_only_same_samples": {
+      "validation": {
+        "rmse": 0.5907922721955569,
+        "mae": 0.36571221839316076,
+        "r2": 0.8261824232490845
+      },
+      "test": {
+        "rmse": 0.6292054275245298,
+        "mae": 0.4203781511467033,
+        "r2": 0.8231652845516075
+      }
+    }
+  },
+  "top_10_features": [
+    {
+      "feature": "categorical__Crop_Urad",
+      "importance": 0.2604650648326612
+    },
+    {
+      "feature": "categorical__Crop_Moong(Green Gram)",
+      "importance": 0.16788537614234314
+    },
+    {
+      "feature": "numeric__Latitude",
+      "importance": 0.11593487395283954
+    },
+    {
+      "feature": "categorical__Crop_Rice",
+      "importance": 0.09642090800055661
+    },
+    {
+      "feature": "categorical__Crop_Maize",
+      "importance": 0.0837100487038622
+    },
+    {
+      "feature": "numeric__Longitude",
+      "importance": 0.02250187266495563
+    },
+    {
+      "feature": "numeric__Fertilizer",
+      "importance": 0.022196242236501768
+    },
+    {
+      "feature": "numeric__Year",
+      "importance": 0.019909154368979172
+    },
+    {
+      "feature": "categorical__Season_Rabi",
+      "importance": 0.019537529608814507
+    },
+    {
+      "feature": "numeric__Area",
+      "importance": 0.018693445554310954
+    }
+  ],
+  "top_5_image_features": [
+    {
+      "feature": "ndvi_pca_1",
+      "importance": 0.014927047196462727
+    },
+    {
+      "feature": "ndvi_pca_24",
+      "importance": 0.007177498720809916
+    },
+    {
+      "feature": "rgb_pca_1",
+      "importance": 0.004198928690074893
+    },
+    {
+      "feature": "rgb_pca_3",
+      "importance": 0.003866307419097998
+    },
+    {
+      "feature": "rgb_pca_2",
+      "importance": 0.002871208318085806
+    }
+  ]
+}

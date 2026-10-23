@@ -1,6 +1,7 @@
 import argparse
 import os
 from pathlib import Path
+from datetime import datetime
 from typing import Iterable
 
 import pandas as pd
@@ -9,8 +10,13 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 COORDS_PATH = ROOT / "datasets" / "state_coordinates.csv"
 FEATURES_PATH = ROOT / "datasets" / "harmonized_satellite_features.csv"
+FAILED_TARGETS_PATH = ROOT / "datasets" / "failed_satellite_targets.csv"
 OUTPUT_DIR = ROOT / "datasets" / "test_images"
 COMMON_BANDS = ["BLUE", "GREEN", "RED", "NIR"]
+
+
+class EarthEngineSetupError(RuntimeError):
+    """Raised when local Earth Engine credentials/project are not ready."""
 
 
 def slug(value: str) -> str:
@@ -37,29 +43,51 @@ def date_range_for_season(year: int, months: tuple[int, int]) -> tuple[str, str]
     return f"{start_year}-{start_month:02d}-01", f"{end_year}-{end_month:02d}-28"
 
 
-def initialize_earth_engine(project: str | None = None):
+def initialize_earth_engine(project: str | None = None, authenticate: bool = False):
     try:
         import ee
+    except ModuleNotFoundError as exc:
+        raise EarthEngineSetupError(
+            "Google Earth Engine is required for satellite extraction, but "
+            "`earthengine-api` is not installed. Install it with:\n"
+            "  pip install earthengine-api"
+        ) from exc
 
-        project_id = project or os.getenv("EE_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")
-        try:
-            if project_id:
-                ee.Initialize(project=project_id)
-            else:
-                ee.Initialize()
-        except Exception:
+    project_id = project or os.getenv("EE_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")
+    try:
+        if project_id:
+            ee.Initialize(project=project_id)
+        else:
+            ee.Initialize()
+        return ee
+    except Exception as exc:
+        if authenticate:
             ee.Authenticate()
             if project_id:
                 ee.Initialize(project=project_id)
             else:
                 ee.Initialize()
-        return ee
-    except Exception as exc:
-        raise RuntimeError(
-            "Google Earth Engine is required for clear Sentinel-2 composites. "
-            "Install earthengine-api, authenticate with `earthengine authenticate`, "
-            "and provide a Google Cloud project with --ee-project or EE_PROJECT."
+            return ee
+
+        project_hint = (
+            "Provide a Google Cloud project with `--ee-project YOUR_PROJECT_ID`, "
+            "or set it once with `$env:EE_PROJECT='YOUR_PROJECT_ID'`."
+            if not project_id
+            else f"Earth Engine project being used: {project_id}"
+        )
+        raise EarthEngineSetupError(
+            "Google Earth Engine is required for satellite extraction. "
+            "Your local Earth Engine session is not initialized.\n\n"
+            "Run these commands once in PowerShell:\n"
+            "  earthengine authenticate\n"
+            "  $env:EE_PROJECT='YOUR_PROJECT_ID'\n\n"
+            f"{project_hint}\n\n"
+            f"Original Earth Engine error: {exc}"
         ) from exc
+
+
+def validate_earth_engine_setup(project: str | None = None) -> None:
+    initialize_earth_engine(project, authenticate=False)
 
 
 def add_cloud_score_mask(ee, s2_collection, region, start_date: str, end_date: str, threshold: float):
@@ -135,23 +163,31 @@ def sentinel2_collection(ee, region, start_date: str, end_date: str, max_scene_c
     ), "Sentinel-2 SR", 20
 
 
-def landsat_collection(ee, year: int, region, start_date: str, end_date: str, max_scene_cloud: int):
+def landsat_collection(ee, year: int, region, start_date: str, end_date: str):
     def filtered(collection_id: str, source_bands: list[str]):
         return (
             ee.ImageCollection(collection_id)
             .filterDate(start_date, end_date)
             .filterBounds(region)
-            .filter(ee.Filter.lt("CLOUD_COVER", max_scene_cloud))
             .map(lambda image: mask_and_standardize_landsat(ee, image, source_bands))
         )
 
     if year <= 2012:
-        landsat5 = filtered("LANDSAT/LT05/C02/T1_L2", ["SR_B1", "SR_B2", "SR_B3", "SR_B4"])
-        landsat7 = filtered("LANDSAT/LE07/C02/T1_L2", ["SR_B1", "SR_B2", "SR_B3", "SR_B4"])
-        return landsat5.merge(landsat7), "Landsat 5/7 SR", 30
+        bands = ["SR_B1", "SR_B2", "SR_B3", "SR_B4"]
+        landsat5_t1 = filtered("LANDSAT/LT05/C02/T1_L2", bands)
+        landsat5_t2 = filtered("LANDSAT/LT05/C02/T2_L2", bands)
+        landsat7_t1 = filtered("LANDSAT/LE07/C02/T1_L2", bands)
+        landsat7_t2 = filtered("LANDSAT/LE07/C02/T2_L2", bands)
+        return (
+            landsat5_t1.merge(landsat5_t2).merge(landsat7_t1).merge(landsat7_t2),
+            "Landsat 5/7 SR T1/T2",
+            30,
+        )
 
-    landsat8 = filtered("LANDSAT/LC08/C02/T1_L2", ["SR_B2", "SR_B3", "SR_B4", "SR_B5"])
-    return landsat8, "Landsat 8 SR", 30
+    bands = ["SR_B2", "SR_B3", "SR_B4", "SR_B5"]
+    landsat8_t1 = filtered("LANDSAT/LC08/C02/T1_L2", bands)
+    landsat8_t2 = filtered("LANDSAT/LC08/C02/T2_L2", bands)
+    return landsat8_t1.merge(landsat8_t2), "Landsat 8 SR T1/T2", 30
 
 
 def download_file(url: str, path: Path) -> None:
@@ -178,23 +214,31 @@ def fetch_sentinel2_gee_features(
     ee = initialize_earth_engine(ee_project)
     months = season_window(crop, season)
     start_date, end_date = date_range_for_season(year, months)
-    print(f"[INFO] Searching Sentinel-2 scenes from {start_date} to {end_date}...")
+    print(f"[INFO] Searching satellite scenes from {start_date} to {end_date}...")
 
     region = ee.Geometry.Rectangle(
         [lon - buffer_degree, lat - buffer_degree, lon + buffer_degree, lat + buffer_degree]
     )
 
-    if year >= 2017:
+    using_sentinel = year >= 2017
+    if using_sentinel:
         raw_collection, collection, satellite_source, scale = sentinel2_collection(
             ee, region, start_date, end_date, max_scene_cloud, cloud_score_threshold
         )
+        image_count = raw_collection.size().getInfo()
+        if image_count == 0:
+            print(f"[INFO] No Sentinel-2 scenes; trying Landsat 8 for {state_name} {year}...")
+            collection, satellite_source, scale = landsat_collection(
+                ee, year, region, start_date, end_date
+            )
+            raw_collection = collection
+            image_count = raw_collection.size().getInfo()
+            using_sentinel = False
     else:
-        collection, satellite_source, scale = landsat_collection(
-            ee, year, region, start_date, end_date, max_scene_cloud
-        )
+        collection, satellite_source, scale = landsat_collection(ee, year, region, start_date, end_date)
         raw_collection = collection
+        image_count = raw_collection.size().getInfo()
 
-    image_count = raw_collection.size().getInfo()
     if image_count == 0:
         raise RuntimeError(f"No {satellite_source} scenes found for {state_name} in {start_date} to {end_date}")
     print(f"[INFO] Found {image_count} {satellite_source} scenes. Building cloud-masked composite...")
@@ -214,9 +258,26 @@ def fetch_sentinel2_gee_features(
         bestEffort=True,
         maxPixels=1_000_000_000,
     ).getInfo()
+    if using_sentinel and not any(value is not None for value in stats.values()):
+        print(f"[INFO] Sentinel-2 composite has no valid pixels; trying Landsat 8 for {state_name} {year}...")
+        collection, satellite_source, scale = landsat_collection(
+            ee, year, region, start_date, end_date
+        )
+        raw_collection = collection
+        image_count = raw_collection.size().getInfo()
+        if image_count == 0:
+            raise RuntimeError(f"No Landsat 8 scenes found for {state_name} in {start_date} to {end_date}")
+        composite = collection.map(lambda image: add_common_vegetation_indices(ee, image)).median().clip(region)
+        stats = composite.select(stat_bands).reduceRegion(
+            reducer=reducer,
+            geometry=region,
+            scale=scale,
+            bestEffort=True,
+            maxPixels=1_000_000_000,
+        ).getInfo()
     print("[INFO] Feature statistics calculated. Downloading RGB and NDVI previews...")
 
-    prefix = f"{slug(state_name)}_{year}_{slug(crop)}"
+    prefix = f"{slug(state_name)}_{year}_{slug(crop)}_{slug(season or 'kharif')}"
     year_output_dir = OUTPUT_DIR / str(year)
     rgb_output_dir = year_output_dir / "rgb"
     ndvi_output_dir = year_output_dir / "ndvi"
@@ -291,12 +352,30 @@ def save_feature_rows(rows: list[dict], path: Path = FEATURES_PATH) -> None:
 
 
 def target_key(state: str, crop: str, year: int, season: str | None) -> tuple[str, str, int, str]:
+    if pd.isna(state) or pd.isna(crop) or pd.isna(year):
+        raise ValueError("Target key fields State, Crop, and Year must not be empty.")
+
     return (
-        state.strip().casefold(),
-        crop.strip().casefold(),
+        str(state).strip().casefold(),
+        str(crop).strip().casefold(),
         int(year),
-        (season or "").strip().casefold(),
+        "" if pd.isna(season) else str(season).strip().casefold(),
     )
+
+
+def target_group_key(state: str, crop: str, year: int) -> tuple[str, str, int]:
+    if pd.isna(state) or pd.isna(crop) or pd.isna(year):
+        raise ValueError("Target group key fields State, Crop, and Year must not be empty.")
+
+    return (
+        str(state).strip().casefold(),
+        str(crop).strip().casefold(),
+        int(year),
+    )
+
+
+def valid_target_key_rows(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[columns].dropna(subset=["State", "Crop", "Year"])
 
 
 def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int, str]]:
@@ -308,13 +387,93 @@ def completed_target_keys(path: Path = FEATURES_PATH) -> set[tuple[str, str, int
     if not required_columns.issubset(completed.columns):
         return set()
 
-    return {
-        target_key(row.State, row.Crop, row.Year, row.Season)
-        for row in completed[["State", "Crop", "Year", "Season"]].itertuples(index=False)
+    rows = valid_target_key_rows(completed, ["State", "Crop", "Year", "Season"])
+    return {target_key(row.State, row.Crop, row.Year, row.Season) for row in rows.itertuples(index=False)}
+
+
+def failed_target_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, int, str]]:
+    if not path.exists():
+        return set()
+
+    failed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year", "Season"}
+    if not required_columns.issubset(failed.columns):
+        return set()
+
+    rows = valid_target_key_rows(failed, ["State", "Crop", "Year", "Season"])
+    return {target_key(row.State, row.Crop, row.Year, row.Season) for row in rows.itertuples(index=False)}
+
+
+def failed_target_group_keys(path: Path = FAILED_TARGETS_PATH) -> set[tuple[str, str, int]]:
+    if not path.exists():
+        return set()
+
+    failed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year"}
+    if not required_columns.issubset(failed.columns):
+        return set()
+
+    rows = valid_target_key_rows(failed, ["State", "Crop", "Year"])
+    return {target_group_key(row.State, row.Crop, row.Year) for row in rows.itertuples(index=False)}
+
+
+def save_failed_target(
+    state: str,
+    crop: str,
+    year: int,
+    season: str | None,
+    reason: str,
+    path: Path = FAILED_TARGETS_PATH,
+) -> None:
+    row = {
+        "State": state,
+        "Crop": crop,
+        "Year": int(year),
+        "Season": season or "Kharif",
+        "Reason": str(reason).replace("\n", " ").strip(),
+        "Failed_At": datetime.now().isoformat(timespec="seconds"),
     }
+    new_df = pd.DataFrame([row])
+    if path.exists():
+        old_df = pd.read_csv(path)
+        merged = pd.concat([old_df, new_df], ignore_index=True)
+    else:
+        merged = new_df
+
+    merged = merged.drop_duplicates(
+        subset=["State", "Crop", "Year", "Season"], keep="last"
+    ).sort_values(["State", "Crop", "Year", "Season"])
+    merged.to_csv(path, index=False)
 
 
-def load_targets_from_crop_yield(crops: Iterable[str], years: Iterable[int] | None) -> pd.DataFrame:
+def clear_failed_target(
+    state: str,
+    crop: str,
+    year: int,
+    season: str | None,
+    path: Path = FAILED_TARGETS_PATH,
+) -> None:
+    if not path.exists():
+        return
+
+    failed = pd.read_csv(path)
+    required_columns = {"State", "Crop", "Year", "Season"}
+    if failed.empty or not required_columns.issubset(failed.columns):
+        return
+
+    key = target_key(state, crop, year, season)
+    keep_mask = failed.apply(
+        lambda row: target_key(row["State"], row["Crop"], row["Year"], row["Season"]) != key,
+        axis=1,
+    )
+    failed.loc[keep_mask].to_csv(path, index=False)
+
+
+def load_targets_from_crop_yield(
+    crops: Iterable[str],
+    years: Iterable[int] | None,
+    seasons: Iterable[str] | None = None,
+) -> pd.DataFrame:
     crop_yield_path = ROOT / "datasets" / "crop_yield.csv"
     df = pd.read_csv(crop_yield_path)
     df.columns = df.columns.str.strip()
@@ -323,11 +482,32 @@ def load_targets_from_crop_yield(crops: Iterable[str], years: Iterable[int] | No
 
     crop_set = {crop.casefold() for crop in crops}
     target = df[df["Crop"].str.casefold().isin(crop_set)].copy()
+    if seasons:
+        season_set = {season.strip().casefold() for season in seasons}
+        target = target[target["Season"].str.casefold().isin(season_set)]
     if years:
         year_set = set(years)
         target = target[target["Crop_Year"].isin(year_set)]
 
     return target[["State", "Crop", "Crop_Year", "Season"]].drop_duplicates()
+
+
+def load_targets_from_csv(path: Path) -> pd.DataFrame:
+    target = pd.read_csv(path)
+    target.columns = target.columns.str.strip()
+
+    required_columns = ["State", "Crop", "Crop_Year", "Season"]
+    missing_columns = [column for column in required_columns if column not in target.columns]
+    if missing_columns:
+        raise ValueError(
+            f"{path} is missing required target columns: {', '.join(missing_columns)}"
+        )
+
+    for column in ["State", "Crop", "Season"]:
+        target[column] = target[column].astype(str).str.strip()
+    target["Crop_Year"] = pd.to_numeric(target["Crop_Year"], errors="coerce").astype("Int64")
+    target = target.dropna(subset=required_columns)
+    return target[required_columns].drop_duplicates()
 
 
 def parse_years(years_arg: str | None) -> list[int] | None:
@@ -354,21 +534,27 @@ def main() -> None:
     parser.add_argument("--season", default=None, help="Season label such as Kharif, Rabi, or Whole Year.")
     parser.add_argument("--all-states", action="store_true", help="Process every state in state_coordinates.csv.")
     parser.add_argument("--from-crop-yield", action="store_true", help="Use crop_yield.csv state/crop/year/season rows.")
+    parser.add_argument("--targets-csv", default=None, help="CSV containing State,Crop,Crop_Year,Season targets to fetch.")
     parser.add_argument("--crops", default="Rice,Maize", help="Comma-separated crops for --from-crop-yield.")
+    parser.add_argument("--seasons", default=None, help="Comma-separated seasons for --from-crop-yield, e.g. Kharif,Rabi.")
     parser.add_argument("--years", default=None, help="Years for --from-crop-yield, e.g. 2018-2020 or 2020.")
     parser.add_argument("--buffer-degree", type=float, default=0.25, help="Region radius around the centroid.")
     parser.add_argument("--dimensions", type=int, default=768, help="Output image size in pixels.")
     parser.add_argument("--cloud-score-threshold", type=float, default=0.6, help="Cloud Score+ cs_cdf mask threshold.")
     parser.add_argument("--ee-project", default=None, help="Google Cloud project ID registered for Earth Engine.")
     parser.add_argument("--resume", action="store_true", help="Skip targets already saved in harmonized_satellite_features.csv.")
+    parser.add_argument("--retry-failed", action="store_true", help="Retry targets listed in failed_satellite_targets.csv.")
     args = parser.parse_args()
 
     coords_df = pd.read_csv(COORDS_PATH)
 
-    if args.from_crop_yield:
+    if args.targets_csv:
+        targets = load_targets_from_csv(Path(args.targets_csv))
+    elif args.from_crop_yield:
         crops = [crop.strip() for crop in args.crops.split(",") if crop.strip()]
+        seasons = [season.strip() for season in args.seasons.split(",") if season.strip()] if args.seasons else None
         years = parse_years(args.years)
-        targets = load_targets_from_crop_yield(crops, years)
+        targets = load_targets_from_crop_yield(crops, years, seasons)
     else:
         states = coords_df["State"].tolist() if args.all_states or args.state.casefold() == "all" else [args.state]
         targets = pd.DataFrame(
@@ -398,6 +584,46 @@ def main() -> None:
         targets = pd.DataFrame(pending, columns=targets.columns)
         print(f"[INFO] Resume mode: {len(completed)} completed targets found; {len(targets)} remain.")
 
+    if not args.retry_failed:
+        failed = failed_target_keys()
+        failed_groups = failed_target_group_keys()
+        pending = []
+        skipped_failed = 0
+        for _, target in targets.iterrows():
+            key = target_key(
+                str(target["State"]),
+                str(target["Crop"]),
+                int(target["Crop_Year"]),
+                str(target["Season"]) if pd.notna(target["Season"]) else None,
+            )
+            group_key = target_group_key(
+                str(target["State"]),
+                str(target["Crop"]),
+                int(target["Crop_Year"]),
+            )
+            if key in failed or group_key in failed_groups:
+                skipped_failed += 1
+            else:
+                pending.append(target)
+        targets = pd.DataFrame(pending, columns=targets.columns)
+        if skipped_failed:
+            print(
+                f"[INFO] Skipping {skipped_failed} known failed target/year groups from "
+                f"{FAILED_TARGETS_PATH.name}. Use --retry-failed to try them again."
+            )
+
+    if targets.empty:
+        print("[INFO] No targets to process.")
+        return
+
+    try:
+        validate_earth_engine_setup(args.ee_project)
+    except EarthEngineSetupError as exc:
+        parser.exit(status=1, message=f"[EARTH_ENGINE_SETUP_ERROR]\n{exc}\n")
+
+    failed = failed_target_keys() if not args.retry_failed else set()
+    failed_groups = failed_target_group_keys() if not args.retry_failed else set()
+
     for _, target in targets.iterrows():
         state_name = str(target["State"]).strip()
         state_row = coords_df[coords_df["State"].str.casefold() == state_name.casefold()]
@@ -410,6 +636,12 @@ def main() -> None:
         crop = str(target["Crop"]).strip()
         year = int(target["Crop_Year"])
         season = str(target["Season"]).strip() if pd.notna(target["Season"]) else None
+        key = target_key(state_name, crop, year, season)
+        group_key = target_group_key(state_name, crop, year)
+
+        if not args.retry_failed and (key in failed or group_key in failed_groups):
+            print(f"[SKIP] Known failed target: {state_name} {year} {crop} {season or 'Kharif'}")
+            continue
 
         try:
             row = fetch_sentinel2_gee_features(
@@ -425,8 +657,12 @@ def main() -> None:
                 ee_project=args.ee_project,
             )
             save_feature_rows([row])
+            clear_failed_target(state_name, crop, year, season)
         except Exception as exc:
-            print(f"[FAILED] {state_name} {year} {crop}: {exc}")
+            print(f"[FAILED] {state_name} {year} {crop} {season or 'Kharif'}: {exc}")
+            save_failed_target(state_name, crop, year, season, str(exc))
+            failed.add(key)
+            failed_groups.add(group_key)
 
 if __name__ == "__main__":
     main()

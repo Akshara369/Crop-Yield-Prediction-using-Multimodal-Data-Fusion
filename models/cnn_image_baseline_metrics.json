@@ -1,0 +1,43 @@
+{
+  "model": "small_cnn_rgb_ndvi_six_channel",
+  "input": {
+    "modalities": [
+      "rgb",
+      "ndvi"
+    ],
+    "channels": 6,
+    "image_size": [
+      96,
+      96
+    ],
+    "yield_scaled_using_training_mean_and_std": {
+      "mean": 2.533379997092838,
+      "std": 1.2266708378235462
+    }
+  },
+  "split_years": {
+    "train": "<=2016 (377 samples)",
+    "validation": "2017-2018 (43 samples)",
+    "test": ">=2019 (15 samples)"
+  },
+  "epochs_trained": 26,
+  "best_validation_loss_scaled": 0.5308167934417725,
+  "test": {
+    "cnn_image_only": {
+      "rmse": 1.6060659258472105,
+      "mae": 1.220486839555705,
+      "r2": -0.05027522475572965
+    },
+    "tabular_gradient_boosting_same_samples": {
+      "rmse": 0.8340160518125614,
+      "mae": 0.6156799720870952,
+      "r2": 0.7167791622446622
+    },
+    "sample_count": 15
+  },
+  "limitations": [
+    "The test set has few eligible image pairs; test metrics are exploratory.",
+    "No eligible 2020 image pairs are present, so this is a 2019-only test.",
+    "The CNN is trained from scratch because no pretrained image weights are bundled."
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "experiment": "image_summary_features_single_modalities",
+  "sample_counts": {
+    "train": 228,
+    "validation": 33,
+    "test": 13
+  },
+  "split_years": {
+    "train": "through 2016",
+    "validation": "2017-2018",
+    "test": [
+      2019
+    ]
+  },
+  "selection": "Each image view selects its estimator using validation MAE; test data is not used for model or hyperparameter selection.",
+  "image_features": {
+    "resize": [
+      96,
+      96
+    ],
+    "per_channel": [
+      "mean",
+      "standard_deviation",
+      "10th_percentile",
+      "90th_percentile",
+      "8-bin_histogram",
+      "4x4_spatial_means"
+    ],
+    "ndvi_note": "NDVI values are summarized from the rendered PNG RGB colors; the source is not decoded as raw NDVI."
+  },
+  "selected_per_view": [
+    {
+      "input_view": "rgb_only",
+      "model": "extra_trees",
+      "validation_rmse": 1.3510419439723322,
+      "validation_mae": 0.8665301586720539,
+      "validation_r2": 0.2377956670265836,
+      "selected_by_validation": true,
+      "test_rmse": 1.1762101266473786,
+      "test_mae": 0.7446008265253846,
+      "test_r2": 0.2935303050398834,
+      "test_sample_count": 13
+    },
+    {
+      "input_view": "ndvi_rendered_png_only",
+      "model": "extra_trees",
+      "validation_rmse": 1.2363243634400423,
+      "validation_mae": 0.8515924338175254,
+      "validation_r2": 0.3617385649722019,
+      "selected_by_validation": true,
+      "test_rmse": 1.0986626733345717,
+      "test_mae": 0.772348905591325,
+      "test_r2": 0.38361445120095183,
+      "test_sample_count": 13
+    },
+    {
+      "input_view": "rgb_plus_ndvi_rendered_png",
+      "model": "ridge_alpha_10",
+      "validation_rmse": 1.211005609874122,
+      "validation_mae": 0.7829512624286925,
+      "validation_r2": 0.3876128644095902,
+      "selected_by_validation": true,
+      "test_rmse": 1.1225764030018766,
+      "test_mae": 0.7638761983959399,
+      "test_r2": 0.35648966466792575,
+      "test_sample_count": 13
+    }
+  ],
+  "best_image_view_by_validation_mae": "rgb_plus_ndvi_rendered_png",
+  "best_image_model": "ridge_alpha_10",
+  "comparison_csv": "models\\image_feature_baseline_comparison.csv",
+  "candidate_validation_csv": "models\\image_feature_baseline_model_selection.csv",
+  "test_predictions_csv": "models\\image_feature_baseline_test_predictions.csv",
+  "limitations": [
+    "The 2019 test set contains only 13 samples; test metrics are exploratory.",
+    "NDVI PNGs are treated as rendered RGB images, not calibrated NDVI values."
+  ]
+}
